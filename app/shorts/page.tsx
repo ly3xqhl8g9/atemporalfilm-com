@@ -1,8 +1,15 @@
+import PageDetail from '@/components/PageDetail';
+
+
+
 export default function Shorts() {
     return (
-        <div
+        <PageDetail
+            name="shorts"
         >
+            <div>
 
-        </div>
+            </div>
+        </PageDetail>
     );
 }

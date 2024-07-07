@@ -1,8 +1,15 @@
+import PageDetail from '@/components/PageDetail';
+
+
+
 export default function Contact() {
     return (
-        <div
+        <PageDetail
+            name="contact"
         >
+            <div>
 
-        </div>
+            </div>
+        </PageDetail>
     );
 }

@@ -1,8 +1,15 @@
+import PageDetail from '@/components/PageDetail';
+
+
+
 export default function Commercial() {
     return (
-        <div
+        <PageDetail
+            name="commercial"
         >
+            <div>
 
-        </div>
+            </div>
+        </PageDetail>
     );
 }

@@ -1,8 +1,15 @@
+import PageDetail from '@/components/PageDetail';
+
+
+
 export default function Features() {
     return (
-        <div
+        <PageDetail
+            name="features"
         >
+            <div>
 
-        </div>
+            </div>
+        </PageDetail>
     );
 }
