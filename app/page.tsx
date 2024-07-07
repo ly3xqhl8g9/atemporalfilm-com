@@ -1,3 +1,19 @@
+import Image from 'next/image';
+
+import {
+    data
+} from '@/data/index';
+
+
+
+const projectImages = [
+    'logo-proiect-1.png',
+    'logo-proiect-2.png',
+    'logo-proiect-3.png',
+    'logo-proiect-4.png',
+];
+
+
 export default function Home() {
     return (
         <div
@@ -10,7 +26,7 @@ export default function Home() {
                 }}
             >
                 <div>
-                    proiect finanțat prin programul ...
+                    Titlul Proiectului: Dezvoltarea resurselor digitale ale societatii SC Atemporal Film SRL
                 </div>
 
                 <div>
@@ -22,7 +38,25 @@ export default function Home() {
                         www.mfe.gov.ro
                     </a>
                 </div>
+                <div
+                    className="flex gap-4 place-content-center m-4"
+                >
+                    {projectImages.map(projectImage => (
+                        <Image
+                            key={projectImage}
+                            src={`/assets/logos/${projectImage}`}
+                            style={{
+                                width: 'auto',
+                                height: '50px',
+                            }}
+                            width={100}
+                            height={50}
+                            alt={projectImage}
+                        />
+                    ))}
+                </div>
             </div>
+
 
             <div
                 className="absolute top-5 right-5"
