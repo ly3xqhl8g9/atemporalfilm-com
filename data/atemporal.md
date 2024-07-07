@@ -21,27 +21,29 @@ Dezvoltarea resurselor digitale ale societatii SC Atemporal Film SRL
 
 structure:
 
-id:
-type: feature | short | commercial
-year:
-title:
-title-ro:
-director:
-producer:
-co-producer:
-production:
-press:
-    -
-    -
-    - ...
-festivals:
-    -
-    -
-    - ...
-images:
-    -
-    -
-    - ...
-hero-image:
-trailer: https://youtube.com/watch?v=...
-imdb: https://www.imdb.com/title/...
+{
+    "id": "",
+    "type": "feature" | "short" | "commercial",
+    "year": "",
+    "title": "",
+    "titleRo": "",
+    "director": "",
+    "producer": "",
+    "coproducer": "",
+    "production": "",
+    "press": [
+        "",
+        ""
+    ];
+    "festivals": [
+        "",
+        ""
+    ];
+    "images": [
+        "",
+        ""
+    ];
+    "heroImage": "",
+    "trailer": "",
+    "imdb": ""
+}
