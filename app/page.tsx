@@ -1,17 +1,11 @@
-import Image from 'next/image';
+import Link from 'next/link';
 
 import {
     data,
 } from '@/data/index';
 
+import ProjectImages from '@/components/ProjectImages';
 
-
-const projectImages = [
-    'logo-proiect-1.png',
-    'logo-proiect-2.png',
-    'logo-proiect-3.png',
-    'logo-proiect-4.png',
-];
 
 
 export default function Home() {
@@ -20,41 +14,16 @@ export default function Home() {
             className="grid place-content-center h-screen"
         >
             <div
-                className="absolute top-5 left-[50%] text-center"
+                className="absolute top-0 left-[50%] text-center"
                 style={{
                     transform: "translateX(-50%)"
                 }}
             >
-                <div>
-                    Titlul Proiectului: Dezvoltarea resurselor digitale ale societatii SC Atemporal Film SRL
-                </div>
-
-                <div>
-                    Pentru informații detaliate despre celelalte programe cofinanțate de Uniunea Europeană, vă invităm să vizitați&nbsp;
-                    <a
-                        href="https://www.mfe.gov.ro"
-                        target="_blank"
-                    >
-                        www.mfe.gov.ro
-                    </a>
-                </div>
-                <div
-                    className="flex gap-4 place-content-center m-4 bg-white p-4"
+                <Link
+                    href="/project"
                 >
-                    {projectImages.map(projectImage => (
-                        <Image
-                            key={projectImage}
-                            src={`/assets/logos/${projectImage}`}
-                            style={{
-                                width: 'auto',
-                                height: '50px',
-                            }}
-                            width={100}
-                            height={50}
-                            alt={projectImage}
-                        />
-                    ))}
-                </div>
+                    <ProjectImages />
+                </Link>
             </div>
 
 
