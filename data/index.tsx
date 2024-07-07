@@ -1,4 +1,23 @@
-export const data = [
+export interface Entity {
+    id: string;
+    type: 'feature' | 'short' | 'commercial';
+    year: string;
+    title: string;
+    titleRo: string;
+    director: string;
+    producer: string;
+    coproducer: string;
+    production: string;
+    press: string[];
+    festivals: string[];
+    images: string[];
+    heroImage: string;
+    trailer: string;
+    imdb: string;
+}
+
+
+export const data: Entity[] = [
     {
         id: '2024-where-elephants-go',
         type: 'feature',
@@ -17,10 +36,9 @@ export const data = [
             'TIFF',
         ],
         images: [
-            'a.png',
-            'b.png',
+            '2024-where-elephants-go-hero.jpg',
         ],
-        heroImage: 'a.png',
+        heroImage: '2024-where-elephants-go-hero.jpg',
         trailer: 'https://youtube.com/watch?v=....',
         imdb: 'https://www.imdb.com/title/tt25830900',
     },

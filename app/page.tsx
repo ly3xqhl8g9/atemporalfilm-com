@@ -5,13 +5,14 @@ import {
 } from '@/data/index';
 
 import ProjectImages from '@/components/ProjectImages';
+import EntityDetail from '@/components/EntityDetail';
 
 
 
 export default function Home() {
     return (
         <div
-            className="grid place-content-center h-screen"
+            className=""
         >
             <div
                 className="absolute top-0 left-[50%] text-center"
@@ -35,26 +36,18 @@ export default function Home() {
 
 
             <h1
-                className="text-4xl"
+                className="text-8xl grid place-content-center h-screen"
             >
                 atemporal film
             </h1>
 
-            {data.map((item) => {
-                const {
-                    id,
-                    year,
-                    title,
-                    type,
-                } = item;
 
+            {data.map((item) => {
                 return (
-                    <div
-                        key={id}
-                        className="min-h-[300px] flex place-content-center"
-                    >
-                        {type} {year} {title}
-                    </div>
+                    <EntityDetail
+                        key={item.id}
+                        data={item}
+                    />
                 );
             })}
         </div>
