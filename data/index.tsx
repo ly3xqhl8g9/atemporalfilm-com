@@ -1,4 +1,4 @@
-const data = [
+export const data = [
     {
         id: '2024-where-elephants-go',
         type: 'feature',

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 
 import {
-    data
+    data,
 } from '@/data/index';
 
 
@@ -69,6 +69,24 @@ export default function Home() {
             >
                 atemporal film
             </h1>
+
+            {data.map((item) => {
+                const {
+                    id,
+                    year,
+                    title,
+                    type,
+                } = item;
+
+                return (
+                    <div
+                        key={id}
+                        className="min-h-[300px] flex place-content-center"
+                    >
+                        {type} {year} {title}
+                    </div>
+                );
+            })}
         </div>
     );
 }
