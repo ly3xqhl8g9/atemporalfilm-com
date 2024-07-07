@@ -1,14 +1,19 @@
 import './styles.css';
 
+import ProjectImages from '@/components/ProjectImages';
+
 
 
 export default function Project() {
     return (
         <div
-            className="m-auto max-w-[800px] p-4"
+            className="m-auto max-w-[800px] p-4 project-text"
         >
+            <ProjectImages />
+
+
             <h1>
-                TITLUL PROIECTULUI:
+                Titlul proiectului
             </h1>
             <h2>
                 DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL
@@ -18,16 +23,16 @@ export default function Project() {
                 Descrierea proiectului
             </h1>
             <h2>
-                ATEMPORAL FILM S.R.L., implementează proiectului cu titlul DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL.
+                ATEMPORAL FILM S.R.L. implementează proiectul cu titlul DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL.
             </h2>
 
             <p>
                 Obiectivul general al proiectului este digitalizarea resurselor societății S.C. ATEMPORAL FILM S.R.L. pentru a eficientiza și digitaliza o serie de procese ale companiei noastre. Aceste procese sunt: Stocarea de date (înregistrări audio), Transmisiei în radiofrecvență, Cloud computing. Pe baza investiției, vom achiziționa echipamente moderne, de ultimă generație, care vor permite angajaților noștri efectuarea acestor procese la un nivel performant și competitiv. Pentru a promova investiția și pentru a atrage clienți și piețe noi, vom dezvolta și lansa o platformă web pentru promovarea activității și portofoliului companiei.
             </p>
 
-            <p>
+            <h3>
                 Obiective specifice ale proiectului:
-            </p>
+            </h3>
 
             <ul>
                 <li>
@@ -44,9 +49,9 @@ export default function Project() {
             </ul>
 
 
-            <div>
-                Rezultate așteptate:
-            </div>
+            <h3>
+                Rezultate așteptate
+            </h3>
 
             <ul>
                 <li>
@@ -91,6 +96,47 @@ export default function Project() {
                     www.mfe.gov.ro
                 </a>
             </p>
+
+            <div
+                className="flex gap-4 items-center justify-end text-right"
+            >
+                <div>
+                    <a
+                        href="https://www.regionordest.ro"
+                        target="_blank"
+                    >
+                        www.regionordest.ro
+                    </a>
+
+                    <br />
+
+                    <a
+                        href="https://www.facebook.com/RegioNordEst.ro"
+                        target="_blank"
+                    >
+                        www.facebook.com/RegioNordEst.ro
+                    </a>
+                </div>
+
+                <div
+                    className="my-4"
+                >
+                    <div
+                        style={{
+                            fontSize: '1.2rem',
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            backgroundColor: '#fcc300',
+                            color: 'white',
+                            padding: '1rem',
+                            borderTopRightRadius: '2rem',
+                            borderBottomRightRadius: '2rem',
+                        }}
+                    >
+                        Aproape de tine
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

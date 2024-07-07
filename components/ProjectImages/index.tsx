@@ -13,7 +13,7 @@ const projectImages = [
 export default function ProjectImages() {
     return (
         <div
-            className="flex gap-4 place-content-center m-4 bg-white p-4"
+            className="flex gap-4 place-content-center my-4 p-4 bg-white"
         >
             {projectImages.map(projectImage => (
                 <Image

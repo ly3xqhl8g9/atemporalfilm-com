@@ -1,7 +1,23 @@
-h1, h2, p, ul {
+.project-text h1 {
+    font-size: 1.6rem;
+}
+
+.project-text h3 {
+    font-size: 1.3rem;
+}
+
+.project-text h1,
+.project-text h2,
+.project-text h3,
+.project-text p,
+.project-text ul {
     margin-bottom: 1rem;
 }
 
-ul li {
+.project-text ul li {
     list-style-type: square;
+}
+
+.project-text a {
+    text-decoration: underline;
 }
