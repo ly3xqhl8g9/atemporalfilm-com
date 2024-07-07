@@ -4,8 +4,6 @@ import {
     data,
 } from '@/data/index';
 
-import Menu from '@/components/Menu';
-
 
 
 const projectImages = [
@@ -65,9 +63,6 @@ export default function Home() {
             >
                 english
             </div>
-
-
-            <Menu />
 
 
             <h1

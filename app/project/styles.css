@@ -1,0 +1,7 @@
+h1, h2, p, ul {
+    margin-bottom: 1rem;
+}
+
+ul li {
+    list-style-type: square;
+}
