@@ -4,6 +4,8 @@ import {
     data,
 } from '@/data/index';
 
+import Menu from '@/components/Menu';
+
 
 
 const projectImages = [
@@ -39,7 +41,7 @@ export default function Home() {
                     </a>
                 </div>
                 <div
-                    className="flex gap-4 place-content-center m-4"
+                    className="flex gap-4 place-content-center m-4 bg-white p-4"
                 >
                     {projectImages.map(projectImage => (
                         <Image
@@ -63,6 +65,10 @@ export default function Home() {
             >
                 english
             </div>
+
+
+            <Menu />
+
 
             <h1
                 className="text-4xl"
