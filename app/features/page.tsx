@@ -1,10 +1,5 @@
 import PageDetail from '@/components/PageDetail';
-
-import {
-    data,
-} from '@/data/index';
-
-import EntityDetail from '@/components/EntityDetail';
+import EntityLoop from '@/components/EntityLoop';
 
 
 
@@ -13,14 +8,9 @@ export default function Features() {
         <PageDetail
             name="features"
         >
-            {data.filter(item => item.type === 'feature').map((item) => {
-                return (
-                    <EntityDetail
-                        key={item.id}
-                        data={item}
-                    />
-                );
-            })}
+            <EntityLoop
+                type="feature"
+            />
         </PageDetail>
     );
 }

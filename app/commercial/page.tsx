@@ -1,4 +1,5 @@
 import PageDetail from '@/components/PageDetail';
+import EntityLoop from '@/components/EntityLoop';
 
 
 
@@ -7,9 +8,9 @@ export default function Commercial() {
         <PageDetail
             name="commercial"
         >
-            <div>
-
-            </div>
+            <EntityLoop
+                type="commercial"
+            />
         </PageDetail>
     );
 }

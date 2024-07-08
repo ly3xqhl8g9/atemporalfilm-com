@@ -1,4 +1,5 @@
 import PageDetail from '@/components/PageDetail';
+import EntityLoop from '@/components/EntityLoop';
 
 
 
@@ -7,9 +8,9 @@ export default function Shorts() {
         <PageDetail
             name="shorts"
         >
-            <div>
-
-            </div>
+            <EntityLoop
+                type="short"
+            />
         </PageDetail>
     );
 }
