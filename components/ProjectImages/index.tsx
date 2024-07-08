@@ -15,7 +15,7 @@ const projectImages = [
 export default function ProjectImages() {
     return (
         <div
-            className="flex gap-4 place-content-center my-4 p-4 bg-white shadow-2xl"
+            className="min-w-[600px] flex gap-4 items-center justify-center my-4 p-4 bg-white shadow-2xl"
         >
             {projectImages.map(projectImage => (
                 <Image

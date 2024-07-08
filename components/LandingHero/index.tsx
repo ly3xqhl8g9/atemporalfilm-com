@@ -13,7 +13,7 @@ export default function LandingHero() {
             className="relative h-screen z-0"
         >
             <h1
-                className="text-8xl absolute bottom-[20%] left-[5%] z-50"
+                className="text-2xl lg:text-8xl absolute bottom-[20%] left-[5%] z-50"
             >
                 Where Elephants Go
 
