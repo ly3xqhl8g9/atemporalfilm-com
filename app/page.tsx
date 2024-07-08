@@ -55,7 +55,7 @@ export default function Home() {
                 />
 
                 <div
-                    className="absolute bottom-5 right-[5%] max-w-[400px] z-50"
+                    className="absolute bottom-5 right-[5%] max-w-[440px] z-50"
                 >
                     <ProjectDisclaimer />
                 </div>
