@@ -1,61 +1,33 @@
-'use client';
-
-import {
-    useState,
-} from 'react';
-
 import type { Metadata } from 'next';
 import { Didact_Gothic } from 'next/font/google';
+
 import './globals.css';
 
-import {
-    LanguageContext,
-} from '@/app/context';
-
-import Menu from '@/components/Menu';
-import LanguageSwitch from '@/components/LanguageSwitch';
+import AppWrapper from '@/components/AppWrapper';
 
 
 
 const inter = Didact_Gothic({
-    subsets: ["latin"],
+    subsets: ['latin'],
     weight: '400',
 });
 
-// export const metadata: Metadata = {
-//     title: "atemporal film",
-//     description: "features and shorts production company",
-// };
+export const metadata: Metadata = {
+    title: 'atemporal film',
+    description: 'features and shorts production company',
+};
 
 export default function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const [
-        language,
-        setLanguage,
-    ] = useState<'en' | 'ro'>('ro');
-
-
     return (
         <html lang="en">
             <body className={`${inter.className} max-w-[2560px] mx-auto`}>
-                <LanguageContext.Provider
-                    value={{
-                        language,
-                        setLanguage,
-                    }}
-                >
-                    <div
-                        className="max-w-[1600px] relative mx-auto"
-                    >
-                        <Menu />
-                        <LanguageSwitch />
-                    </div>
-
+                <AppWrapper>
                     {children}
-                </LanguageContext.Provider>
+                </AppWrapper>
             </body>
         </html>
     );
