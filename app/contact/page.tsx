@@ -68,9 +68,15 @@ export default function Contact() {
             </div>
 
             <div
-                className="text-center mb-8"
+                className="text-center mb-2"
             >
                 București, Vasile Lascăr 23-25
+            </div>
+
+            <div
+                className="text-center mb-8"
+            >
+                {language === 'en' ? 'Romania' : 'România'}
             </div>
         </PageDetail>
     );
