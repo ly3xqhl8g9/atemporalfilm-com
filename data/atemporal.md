@@ -21,6 +21,7 @@ Dezvoltarea resurselor digitale ale societatii SC Atemporal Film SRL
 
 structure:
 
+```
 {
     "id": "",
     "type": "feature" | "short" | "commercial",
@@ -47,3 +48,4 @@ structure:
     "trailer": "",
     "imdb": ""
 }
+```
