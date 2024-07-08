@@ -5,7 +5,6 @@ import {
 } from '@/data/index';
 
 import ProjectImages from '@/components/ProjectImages';
-import LanguageSwitch from '@/components/LanguageSwitch';
 import EntityDetail from '@/components/EntityDetail';
 
 
@@ -25,8 +24,6 @@ export default function Home() {
                     <ProjectImages />
                 </Link>
             </div>
-
-            <LanguageSwitch />
 
             <h1
                 className="text-8xl grid place-content-center h-screen"

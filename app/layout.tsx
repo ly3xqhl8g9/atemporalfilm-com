@@ -3,6 +3,7 @@ import { Didact_Gothic } from "next/font/google";
 import "./globals.css";
 
 import Menu from '@/components/Menu';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         <html lang="en">
             <body className={inter.className}>
                 <Menu />
+                <LanguageSwitch />
 
                 {children}
             </body>
