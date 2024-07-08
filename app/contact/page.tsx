@@ -7,9 +7,11 @@ export default function Contact() {
         <PageDetail
             name="contact"
         >
-            <div>
-
-            </div>
+            <p
+                className="text-center mb-8"
+            >
+                for inquiries, please email <a href="mailto:contact@atemporalfilm.com">contact@atemporalfilm.com</a>
+            </p>
         </PageDetail>
     );
 }

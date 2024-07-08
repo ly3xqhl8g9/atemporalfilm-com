@@ -7,9 +7,11 @@ export default function About() {
         <PageDetail
             name="about"
         >
-            <div>
-
-            </div>
+            <p
+                className="text-center mb-8"
+            >
+                atemporal film is a features and shorts production company
+            </p>
         </PageDetail>
     );
 }
