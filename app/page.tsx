@@ -8,6 +8,7 @@ import Image from 'next/image';
 import ProjectImages from '@/components/ProjectImages';
 import ProjectDisclaimer from '@/components/ProjectDisclaimer';
 // import EntityDetail from '@/components/EntityDetail';
+import IMDBLink from '@/components/IMDBLink';
 
 
 
@@ -40,6 +41,10 @@ export default function Home() {
                     className="text-8xl absolute bottom-[20%] left-[5%] z-50"
                 >
                     Where Elephants Go
+
+                    <IMDBLink
+                        href="https://www.imdb.com/title/tt25830900"
+                    />
                 </h1>
 
                 <Image
