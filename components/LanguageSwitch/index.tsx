@@ -14,7 +14,7 @@ export default function LanguageSwitch() {
 
     return (
         <div
-            className="absolute top-9 right-5"
+            className="absolute top-9 right-5 z-50"
         >
             {language === 'en' ? (
                 <button

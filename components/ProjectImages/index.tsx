@@ -13,7 +13,7 @@ const projectImages = [
 export default function ProjectImages() {
     return (
         <div
-            className="flex gap-4 place-content-center my-4 p-4 bg-white"
+            className="flex gap-4 place-content-center my-4 p-4 bg-white shadow-2xl"
         >
             {projectImages.map(projectImage => (
                 <Image
@@ -22,10 +22,14 @@ export default function ProjectImages() {
                     style={{
                         width: 'auto',
                         height: '50px',
+                        pointerEvents: 'none',
+                        userSelect: 'none',
                     }}
                     width={100}
                     height={50}
                     alt={projectImage}
+                    priority={true}
+                    unoptimized={true}
                 />
             ))}
         </div>

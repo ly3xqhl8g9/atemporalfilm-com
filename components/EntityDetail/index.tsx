@@ -39,6 +39,7 @@ export default function EntityDetail({
                 <Image
                     src={`/assets/entities/${heroImage}`}
                     alt={title}
+                    priority={true}
                     width={300}
                     height={300}
                 />

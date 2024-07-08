@@ -32,8 +32,12 @@ export default function Menu() {
             height="50"
             width="50"
             alt="menu"
+            priority={true}
             onClick={() => {
                 setShowMenu(show => !show);
+            }}
+            style={{
+                userSelect: 'none',
             }}
         />
     );
@@ -41,7 +45,7 @@ export default function Menu() {
     if (!showMenu) {
         return (
             <div
-                className="fixed top-8 left-8 cursor-pointer"
+                className="fixed top-8 left-8 cursor-pointer z-50"
             >
                 {toggleIcon}
             </div>
@@ -50,7 +54,7 @@ export default function Menu() {
 
     return (
         <div
-            className="fixed top-0 left-0 bottom-0 min-w-[300px] bg-black"
+            className="fixed top-0 left-0 bottom-0 min-w-[300px] bg-black z-50"
         >
             <button
                 className="ml-8 mt-8"
