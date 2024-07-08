@@ -15,20 +15,20 @@ const projectImages = [
 export default function ProjectImages() {
     return (
         <div
-            className="min-w-[600px] flex gap-4 items-center justify-center my-4 p-4 bg-white shadow-2xl"
+            className="w-screen lg:w-auto lg:min-w-[600px] flex gap-2 lg:gap-4 items-center justify-center my-4 p-2 lg:p-4 bg-white shadow-2xl"
         >
             {projectImages.map(projectImage => (
                 <Image
                     key={projectImage}
                     src={`/assets/logos/${projectImage}`}
                     alt={projectImage}
+                    className="h-[20px] lg:h-[50px]"
                     style={{
                         width: 'auto',
-                        height: '50px',
                         pointerEvents: 'none',
                         userSelect: 'none',
                     }}
-                    width={100}
+                    width={50}
                     height={50}
                     priority={true}
                     unoptimized={true}

@@ -40,15 +40,19 @@ export default function RootLayout({
 
     return (
         <html lang="en">
-            <body className={`${inter.className}`}>
+            <body className={`${inter.className} max-w-[2560px] mx-auto`}>
                 <LanguageContext.Provider
                     value={{
                         language,
                         setLanguage,
                     }}
                 >
-                    <Menu />
-                    <LanguageSwitch />
+                    <div
+                        className="max-w-[1600px] relative mx-auto"
+                    >
+                        <Menu />
+                        <LanguageSwitch />
+                    </div>
 
                     {children}
                 </LanguageContext.Provider>

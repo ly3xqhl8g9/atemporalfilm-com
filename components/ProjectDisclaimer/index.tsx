@@ -33,7 +33,7 @@ export default function ProjectDisclaimer() {
             </p>
 
             <div
-                className="flex gap-4 items-center justify-end text-right"
+                className="flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-end text-right"
             >
                 <div>
                     <a
