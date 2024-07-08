@@ -15,7 +15,7 @@ const projectImages = [
 export default function ProjectImages({
     width,
 } : {
-    width: string,
+    width?: string,
 }) {
     return (
         <div
