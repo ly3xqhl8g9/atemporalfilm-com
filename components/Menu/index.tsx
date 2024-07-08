@@ -108,6 +108,9 @@ export default function Menu() {
                         >
                             <Link
                                 href={item.href}
+                                onClick={() => {
+                                    setShowMenu(false);
+                                }}
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>
