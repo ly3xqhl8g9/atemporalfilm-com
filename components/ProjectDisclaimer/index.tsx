@@ -48,6 +48,7 @@ export default function ProjectDisclaimer() {
                             borderBottomRightRadius: '2rem',
                             height: '60px',
                             width: '170px',
+                            userSelect: 'none',
                         }}
                     >
                         Aproape de tine

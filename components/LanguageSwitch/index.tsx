@@ -16,19 +16,16 @@ export default function LanguageSwitch() {
         <div
             className="absolute top-9 right-5 z-50"
         >
-            {language === 'en' ? (
-                <button
-                    onClick={() => setLanguage('ro')}
-                >
-                    romanian
-                </button>
-            ) : (
-                <button
-                    onClick={() => setLanguage('en')}
-                >
-                    english
-                </button>
-            )}
+            <button
+                onClick={() => {
+                    setLanguage(language === 'en' ? 'ro' : 'en');
+                }}
+                style={{
+                    userSelect: 'none',
+                }}
+            >
+                {language === 'en' ? 'romanian' : 'english'}
+            </button>
         </div>
     );
 }
