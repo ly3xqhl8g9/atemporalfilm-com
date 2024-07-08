@@ -2,29 +2,66 @@
 
 import {
     useState,
+    useContext,
 } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 
+import {
+    LanguageContext,
+} from '@/app/context';
 
-const items = [
-    'home',
-    'features',
-    'shorts',
-    'commercial',
-    'about',
-    'contact',
-    'project',
+
+
+const menuLinks = [
+    {
+        nameEn: 'home',
+        nameRo: 'acasă',
+        href: '/',
+    },
+    {
+        nameEn: 'features',
+        nameRo: 'lungmetraje',
+        href: '/features',
+    },
+    {
+        nameEn: 'shorts',
+        nameRo: 'scurtmetraje',
+        href: '/shorts',
+    },
+    {
+        nameEn: 'commercial',
+        nameRo: 'reclame',
+        href: '/commercial',
+    },
+    {
+        nameEn: 'about',
+        nameRo: 'despre',
+        href: '/about',
+    },
+    {
+        nameEn: 'contact',
+        nameRo: 'contact',
+        href: '/contact',
+    },
+    {
+        nameEn: 'project',
+        nameRo: 'proiect',
+        href: '/project',
+    },
 ];
 
 
 export default function Menu() {
+    const {
+        language,
+    } = useContext(LanguageContext);
+
     const [
         showMenu,
         setShowMenu,
     ] = useState(false);
-
 
     const toggleIcon = (
         <Image
@@ -63,16 +100,16 @@ export default function Menu() {
             </button>
 
             <ul>
-                {items.map(item => {
+                {menuLinks.map(item => {
                     return (
                         <div
-                            key={item}
+                            key={item.href}
                             className="text-4xl m-8"
                         >
                             <Link
-                                href={item === 'home' ? '/' : '/' + item}
+                                href={item.href}
                             >
-                                {item}
+                                {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>
                         </div>
                     );

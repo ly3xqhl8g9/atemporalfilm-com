@@ -1,16 +1,20 @@
 'use client';
 
 import {
-    useState,
+    useContext,
 } from 'react';
+
+import {
+    LanguageContext,
+} from '@/app/context';
 
 
 
 export default function LanguageSwitch() {
-    const [
+    const {
         language,
         setLanguage,
-    ] = useState<'en' | 'ro'>('en');
+    } = useContext(LanguageContext);
 
     return (
         <div
