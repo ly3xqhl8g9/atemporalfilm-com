@@ -111,6 +111,9 @@ export default function Menu() {
                                 onClick={() => {
                                     setShowMenu(false);
                                 }}
+                                style={{
+                                    color: window.location.pathname === item.href ? '#586d70' : 'white',
+                                }}
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>

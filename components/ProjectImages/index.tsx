@@ -12,10 +12,16 @@ const projectImages = [
 ];
 
 
-export default function ProjectImages() {
+export default function ProjectImages({
+    width,
+} : {
+    width: string,
+}) {
     return (
         <div
-            className="w-screen lg:w-auto lg:min-w-[600px] flex gap-2 lg:gap-4 items-center justify-center my-4 p-2 lg:p-4 bg-white shadow-2xl"
+            className={
+                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[600px] flex gap-2 lg:gap-4 items-center justify-center my-4 p-2 lg:p-4 bg-white shadow-2xl`
+            }
         >
             {projectImages.map(projectImage => (
                 <Image

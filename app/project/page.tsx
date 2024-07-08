@@ -22,9 +22,11 @@ export default function Project() {
 
     return (
         <div
-            className="m-auto max-w-[800px] p-4 project-text"
+            className="mt-12 lg:mt-0 p-8 lg:p-0 m-auto max-w-[800px] project-text"
         >
-            <ProjectImages />
+            <ProjectImages
+                width="w-auto"
+            />
 
             <h1>
                 {language === 'en' ? 'Project title' : 'Titlul proiectului'}
