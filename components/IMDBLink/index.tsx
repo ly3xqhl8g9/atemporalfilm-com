@@ -13,7 +13,6 @@ export default function IMDBLink({
         <a
             href={href}
             target="_blank"
-            className="ml-4"
         >
             <Image
                 src="/assets/logos/logo-imdb.png"
@@ -23,9 +22,9 @@ export default function IMDBLink({
                 priority={true}
                 style={{
                     userSelect: 'none',
-                    display: 'inline-block',
                     width: 'auto',
                     height: 'auto',
+                    marginTop: '14px',
                 }}
             />
         </a>

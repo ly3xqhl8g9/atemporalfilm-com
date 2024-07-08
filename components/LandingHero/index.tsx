@@ -12,15 +12,19 @@ export default function LandingHero() {
         <div
             className="relative h-screen z-0"
         >
-            <h1
-                className="text-2xl lg:text-8xl absolute bottom-[20%] left-[5%] z-50"
+            <div
+                className="absolute bottom-[20%] left-[5%] z-50"
             >
-                Where Elephants Go
+                <h1
+                    className="text-4xl md:text-6xl lg:text-8xl"
+                >
+                    Where Elephants Go
+                </h1>
 
                 <IMDBLink
                     href="https://www.imdb.com/title/tt25830900"
                 />
-            </h1>
+            </div>
 
             <Image
                 src="/assets/entities/2024-where-elephants-go-hero-still.jpg"
@@ -28,7 +32,7 @@ export default function LandingHero() {
                 fill={true}
                 priority={true}
                 style={{
-                    objectFit: 'contain',
+                    objectFit: 'cover',
                     pointerEvents: 'none',
                     userSelect: 'none',
                 }}
