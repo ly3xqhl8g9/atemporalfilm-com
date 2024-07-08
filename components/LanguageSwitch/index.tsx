@@ -18,7 +18,7 @@ export default function LanguageSwitch() {
 
     return (
         <div
-            className="absolute top-9 right-5 z-50"
+            className="fixed top-9 right-5 z-50"
         >
             <button
                 onClick={() => {

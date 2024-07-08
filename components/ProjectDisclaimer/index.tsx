@@ -1,8 +1,28 @@
+'use client';
+
+import {
+    useContext,
+} from 'react';
+
+import {
+    LanguageContext,
+} from '@/app/context';
+
+
+
 export default function ProjectDisclaimer() {
+    const {
+        language,
+    } = useContext(LanguageContext);
+
+
     return (
         <>
             <p>
-                Pentru informații detaliate despre celelalte programe cofinanțate de Uniunea Europeană, vă invităm să vizitați
+                {language === 'en'
+                    ? 'For detailed information on the other programs co-financed by the European Union, please visit'
+                    : 'Pentru informații detaliate despre celelalte programe cofinanțate de Uniunea Europeană, vă invităm să vizitați'
+                }
                 &nbsp;
                 <a
                     href="https://www.mfe.gov.ro"
