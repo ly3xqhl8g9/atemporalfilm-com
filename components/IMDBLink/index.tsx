@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 
 
@@ -22,6 +24,8 @@ export default function IMDBLink({
                 style={{
                     userSelect: 'none',
                     display: 'inline-block',
+                    width: 'auto',
+                    height: 'auto',
                 }}
             />
         </a>

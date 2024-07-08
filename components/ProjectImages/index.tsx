@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 
 
@@ -19,6 +21,7 @@ export default function ProjectImages() {
                 <Image
                     key={projectImage}
                     src={`/assets/logos/${projectImage}`}
+                    alt={projectImage}
                     style={{
                         width: 'auto',
                         height: '50px',
@@ -27,7 +30,6 @@ export default function ProjectImages() {
                     }}
                     width={100}
                     height={50}
-                    alt={projectImage}
                     priority={true}
                     unoptimized={true}
                 />
