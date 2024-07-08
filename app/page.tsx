@@ -5,15 +5,14 @@ import {
 } from '@/data/index';
 
 import ProjectImages from '@/components/ProjectImages';
+import LanguageSwitch from '@/components/LanguageSwitch';
 import EntityDetail from '@/components/EntityDetail';
 
 
 
 export default function Home() {
     return (
-        <div
-            className=""
-        >
+        <div>
             <div
                 className="absolute top-0 left-[50%] text-center"
                 style={{
@@ -27,20 +26,13 @@ export default function Home() {
                 </Link>
             </div>
 
-
-            <div
-                className="absolute top-5 right-5"
-            >
-                english
-            </div>
-
+            <LanguageSwitch />
 
             <h1
                 className="text-8xl grid place-content-center h-screen"
             >
                 atemporal film
             </h1>
-
 
             {data.map((item) => {
                 return (

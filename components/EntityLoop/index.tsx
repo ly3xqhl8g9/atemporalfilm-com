@@ -14,7 +14,7 @@ export default function EntityLoop({
 }) {
     return (
         <div>
-             {data.filter(item => item.type === type).map((item) => {
+            {data.filter(item => item.type === type).map((item) => {
                 return (
                     <EntityDetail
                         key={item.id}
