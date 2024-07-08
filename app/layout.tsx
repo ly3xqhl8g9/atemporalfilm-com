@@ -35,7 +35,7 @@ export default function RootLayout({
     const [
         language,
         setLanguage,
-    ] = useState<'en' | 'ro'>('en');
+    ] = useState<'en' | 'ro'>('ro');
 
 
     return (
