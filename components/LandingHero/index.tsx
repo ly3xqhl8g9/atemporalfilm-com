@@ -28,7 +28,7 @@ export default function LandingHero() {
                 fill={true}
                 priority={true}
                 style={{
-                    objectFit: 'cover',
+                    objectFit: 'contain',
                     pointerEvents: 'none',
                     userSelect: 'none',
                 }}
