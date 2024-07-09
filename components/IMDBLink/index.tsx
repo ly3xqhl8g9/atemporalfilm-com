@@ -13,6 +13,7 @@ export default function IMDBLink({
         <a
             href={href}
             target="_blank"
+            draggable={false}
         >
             <Image
                 src="/assets/logos/logo-imdb.png"
@@ -20,6 +21,7 @@ export default function IMDBLink({
                 width="50"
                 alt="imdb"
                 priority={true}
+                draggable={false}
                 style={{
                     userSelect: 'none',
                     width: 'auto',

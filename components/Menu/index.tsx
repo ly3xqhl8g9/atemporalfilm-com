@@ -70,6 +70,7 @@ export default function Menu() {
             width="50"
             alt="menu"
             priority={true}
+            draggable={false}
             onClick={() => {
                 setShowMenu(show => !show);
             }}

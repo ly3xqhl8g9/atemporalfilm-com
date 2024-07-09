@@ -14,13 +14,14 @@ export default function Home() {
     return (
         <div>
             <div
-                className="absolute top-24 lg:top-4 left-[50%] text-center z-40"
+                className="absolute top-24 lg:top-0 left-[50%] text-center z-40"
                 style={{
                     transform: "translateX(-50%)"
                 }}
             >
                 <Link
                     href="/project"
+                    draggable={false}
                 >
                     <ProjectImages />
                 </Link>

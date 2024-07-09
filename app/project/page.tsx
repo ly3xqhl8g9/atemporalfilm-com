@@ -22,7 +22,7 @@ export default function Project() {
 
     return (
         <div
-            className="mt-12 lg:mt-0 p-8 lg:p-0 m-auto max-w-[800px] project-text"
+            className="mb-8 mt-12 lg:mt-0 p-8 lg:p-0 m-auto max-w-[800px] project-text"
         >
             <ProjectImages
                 width="w-auto"

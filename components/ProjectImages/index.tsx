@@ -38,6 +38,7 @@ export default function ProjectImages({
                     height={50}
                     priority={true}
                     unoptimized={true}
+                    draggable={false}
                 />
             ))}
         </div>
