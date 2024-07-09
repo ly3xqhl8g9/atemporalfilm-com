@@ -18,7 +18,7 @@ export default function LanguageSwitch() {
 
     return (
         <div
-            className="fixed top-9 right-5 z-50 bg-black bg-opacity-30 p-2 rounded-[100px]"
+            className="fixed top-9 right-5 z-50 w-[50px] h-[50px] flex place-content-center bg-black bg-opacity-30 p-2 rounded-[100px]"
         >
             <button
                 onClick={() => {
@@ -28,7 +28,7 @@ export default function LanguageSwitch() {
                     userSelect: 'none',
                 }}
             >
-                {language === 'en' ? 'romanian' : 'english'}
+                {language === 'en' ? 'RO' : 'EN'}
             </button>
         </div>
     );

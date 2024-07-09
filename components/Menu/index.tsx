@@ -77,6 +77,7 @@ export default function Menu() {
             style={{
                 userSelect: 'none',
             }}
+            className="bg-black bg-opacity-30 p-2 rounded-[100px]"
         />
     );
 
