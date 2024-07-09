@@ -27,6 +27,7 @@ export default function ProjectDisclaimer() {
                 <a
                     href="https://mfe.gov.ro"
                     target="_blank"
+                    className="underline"
                 >
                     mfe.gov.ro
                 </a>
@@ -39,6 +40,7 @@ export default function ProjectDisclaimer() {
                     <a
                         href="https://regionordest.ro"
                         target="_blank"
+                        className="underline"
                     >
                         www.regionordest.ro
                     </a>
@@ -48,6 +50,7 @@ export default function ProjectDisclaimer() {
                     <a
                         href="https://www.facebook.com/RegioNordEst.ro"
                         target="_blank"
+                        className="underline"
                     >
                         www.facebook.com/RegioNordEst.ro
                     </a>

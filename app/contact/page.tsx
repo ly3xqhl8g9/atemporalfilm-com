@@ -33,11 +33,11 @@ export default function Contact() {
                 </p>
 
                 <p>
-                    <a href="tel:+40743343800">+40 743 343 800</a>
+                    <a href="tel:+40743343800" className="underline">+40 743 343 800</a>
                 </p>
 
                 <p>
-                    <a href="mailto:stefan@atemporalfilm.com">stefan@atemporalfilm.com</a>
+                    <a href="mailto:stefan@atemporalfilm.com" className="underline">stefan@atemporalfilm.com</a>
                 </p>
             </div>
 
@@ -53,11 +53,11 @@ export default function Contact() {
                 </p>
 
                 <p>
-                    <a href="tel:++40770789376">+40 770 789 376</a>
+                    <a href="tel:++40770789376" className="underline">+40 770 789 376</a>
                 </p>
 
                 <p>
-                    <a href="mailto:stefan@atemporalfilm.com">diana@atemporalfilm.com</a>
+                    <a href="mailto:stefan@atemporalfilm.com" className="underline">diana@atemporalfilm.com</a>
                 </p>
             </div>
 
