@@ -13,7 +13,7 @@ export default function LandingHero() {
             className="flex flex-col justify-end items-start relative h-dvh z-0"
         >
             <div
-                className="p-4 lg:p-0 lg:absolute lg:bottom-[20%] lg:left-[5%] z-50"
+                className="px-8 py-4 lg:p-0 lg:absolute lg:bottom-[20%] lg:left-[5%] z-50"
             >
                 <h1
                     className="text-4xl md:text-6xl lg:text-8xl"
@@ -39,7 +39,7 @@ export default function LandingHero() {
             />
 
             <div
-                className="p-4 lg:p-0 lg:absolute bottom-5 right-[5%] lg:max-w-[440px] z-50"
+                className="px-8 py-4 lg:p-0 lg:absolute bottom-5 right-[5%] lg:max-w-[440px] z-50"
             >
                 <ProjectDisclaimer />
             </div>
