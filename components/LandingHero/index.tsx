@@ -10,7 +10,7 @@ import IMDBLink from '@/components/IMDBLink';
 export default function LandingHero() {
     return (
         <div
-            className="flex flex-col justify-end items-start relative h-screen z-0"
+            className="flex flex-col justify-end items-start relative h-dvh z-0"
         >
             <div
                 className="p-4 lg:p-0 lg:absolute lg:bottom-[20%] lg:left-[5%] z-50"

@@ -28,7 +28,7 @@ export default function ProjectImages({
                     key={projectImage}
                     src={`/assets/logos/${projectImage}`}
                     alt={projectImage}
-                    className="h-[20px] lg:h-[50px]"
+                    className="h-[30px] lg:h-[50px]"
                     style={{
                         width: 'auto',
                         pointerEvents: 'none',
