@@ -37,7 +37,7 @@ export default function ProjectDisclaimer() {
             >
                 <div>
                     <a
-                        href="https://www.regionordest.ro"
+                        href="https://regionordest.ro"
                         target="_blank"
                     >
                         www.regionordest.ro

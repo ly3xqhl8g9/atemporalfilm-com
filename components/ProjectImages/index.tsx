@@ -20,7 +20,7 @@ export default function ProjectImages({
     return (
         <div
             className={
-                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[600px] flex gap-2 lg:gap-4 items-center justify-center my-4 p-2 lg:p-4 bg-white shadow-2xl`
+                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[600px] flex gap-2 lg:gap-4 items-center justify-center my-4 p-2 lg:p-4 bg-white shadow-2xl rounded-full`
             }
         >
             {projectImages.map(projectImage => (

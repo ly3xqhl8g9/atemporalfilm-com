@@ -46,8 +46,8 @@ export default function Project() {
             </h1>
             <h2>
                 {language === 'en'
-                    ? 'ATEMPORAL FILM S.R.L. implements the project entitled DEVELOPMENT OF THE DIGITAL RESOURCES OF THE SOCIETY SC ATEMPORAL FILM SRL.'
-                    : 'ATEMPORAL FILM S.R.L. implementează proiectul cu titlul DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL.'
+                    ? 'ATEMPORAL FILM S.R.L. implements the project entitled DEVELOPMENT OF THE DIGITAL RESOURCES OF THE SOCIETY SC ATEMPORAL FILM S.R.L.'
+                    : 'ATEMPORAL FILM S.R.L. implementează proiectul cu titlul DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM S.R.L.'
                 }
             </h2>
 

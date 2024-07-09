@@ -18,15 +18,13 @@ export default function LanguageSwitch() {
 
     return (
         <div
-            className="fixed top-9 right-5 z-50 w-[50px] h-[50px] flex place-content-center bg-black bg-opacity-30 p-2 rounded-[100px]"
+            className="fixed top-9 right-5 z-50"
         >
             <button
                 onClick={() => {
                     setLanguage(language === 'en' ? 'ro' : 'en');
                 }}
-                style={{
-                    userSelect: 'none',
-                }}
+                className="select-none w-[50px] h-[50px] flex items-center justify-center bg-black bg-opacity-30 p-2 rounded-full"
             >
                 {language === 'en' ? 'RO' : 'EN'}
             </button>
