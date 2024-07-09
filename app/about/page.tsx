@@ -25,8 +25,8 @@ export default function About() {
                 className="text-center mb-8"
             >
                 {language === 'en'
-                    ? 'atemporal film is a features and shorts production company'
-                    : 'atemporal film este o companie de producție de lungmetraje și scurtmetraje'
+                    ? 'ATEMPORAL FILM is a post-production and production company in Romania. We provide post-production sound and editing services and field recording services.'
+                    : 'ATEMPORAL FILM este o companie de post-producție și producție din România. Oferim servicii de post-producție sunet și montaj și servicii de priză directă.'
                 }
             </p>
         </PageDetail>

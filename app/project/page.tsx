@@ -37,6 +37,9 @@ export default function Project() {
                     : 'DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL'
                 }
             </h2>
+            <h2>
+                COD SMIS 312248
+            </h2>
 
             <h1>
                 {language === 'en' ? 'Project description' : 'Descrierea proiectului'}

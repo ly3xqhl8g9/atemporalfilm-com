@@ -25,10 +25,10 @@ export default function ProjectDisclaimer() {
                 }
                 &nbsp;
                 <a
-                    href="https://www.mfe.gov.ro"
+                    href="https://mfe.gov.ro"
                     target="_blank"
                 >
-                    www.mfe.gov.ro
+                    mfe.gov.ro
                 </a>
             </p>
 

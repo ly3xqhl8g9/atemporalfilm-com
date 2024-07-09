@@ -18,7 +18,7 @@ export default function LanguageSwitch() {
 
     return (
         <div
-            className="fixed top-9 right-5 z-50"
+            className="fixed top-9 right-5 z-50 bg-black bg-opacity-30 p-2 rounded-[100px]"
         >
             <button
                 onClick={() => {
