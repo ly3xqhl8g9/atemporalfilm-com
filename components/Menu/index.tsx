@@ -131,6 +131,7 @@ export default function Menu() {
                                     color: window.location.pathname === item.href ? '#586d70' : 'white',
                                     userSelect: 'none',
                                 }}
+                                draggable={false}
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>

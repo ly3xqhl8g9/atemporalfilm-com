@@ -42,6 +42,7 @@ export default function EntityDetail({
                     priority={true}
                     width={300}
                     height={300}
+                    draggable={false}
                 />
             </div>
 
