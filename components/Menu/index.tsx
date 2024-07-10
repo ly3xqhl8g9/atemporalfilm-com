@@ -129,6 +129,7 @@ export default function Menu() {
                                 }}
                                 style={{
                                     color: window.location.pathname === item.href ? '#586d70' : 'white',
+                                    userSelect: 'none',
                                 }}
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
