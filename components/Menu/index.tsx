@@ -80,18 +80,15 @@ export default function Menu() {
     const toggleIcon = (
         <Image
             src="/assets/logos/logo-wb.png"
+            alt="menu"
             height="50"
             width="50"
-            alt="menu"
             priority={true}
             draggable={false}
             onClick={() => {
                 setShowMenu(show => !show);
             }}
-            style={{
-                userSelect: 'none',
-            }}
-            className="bg-black bg-opacity-30 p-2 rounded-[100px]"
+            className="select-none bg-black bg-opacity-30 p-2 rounded-[100px]"
         />
     );
 

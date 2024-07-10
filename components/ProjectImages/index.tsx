@@ -28,17 +28,12 @@ export default function ProjectImages({
                     key={projectImage}
                     src={`/assets/logos/${projectImage}`}
                     alt={projectImage}
-                    className="h-[30px] lg:h-[50px]"
-                    style={{
-                        width: 'auto',
-                        pointerEvents: 'none',
-                        userSelect: 'none',
-                    }}
                     width={50}
                     height={50}
                     priority={true}
                     unoptimized={true}
                     draggable={false}
+                    className="h-[30px] lg:h-[50px] w-auto select-none pointer-events-none"
                 />
             ))}
         </div>

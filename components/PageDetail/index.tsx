@@ -14,7 +14,7 @@ export default function PageDetail({
             className="m-auto max-w-[800px] p-4"
         >
             <h1
-                className="text-4xl lg:text-6xl grid place-content-center mt-24 mb-24"
+                className="grid place-content-center text-4xl lg:text-6xl mt-24 mb-24"
             >
                 {name}
             </h1>

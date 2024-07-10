@@ -31,11 +31,7 @@ export default function LandingHero() {
                 alt="Where Elephants Go"
                 fill={true}
                 priority={true}
-                style={{
-                    objectFit: 'cover',
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                }}
+                className="object-cover pointer-events-none select-none"
             />
 
             <div

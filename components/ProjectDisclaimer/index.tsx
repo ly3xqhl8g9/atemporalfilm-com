@@ -60,19 +60,16 @@ export default function ProjectDisclaimer() {
                     className="my-4"
                 >
                     <div
+                        className="select-none text-center font-bold italic"
                         style={{
-                            fontSize: '1.2rem',
-                            fontStyle: 'italic',
-                            fontWeight: 'bold',
-                            backgroundColor: '#fcc300',
-                            color: 'white',
+                            width: '190px',
+                            height: '60px',
                             padding: '1rem',
                             borderTopRightRadius: '2rem',
                             borderBottomRightRadius: '2rem',
-                            height: '60px',
-                            width: '190px',
-                            userSelect: 'none',
-                            textAlign: 'center',
+                            backgroundColor: '#fcc300',
+                            color: 'white',
+                            fontSize: '1.2rem',
                         }}
                     >
                         Aproape de tine
