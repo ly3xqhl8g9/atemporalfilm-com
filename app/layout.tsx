@@ -14,7 +14,7 @@ const inter = Didact_Gothic({
 
 export const metadata: Metadata = {
     title: 'atemporal film',
-    description: 'features and shorts production company',
+    description: 'post-production sound, editing services, and field recording services',
 };
 
 export default function RootLayout({
