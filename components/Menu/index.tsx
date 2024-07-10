@@ -1,12 +1,16 @@
 'use client';
 
 import {
-    useState,
     useContext,
+    useState,
+    useEffect,
 } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
+import {
+    usePathname,
+} from 'next/navigation';
 
 import {
     LanguageContext,
@@ -54,6 +58,8 @@ const menuLinks = [
 
 
 export default function Menu() {
+    const pathname = usePathname();
+
     const {
         language,
     } = useContext(LanguageContext);
@@ -62,6 +68,14 @@ export default function Menu() {
         showMenu,
         setShowMenu,
     ] = useState(false);
+
+
+    useEffect(() => {
+        setShowMenu(false);
+    }, [
+        pathname,
+    ]);
+
 
     const toggleIcon = (
         <Image
