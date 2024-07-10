@@ -93,7 +93,7 @@ export default function Menu() {
 
     return (
         <div
-            className="fixed top-0 left-0 bottom-0 min-w-[300px] bg-black z-50"
+            className="fixed top-0 left-0 bottom-0 right-0 md:right-auto min-w-[300px] bg-black z-50"
         >
             <button
                 className="ml-8 mt-9"
@@ -106,7 +106,7 @@ export default function Menu() {
                     return (
                         <div
                             key={item.href}
-                            className="text-4xl m-8"
+                            className="text-2xl md:text-4xl mx-10 my-6"
                         >
                             <Link
                                 href={item.href}

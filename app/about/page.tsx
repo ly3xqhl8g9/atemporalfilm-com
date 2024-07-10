@@ -45,7 +45,7 @@ export default function About() {
                 href="/contact"
             >
                 <button
-                    className="block mx-auto mt-14 bg-white text-black py-2 px-4 rounded-full select-none"
+                    className="block mx-auto mt-14 bg-white text-black py-2 px-4 rounded-full select-none min-w-[120px] md:min-w-[200px]"
                 >
                     contact
                 </button>
