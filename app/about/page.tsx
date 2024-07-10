@@ -24,7 +24,7 @@ export default function About() {
             name={language === 'en' ? 'about' : 'despre'}
         >
             <p
-                className="text-center mb-8 max-w-[300px] md:max-w-none mx-auto"
+                className="max-w-[300px] md:max-w-none mx-auto mb-8 text-center"
             >
                 {language === 'en'
                     ? 'ATEMPORAL FILM is a post-production and production company in Romania.'
@@ -33,7 +33,7 @@ export default function About() {
             </p>
 
             <p
-                className="text-center mb-8 max-w-[300px] md:max-w-none mx-auto"
+                className="max-w-[300px] md:max-w-none mx-auto mb-8 text-center"
             >
                 {language === 'en'
                     ? 'We provide post-production sound and editing services and field recording services.'
@@ -46,7 +46,7 @@ export default function About() {
                 draggable={false}
             >
                 <button
-                    className="block mx-auto mt-14 bg-white text-black py-2 px-4 rounded-full select-none min-w-[120px] md:min-w-[200px]"
+                    className="min-w-[120px] md:min-w-[200px] block mx-auto mt-14 py-2 px-4 rounded-full select-none bg-white text-black"
                 >
                     contact
                 </button>
