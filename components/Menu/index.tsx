@@ -121,9 +121,6 @@ export default function Menu() {
                         >
                             <Link
                                 href={item.href}
-                                onClick={() => {
-                                    setShowMenu(false);
-                                }}
                                 style={{
                                     color: window.location.pathname === item.href ? '#586d70' : 'white',
                                     userSelect: 'none',
