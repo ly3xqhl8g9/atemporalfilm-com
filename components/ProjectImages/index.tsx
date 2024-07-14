@@ -20,7 +20,7 @@ export default function ProjectImages({
     return (
         <div
             className={
-                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[600px] flex gap-2 lg:gap-4 items-center justify-center my-4 p-2 lg:p-4 bg-white shadow-2xl lg:rounded-full`
+                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[810px] flex flex-col lg:flex-row gap-2 lg:gap-4 items-center justify-center my-4 p-4 lg:p-4 bg-white bg-opacity-40 lg:bg-opacity-100 shadow-2xl lg:rounded-full`
             }
         >
             {projectImages.map(projectImage => (
@@ -33,7 +33,7 @@ export default function ProjectImages({
                     priority={true}
                     unoptimized={true}
                     draggable={false}
-                    className="h-[30px] lg:h-[50px] w-auto select-none pointer-events-none"
+                    className="h-[67px] w-auto select-none pointer-events-none"
                 />
             ))}
         </div>
