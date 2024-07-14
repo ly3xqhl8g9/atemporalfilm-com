@@ -9,7 +9,7 @@ export default function Home() {
     return (
         <>
             <div
-                className="absolute top-24 lg:top-2 left-[50%] -translate-x-1/2 z-40 text-center"
+                className="absolute top-16 lg:top-2 left-[50%] -translate-x-1/2 z-40 text-center"
             >
                 <Link
                     href="/project"

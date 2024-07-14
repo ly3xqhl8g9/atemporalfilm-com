@@ -95,7 +95,7 @@ export default function Menu() {
     if (!showMenu) {
         return (
             <div
-                className="fixed top-9 left-8 cursor-pointer z-50"
+                className="fixed top-4 lg:top-9 left-8 cursor-pointer z-50"
             >
                 {toggleIcon}
             </div>
@@ -107,7 +107,7 @@ export default function Menu() {
             className="fixed top-0 left-0 bottom-0 right-0 md:right-auto min-w-[300px] bg-black z-50"
         >
             <button
-                className="ml-8 mt-9"
+                className="ml-8 mt-4 lg:mt-9"
             >
                 {toggleIcon}
             </button>

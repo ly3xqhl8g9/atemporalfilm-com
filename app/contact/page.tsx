@@ -64,13 +64,13 @@ export default function Contact() {
             <div
                 className="text-center mb-2"
             >
-                Piatra-Neamț, Traian 6
+                {language === 'en' ? 'Piatra-Neamt' : 'Piatra-Neamț'}, Traian 6
             </div>
 
             <div
                 className="text-center mb-2"
             >
-                București, Vasile Lascăr 23-25
+                {language === 'en' ? 'Bucharest' : 'București'}, {language === 'en' ? 'Vasile Lascar' : 'Vasile Lascăr'} 23-25
             </div>
 
             <div
