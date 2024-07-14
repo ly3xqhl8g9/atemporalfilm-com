@@ -1,7 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-
+import {
+    usePathname,
+} from 'next/navigation';
 
 
 const projectImages = [
@@ -17,10 +19,12 @@ export default function ProjectImages({
 } : {
     width?: string,
 }) {
+    const pathname = usePathname();
+
     return (
         <div
             className={
-                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[700px] flex flex-col lg:flex-row gap-2 lg:gap-4 items-center justify-center my-2 mb-4 p-2 lg:p-3 bg-white bg-opacity-40 lg:bg-opacity-100 shadow-2xl lg:rounded-full`
+                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[700px] flex flex-col lg:flex-row gap-2 lg:gap-4 items-center justify-center my-2 mb-4 p-2 lg:p-3 bg-white ${pathname === '/' ? 'bg-opacity-40 lg:bg-opacity-100' : ''} shadow-2xl lg:rounded-full`
             }
         >
             {projectImages.map((projectImage, idx) => (
