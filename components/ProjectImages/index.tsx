@@ -6,6 +6,7 @@ import {
 } from 'next/navigation';
 
 
+
 const projectImages = [
     'logo-proiect-1.png',
     'logo-proiect-2.png',

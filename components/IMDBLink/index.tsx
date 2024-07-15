@@ -14,6 +14,7 @@ export default function IMDBLink({
             href={href}
             target="_blank"
             draggable={false}
+            className="inline-block"
         >
             <Image
                 src="/assets/logos/logo-imdb.png"

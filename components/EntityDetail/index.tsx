@@ -4,6 +4,8 @@ import {
     Entity,
 } from '@/data/index';
 
+import IMDBLink from '@/components/IMDBLink';
+
 
 
 export default function EntityDetail({
@@ -12,7 +14,6 @@ export default function EntityDetail({
     data: Entity;
 }) {
     const {
-        id,
         type,
         year,
         title,
@@ -80,6 +81,12 @@ export default function EntityDetail({
                 <p>
                     production {production}
                 </p>
+
+                {imdb && (
+                    <IMDBLink
+                        href={imdb}
+                    />
+                )}
             </div>
         </div>
     );
