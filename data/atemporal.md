@@ -1,25 +1,4 @@
-menu
-
-features
-shorts
-commercial
-about
-contact
-
-REGIO project
-
-Dezvoltarea resurselor digitale ale societatii SC Atemporal Film SRL
-
-
-
---- functions
-
-
-
-
---- data
-
-structure:
+--- data structure:
 
 ```
 {
