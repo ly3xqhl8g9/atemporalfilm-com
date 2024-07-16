@@ -4,12 +4,10 @@ import Image from 'next/image';
 
 
 
-export default function IMDBLink({
+export default function YouTubeLink({
     href,
-    large,
 } : {
     href: string;
-    large?: boolean;
 }) {
     return (
         <a
@@ -19,9 +17,9 @@ export default function IMDBLink({
             className="inline-block"
         >
             <Image
-                src="/assets/logos/logo-imdb.png"
-                height={large ? "50" : "40"}
-                width={large ? "50" : "40"}
+                src="/assets/logos/logo-youtube.png"
+                height="35"
+                width="35"
                 alt="imdb"
                 priority={true}
                 draggable={false}

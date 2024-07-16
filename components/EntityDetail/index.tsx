@@ -15,6 +15,7 @@ import {
 } from '@/app/context';
 
 import IMDBLink from '@/components/IMDBLink';
+import YouTubeLink from '@/components/YouTubeLink';
 
 
 
@@ -188,25 +189,21 @@ export default function EntityDetail({
                     </div>
                 )}
 
-                {imdb && (
-                    <IMDBLink
-                        href={imdb}
-                    />
-                )}
+                <div
+                    className="flex flex-row items-center gap-8"
+                >
+                    {imdb && (
+                        <IMDBLink
+                            href={imdb}
+                        />
+                    )}
 
-                {trailer && (
-                    <div
-                        className="my-4"
-                    >
-                        <a
+                    {trailer && (
+                        <YouTubeLink
                             href={trailer}
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            trailer
-                        </a>
-                    </div>
-                )}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

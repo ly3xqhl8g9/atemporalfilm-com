@@ -23,6 +23,7 @@ export default function LandingHero() {
 
                 <IMDBLink
                     href="https://www.imdb.com/title/tt25830900"
+                    large={true}
                 />
             </div>
 
