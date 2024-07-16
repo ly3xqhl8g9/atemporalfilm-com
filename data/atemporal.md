@@ -4,13 +4,15 @@
 {
     "id": "",
     "type": "feature" | "short" | "commercial",
+    "kind": "documentary" | "animation",
     "year": "",
     "title": "",
     "titleRo": "",
     "director": "",
+    "cinematography": "",
     "producer": "",
     "coproducer": "",
-    "production": "",
+    "productionCompany": "",
     "press": [
         "",
         ""
