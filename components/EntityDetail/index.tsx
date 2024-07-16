@@ -18,6 +18,31 @@ import IMDBLink from '@/components/IMDBLink';
 
 
 
+const typeText = {
+    en: {
+        feature: 'feature',
+        short: 'short',
+        commercial: 'commercial',
+    },
+    ro: {
+        feature: 'lungmetraj',
+        short: 'scurtmetraj',
+        commercial: 'reclamă',
+    },
+} as const;
+
+const kindText = {
+    en: {
+        documentary: 'documentary',
+        animation: 'animation',
+    },
+    ro: {
+        documentary: 'documentar',
+        animation: 'animație',
+    },
+} as const;
+
+
 export default function EntityDetail({
     data,
 } : {
@@ -82,7 +107,7 @@ export default function EntityDetail({
                 <h3
                     className="mb-2"
                 >
-                    {type} {year} {kind && `(${kind})`}
+                    {typeText[language][type]} {year} {kind && `(${kindText[language][kind]})`}
                 </h3>
 
                 {director && (

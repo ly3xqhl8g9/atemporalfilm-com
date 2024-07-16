@@ -5,7 +5,7 @@ export type Language = 'en' | 'ro';
 export interface Entity {
     id: string;
     type: 'feature' | 'short' | 'commercial';
-    kind?: string;
+    kind?: 'documentary' | 'animation';
     year: string;
     title: string;
     titleRo: string;
@@ -84,6 +84,7 @@ export const data: Entity[] = [
     {
         id: '2024-nasty',
         type: 'feature',
+        kind: 'documentary',
         year: '2024',
         title: 'Nasty',
         titleRo: 'Nasty',
@@ -157,6 +158,7 @@ export const data: Entity[] = [
     {
         id: '2021-a-fish-on-a-ladder',
         type: 'short',
+        kind: 'animation',
         year: '2021',
         title: 'A Fish on a Ladder',
         titleRo: 'Un pește pe o scară',
@@ -265,6 +267,7 @@ export const data: Entity[] = [
     {
         id: '2020-house-of-dolls',
         type: 'feature',
+        kind: 'documentary',
         year: '2020',
         title: 'House of Dolls',
         titleRo: 'Casa cu păpuși',
