@@ -21,6 +21,7 @@ export default function Shorts() {
     return (
         <PageDetail
             name={language === 'en' ? 'shorts' : 'scurtmetraje'}
+            fullWidth={true}
         >
             <EntityLoop
                 type="short"

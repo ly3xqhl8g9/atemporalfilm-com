@@ -21,6 +21,7 @@ export default function Features() {
     return (
         <PageDetail
             name={language === 'en' ? 'features' : 'lungmetraje'}
+            fullWidth={true}
         >
             <EntityLoop
                 type="feature"

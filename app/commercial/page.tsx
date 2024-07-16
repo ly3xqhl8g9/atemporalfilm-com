@@ -21,6 +21,7 @@ export default function Commercial() {
     return (
         <PageDetail
             name={language === 'en' ? 'commercial' : 'reclame'}
+            fullWidth={true}
         >
             <EntityLoop
                 type="commercial"

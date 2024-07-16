@@ -1,8 +1,18 @@
+'use client';
+
+import {
+    useContext,
+} from 'react';
+
 import Image from 'next/image';
 
 import {
     Entity,
 } from '@/data/index';
+
+import {
+    LanguageContext,
+} from '@/app/context';
 
 import IMDBLink from '@/components/IMDBLink';
 
@@ -14,14 +24,21 @@ export default function EntityDetail({
     data: Entity;
 }) {
     const {
+        language,
+    } = useContext(LanguageContext);
+
+    const {
+        id,
         type,
+        kind,
         year,
         title,
         titleRo,
         director,
+        cinematography,
         producer,
         coproducer,
-        production,
+        productionCompany,
         press,
         festivals,
         images,
@@ -35,15 +52,15 @@ export default function EntityDetail({
             className="flex flex-wrap m-10"
         >
             <div
-                className="w-full md:w-1/2 p-4 flex place-content-center"
+                className="w-full min-h-[500px] md:w-1/2 p-4 flex place-content-center relative"
             >
                 <Image
-                    src={`/assets/entities/${heroImage}`}
+                    src={`/assets/entities/${heroImage || 'default-hero.png'}`}
                     alt={title}
                     priority={true}
-                    width={300}
-                    height={300}
+                    fill={true}
                     draggable={false}
+                    className="object-contain pointer-events-none select-none"
                 />
             </div>
 
@@ -56,36 +73,114 @@ export default function EntityDetail({
                     {title}
                 </h1>
 
-                <h2>
+                <h2
+                    className="mb-2"
+                >
                     {titleRo}
                 </h2>
 
-                <h3>
-                    {type} {year}
+                <h3
+                    className="mb-2"
+                >
+                    {type} {year} {kind && `(${kind})`}
                 </h3>
 
-                <p>
-                    directed by {director}
-                </p>
-
-                <p>
-                    produced by {producer}
-                </p>
-
-                {coproducer && (
+                {director && (
                     <p>
-                        coproduced by {coproducer}
+                        {language === 'en' ? 'directed by' : 'regizat de'} {director}
                     </p>
                 )}
 
-                <p>
-                    production {production}
-                </p>
+                {cinematography && (
+                    <p>
+                        {language === 'en' ? 'cinematography by' : 'cinematografie'} {cinematography}
+                    </p>
+                )}
+
+                {producer && (
+                    <p>
+                        {language === 'en' ? 'produced by' : 'produs de'} {producer}
+                    </p>
+                )}
+
+                {coproducer && (
+                    <p>
+                        {language === 'en' ? 'coproduced by' : 'coprodus de'} {coproducer}
+                    </p>
+                )}
+
+                {productionCompany && (
+                    <p>
+                        {language === 'en' ? 'production' : 'producție'} {productionCompany}
+                    </p>
+                )}
+
+                {press.length > 0 && (
+                    <div
+                        className="my-4"
+                    >
+                        <p>
+                            {language === 'en' ? 'press' : 'publicitate'}
+                        </p>
+
+                        {press.map((item, index) => {
+                            const hostname = new URL(item).hostname;
+
+                            return (
+                                <div
+                                    key={id + 'press' + index}
+                                >
+                                    <a
+                                        href={item}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        {hostname}
+                                    </a>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {festivals.length > 0 && (
+                    <div
+                        className="my-4"
+                    >
+                        <p>
+                            {language === 'en' ? 'festivals' : 'festivaluri'}
+                        </p>
+
+                        {festivals.map((item, index) => {
+                            return (
+                                <div
+                                    key={id + 'festivals' + index}
+                                >
+                                    {item}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {imdb && (
                     <IMDBLink
                         href={imdb}
                     />
+                )}
+
+                {trailer && (
+                    <div
+                        className="my-4"
+                    >
+                        <a
+                            href={trailer}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            trailer
+                        </a>
+                    </div>
                 )}
             </div>
         </div>
