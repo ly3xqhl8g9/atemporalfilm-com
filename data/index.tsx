@@ -76,8 +76,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
-        // heroImage: '2025-beyond-borders-hero.jpg',
+        heroImage: '2025-beyond-borders-hero.jpg',
         trailer: '',
         imdb: 'https://www.imdb.com/title/tt31123933',
     },
@@ -102,7 +101,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2024-nasty-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=gYBwhMQ7Q_I',
         imdb: 'https://www.imdb.com/title/tt31437303',
     },
@@ -130,7 +129,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2023-acolo-unde-barcile-nu-ajung-hero.jpg',
         trailer: '',
         imdb: 'https://www.imdb.com/title/tt28373016',
     },
@@ -151,7 +150,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2022-eroii-de-la-podul-jiului-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=ZMEIJ4jZQ_I',
         imdb: 'https://www.imdb.com/title/tt12077022',
     },
@@ -175,7 +174,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2021-a-fish-on-a-ladder-hero.jpg',
         trailer: '',
         imdb: 'https://www.imdb.com/title/tt21619148',
     },
@@ -205,7 +204,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2021-extravaganzia-mare-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=I6ecEar_RDE',
         imdb: 'https://www.imdb.com/title/tt18629466',
     },
@@ -231,7 +230,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2020-along-came-a-prince-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=8mHmxwtcEx8',
         imdb: 'https://www.imdb.com/title/tt12743622',
     },
@@ -260,7 +259,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2018-thou-shalt-not-kill-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=ught3_zk2sI',
         imdb: 'https://www.imdb.com/title/tt9135772',
     },
@@ -285,7 +284,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2020-house-of-dolls-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=4KPQ-PiljP8',
         imdb: 'https://www.imdb.com/title/tt12765598',
     },
@@ -310,7 +309,7 @@ export const data: Entity[] = [
         ],
         images: [
         ],
-        heroImage: '',
+        heroImage: '2016-end-of-the-world-hero.jpg',
         trailer: 'https://www.youtube.com/watch?v=ltD5cIbhmts',
         imdb: 'https://www.imdb.com/title/tt5717670',
     },
