@@ -27,6 +27,7 @@ export default function ProjectImages({
             className={
                 `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[680px] flex flex-col lg:flex-row gap-2 lg:gap-4 items-center justify-center my-2 mb-4 p-2 lg:p-3 bg-white ${pathname === '/' ? 'bg-opacity-40 lg:bg-opacity-100' : ''} shadow-2xl lg:rounded-full`
             }
+            tabIndex={-1}
         >
             {projectImages.map((projectImage, idx) => (
                 <Image
@@ -41,6 +42,7 @@ export default function ProjectImages({
                     className={
                         `${idx === 0 ? 'h-[47px]' : 'h-[67px]'} w-auto select-none pointer-events-none`
                     }
+                    tabIndex={-1}
                 />
             ))}
         </div>

@@ -14,6 +14,7 @@ export default function Home() {
                 <Link
                     href="/project"
                     draggable={false}
+                    tabIndex={-1}
                 >
                     <ProjectImages />
                 </Link>

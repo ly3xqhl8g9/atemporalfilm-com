@@ -160,6 +160,7 @@ export default function EntityDetail({
                                         href={item}
                                         target="_blank"
                                         rel="noreferrer"
+                                        className="underline focus:outline-none focus:ring-2 focus:ring-white"
                                     >
                                         {hostname}
                                     </a>

@@ -88,7 +88,13 @@ export default function Menu() {
             onClick={() => {
                 setShowMenu(show => !show);
             }}
-            className="select-none bg-black bg-opacity-30 p-2 rounded-[100px]"
+            onKeyDown={event => {
+                if (event.key === 'Enter') {
+                    setShowMenu(show => !show);
+                }
+            }}
+            tabIndex={1}
+            className="select-none bg-black bg-opacity-30 p-2 rounded-[100px] focus:outline-none focus:ring-2 focus:ring-white"
         />
     );
 
@@ -108,6 +114,7 @@ export default function Menu() {
         >
             <button
                 className="ml-8 mt-4 lg:mt-9"
+                tabIndex={-1}
             >
                 {toggleIcon}
             </button>
@@ -126,6 +133,7 @@ export default function Menu() {
                                     userSelect: 'none',
                                 }}
                                 draggable={false}
+                                className="focus:outline-none focus:ring-2 focus:ring-white"
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>

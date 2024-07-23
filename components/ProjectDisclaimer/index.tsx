@@ -27,7 +27,7 @@ export default function ProjectDisclaimer() {
                 <a
                     href="https://mfe.gov.ro"
                     target="_blank"
-                    className="underline"
+                    className="underline focus:outline-none focus:ring-2 focus:ring-white"
                 >
                     mfe.gov.ro
                 </a>
@@ -40,7 +40,7 @@ export default function ProjectDisclaimer() {
                     <a
                         href="https://regionordest.ro"
                         target="_blank"
-                        className="underline"
+                        className="underline focus:outline-none focus:ring-2 focus:ring-white"
                     >
                         www.regionordest.ro
                     </a>
@@ -50,7 +50,7 @@ export default function ProjectDisclaimer() {
                     <a
                         href="https://www.facebook.com/RegioNordEst.ro"
                         target="_blank"
-                        className="underline"
+                        className="underline focus:outline-none focus:ring-2 focus:ring-white"
                     >
                         www.facebook.com/RegioNordEst.ro
                     </a>

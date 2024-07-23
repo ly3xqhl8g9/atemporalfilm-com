@@ -14,7 +14,7 @@ export default function YouTubeLink({
             href={href}
             target="_blank"
             draggable={false}
-            className="inline-block"
+            className="inline-block focus:outline-none focus:ring-2 focus:ring-white"
         >
             <Image
                 src="/assets/logos/logo-youtube.png"
