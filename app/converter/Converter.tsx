@@ -12,6 +12,8 @@ export default function Converter() {
     const ffmpegRef = useRef(new FFmpeg());
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const messageRef = useRef<HTMLParagraphElement | null>(null);
+    const [file, setFile] = useState<File | null>(null);
+    const [transcoded, setTranscoded] = useState(false);
 
 
     const load = async () => {
@@ -32,34 +34,62 @@ export default function Converter() {
     }
 
     const transcode = async () => {
-        const ffmpeg = ffmpegRef.current
-        // u can use 'https://ffmpegwasm.netlify.app/video/video-15s.avi' to download the video to public folder for testing
-        await ffmpeg.writeFile('input.avi', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/video-15s.avi'))
-        await ffmpeg.exec(['-i', 'input.avi', 'output.mp4'])
-        const data = (await ffmpeg.readFile('output.mp4')) as any
-        if (videoRef.current)
-            videoRef.current.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }))
+        if (!file) {
+            return;
+        }
+
+        const ffmpeg = ffmpegRef.current;
+        await ffmpeg.writeFile('input.avi', await fetchFile(file));
+        await ffmpeg.exec(['-i', 'input.avi', 'output.mp4']);
+        const data = (await ffmpeg.readFile('output.mp4')) as any;
+        if (videoRef.current) {
+            setTranscoded(true);
+            videoRef.current.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+        }
     }
 
 
     return loaded ? (
-        <div className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
-            <video ref={videoRef} controls></video>
-            <br />
-            <button
-                onClick={transcode}
-                className="bg-green-500 hover:bg-green-700 text-white py-3 px-6 rounded"
+        <div className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] min-w-[600px] grid place-content-center justify-items-center">
+            <div
+                className="mb-4"
             >
-                Transcode avi to mp4
-            </button>
-            <p ref={messageRef}></p>
+                <input
+                    type="file"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+            </div>
+
+            {file && (
+                <>
+                    <video
+                        className={(!transcoded ? 'hidden' : '') + ' lg:min-w-[600px]'}
+                        ref={videoRef}
+                        controls
+                    >
+                    </video>
+
+                    <br />
+                    <button
+                        onClick={transcode}
+                        className="bg-white text-black py-3 px-6 rounded-full max-w-[300px] mb-4"
+                    >
+                        transcode avi to mp4
+                    </button>
+
+                    <p
+                        ref={messageRef}
+                        className={transcoded ? 'hidden' : ''}
+                    ></p>
+                </>
+            )}
         </div>
     ) : (
         <button
-            className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] flex items-center bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+            className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] min-w-[200px] flex items-center text-center justify-center bg-white rounded-full text-black py-2 px-4 rounded"
             onClick={load}
         >
-            Load ffmpeg-core
+            load converter
             {isLoading && (
                 <span className="animate-spin ml-3">
                     <svg
