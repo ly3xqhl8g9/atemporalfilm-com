@@ -2,16 +2,25 @@
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { useRef, useState } from 'react';
+import { useRef, useContext, useState } from 'react';
+
+import {
+    LanguageContext,
+} from '@/app/context';
 
 
 
 export default function Converter() {
-    const [loaded, setLoaded] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const {
+        language,
+    } = useContext(LanguageContext);
+
     const ffmpegRef = useRef(new FFmpeg());
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const messageRef = useRef<HTMLParagraphElement | null>(null);
+
+    const [loaded, setLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [transcoded, setTranscoded] = useState(false);
 
@@ -74,7 +83,7 @@ export default function Converter() {
                         onClick={transcode}
                         className="bg-white text-black py-3 px-6 rounded-full max-w-[300px] mb-4"
                     >
-                        transcode avi to mp4
+                        {language === 'en' ? 'transcode avi to mp4' : 'transcodează avi în mp4'}
                     </button>
 
                     <p
@@ -89,7 +98,8 @@ export default function Converter() {
             className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] min-w-[200px] flex items-center text-center justify-center bg-white rounded-full text-black py-2 px-4 rounded"
             onClick={load}
         >
-            load converter
+            {language === 'en' ? 'load converter' : 'încarcă convertorul'}
+
             {isLoading && (
                 <span className="animate-spin ml-3">
                     <svg

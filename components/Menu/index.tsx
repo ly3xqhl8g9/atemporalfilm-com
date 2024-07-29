@@ -54,6 +54,11 @@ const menuLinks = [
         nameRo: 'proiect',
         href: '/project',
     },
+    {
+        nameEn: 'converter',
+        nameRo: 'convertor',
+        href: '/converter',
+    },
 ];
 
 
