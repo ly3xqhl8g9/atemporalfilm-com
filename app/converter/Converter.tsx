@@ -64,9 +64,17 @@ export default function Converter() {
                 className="mb-4"
             >
                 <input
+                    id="file"
                     type="file"
+                    className="hidden"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                 />
+                <label
+                    htmlFor="file"
+                    className="cursor-pointer"
+                >
+                    {file ? file.name : language === 'en' ? 'choose a file' : 'alege un fișier'}
+                </label>
             </div>
 
             {file && (
