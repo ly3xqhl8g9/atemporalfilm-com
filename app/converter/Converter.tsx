@@ -76,7 +76,10 @@ export default function Converter() {
 
         const ffmpeg = ffmpegRef.current;
         await ffmpeg.writeFile(inputName, await fetchFile(file));
+
         await ffmpeg.exec(['-i', inputName, 'output.mp4']);
+        // await ffmpeg.exec(['-i', inputName, '-vcodec', 'libx264', '-acodec', 'aac', 'output.mp4']);
+
         const data = (await ffmpeg.readFile('output.mp4')) as any;
         if (videoRef.current) {
             setTranscoded(true);
