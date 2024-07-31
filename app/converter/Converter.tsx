@@ -11,9 +11,29 @@ import {
 
 
 const extensions = {
-    'video/avi': 'avi',
+    'video/x-msvideo': 'avi',
     'video/quicktime': 'mov',
+    'video/mp4': 'mp4',
+    'video/x-matroska': 'mkv',
+    'video/x-flv': 'flv',
+    'video/x-ms-wmv': 'wmv',
+    'video/webm': 'webm',
+    'audio/mpeg': 'mp3',
+    'audio/wav': 'wav',
+    'audio/aac': 'aac',
+    'audio/ogg': 'ogg',
+    'audio/flac': 'flac',
 } as const;
+
+const mimeTypes = Object.fromEntries(
+    Object.entries(extensions).map(([k, v]) => [v, k])
+);
+
+const transcodeFlags = {
+    'video/quicktime': ['-vcodec', 'libx264', '-acodec', 'aac'],
+};
+
+
 
 const Spinner = () => (
     <span className="animate-spin ml-3">
@@ -46,6 +66,7 @@ export default function Converter() {
     const [isTrancoding, setIsTranscoding] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [transcoded, setTranscoded] = useState(false);
+    const [transcodeTarget, setTranscodeTarget] = useState('mp4');
 
 
     const load = async () => {
@@ -73,17 +94,18 @@ export default function Converter() {
         setIsTranscoding(true);
 
         const inputName = 'input.' + ((extensions as any)[file.type] || 'avi');
+        const outputName = 'output.' + transcodeTarget;
 
         const ffmpeg = ffmpegRef.current;
         await ffmpeg.writeFile(inputName, await fetchFile(file));
 
-        await ffmpeg.exec(['-i', inputName, 'output.mp4']);
-        // await ffmpeg.exec(['-i', inputName, '-vcodec', 'libx264', '-acodec', 'aac', 'output.mp4']);
+        await ffmpeg.exec(['-i', inputName, outputName]);
 
-        const data = (await ffmpeg.readFile('output.mp4')) as any;
+        const data = (await ffmpeg.readFile(outputName)) as any;
         if (videoRef.current) {
             setTranscoded(true);
-            videoRef.current.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+            const mimeType = mimeTypes[transcodeTarget];
+            videoRef.current.src = URL.createObjectURL(new Blob([data.buffer], { type: mimeType }));
         }
 
         setIsTranscoding(false);
@@ -125,9 +147,22 @@ export default function Converter() {
                         className="mb-8"
                     >
                         {language === 'en' ? 'convert' : 'conversie'}
-                        &nbsp;{(extensions as any)[file.type]}&nbsp;
+                        &nbsp;{(extensions as any)[file.type] || 'unknown'}&nbsp;
                         {language === 'en' ? 'to' : 'în'}
-                        &nbsp;mp4
+                        &nbsp;
+                        <select
+                            className="bg-black focus:outline-none focus:ring-2 focus:ring-white"
+                        >
+                            {Object.keys(mimeTypes).map((mimeType) => (
+                                <option
+                                    key={mimeType}
+                                    value={mimeType}
+                                    onClick={() => setTranscodeTarget(mimeType)}
+                                >
+                                    {mimeType}
+                                </option>
+                            ))}
+                        </select>
                     </p>
 
                     <button
