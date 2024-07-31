@@ -138,7 +138,7 @@ export default function Menu() {
                                     userSelect: 'none',
                                 }}
                                 draggable={false}
-                                className="focus:outline-none focus:ring-2 focus:ring-white"
+                                className="focus:outline-none focus:ring-2 focus:ring-white px-2 -mx-2"
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>

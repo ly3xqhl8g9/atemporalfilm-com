@@ -17,6 +17,9 @@ export default function IMDBLink({
             target="_blank"
             draggable={false}
             className="inline-block focus:outline-none focus:ring-2 focus:ring-white"
+            style={{
+                marginTop: '14px',
+            }}
         >
             <Image
                 src="/assets/logos/logo-imdb.png"
@@ -25,11 +28,11 @@ export default function IMDBLink({
                 alt="imdb"
                 priority={true}
                 draggable={false}
+                className="p-1"
                 style={{
                     userSelect: 'none',
                     width: 'auto',
                     height: 'auto',
-                    marginTop: '14px',
                 }}
             />
         </a>

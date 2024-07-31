@@ -15,6 +15,9 @@ export default function YouTubeLink({
             target="_blank"
             draggable={false}
             className="inline-block focus:outline-none focus:ring-2 focus:ring-white"
+            style={{
+                marginTop: '14px',
+            }}
         >
             <Image
                 src="/assets/logos/logo-youtube.png"
@@ -23,11 +26,11 @@ export default function YouTubeLink({
                 alt="imdb"
                 priority={true}
                 draggable={false}
+                className="p-1"
                 style={{
                     userSelect: 'none',
                     width: 'auto',
                     height: 'auto',
-                    marginTop: '14px',
                 }}
             />
         </a>
