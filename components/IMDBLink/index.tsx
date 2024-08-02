@@ -16,7 +16,7 @@ export default function IMDBLink({
             href={href}
             target="_blank"
             draggable={false}
-            className="inline-block focus:outline-none focus:ring-2 focus:ring-white"
+            className="select-none inline-block focus:outline-none focus:ring-2 focus:ring-white"
             style={{
                 marginTop: '14px',
             }}
@@ -28,9 +28,8 @@ export default function IMDBLink({
                 alt="imdb"
                 priority={true}
                 draggable={false}
-                className="p-1"
+                className="select-none p-1"
                 style={{
-                    userSelect: 'none',
                     width: 'auto',
                     height: 'auto',
                 }}
