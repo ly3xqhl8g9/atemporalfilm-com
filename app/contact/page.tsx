@@ -37,7 +37,8 @@ export default function Contact() {
                 </p>
 
                 <p>
-                    <a href="mailto:stefan@atemporalfilm.com" className="underline">stefan@atemporalfilm.com</a>
+                    {/* <a href="mailto:stefan@atemporalfilm.com" className="underline">stefan@atemporalfilm.com</a> */}
+                    <a href="mailto:atemporalfilm@gmail.com" className="underline">atemporalfilm@gmail.com</a>
                 </p>
             </div>
 
@@ -57,7 +58,8 @@ export default function Contact() {
                 </p>
 
                 <p>
-                    <a href="mailto:stefan@atemporalfilm.com" className="underline">diana@atemporalfilm.com</a>
+                    {/* <a href="mailto:diana@atemporalfilm.com" className="underline">diana@atemporalfilm.com</a> */}
+                    <a href="mailto:atemporalfilm@gmail.com" className="underline">atemporalfilm@gmail.com</a>
                 </p>
             </div>
 

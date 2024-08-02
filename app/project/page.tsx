@@ -26,6 +26,7 @@ export default function Project() {
         >
             <ProjectImages
                 width="w-auto"
+                withLink={true}
             />
 
             <h1>
