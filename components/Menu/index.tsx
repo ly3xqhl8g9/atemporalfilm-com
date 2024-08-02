@@ -115,7 +115,7 @@ export default function Menu() {
 
     return (
         <div
-            className="fixed top-0 left-0 bottom-0 right-0 md:right-auto min-w-[400px] bg-black z-50"
+            className="fixed top-0 left-0 bottom-0 right-0 md:right-auto min-w-[400px] bg-black z-50 select-none"
         >
             <button
                 className="ml-8 mt-4 lg:mt-9"
