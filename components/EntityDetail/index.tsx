@@ -85,6 +85,7 @@ export default function EntityDetail({
                     alt={title}
                     priority={true}
                     fill={true}
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     draggable={false}
                     className="object-contain pointer-events-none select-none"
                 />
