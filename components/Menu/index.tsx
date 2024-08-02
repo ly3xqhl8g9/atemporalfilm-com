@@ -146,6 +146,44 @@ export default function Menu() {
                     );
                 })}
             </ul>
+
+
+            <ul
+                className="flex justify-center gap-12 mt-12"
+            >
+                <li>
+                    <a
+                        href="https://www.instagram.com/atemporalfilm"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
+                    >
+                        ig
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="https://www.facebook.com/AtemporalFilms"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
+                    >
+                        fb
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="https://www.linkedin.com/company/atemporal-film"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
+                    >
+                        in
+                    </a>
+                </li>
+            </ul>
         </div>
     );
 }
