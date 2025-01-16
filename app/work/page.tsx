@@ -13,18 +13,22 @@ import EntityLoop from '@/components/EntityLoop';
 
 
 
-export default function Features() {
+export default function Work() {
     const {
         language,
     } = useContext(LanguageContext);
 
     return (
         <PageDetail
-            name={language === 'en' ? 'features' : 'lungmetraje'}
+            name={language === 'en' ? 'work' : 'proiecte'}
             fullWidth={true}
         >
             <EntityLoop
                 type="feature"
+            />
+
+            <EntityLoop
+                type="short"
             />
         </PageDetail>
     );

@@ -10,7 +10,11 @@ import {
 
 
 
-export default function LanguageSwitch() {
+export default function LanguageSwitch({
+    absolute,
+}: {
+    absolute?: boolean;
+}) {
     const {
         language,
         setLanguage,
@@ -18,13 +22,13 @@ export default function LanguageSwitch() {
 
     return (
         <div
-            className="select-none fixed top-4 lg:top-9 right-8 z-50"
+            className={`select-none flex items-center top-4 lg:top-9 right-8 z-50 ${absolute ? 'absolute' : ''}`}
         >
             <button
                 onClick={() => {
                     setLanguage(language === 'en' ? 'ro' : 'en');
                 }}
-                className="select-none w-[50px] h-[50px] flex items-center justify-center bg-black bg-opacity-30 p-2 rounded-full"
+                className="select-none w-[50px] h-[50px] flex items-center justify-center p-2 rounded-full"
             >
                 {language === 'en' ? 'RO' : 'EN'}
             </button>

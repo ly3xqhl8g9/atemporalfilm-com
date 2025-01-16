@@ -16,50 +16,10 @@ import {
     LanguageContext,
 } from '@/app/context';
 
+import {
+    menuLinks,
+} from '@/data/constants';
 
-
-const menuLinks = [
-    {
-        nameEn: 'home',
-        nameRo: 'acasă',
-        href: '/',
-    },
-    {
-        nameEn: 'features',
-        nameRo: 'lungmetraje',
-        href: '/features',
-    },
-    {
-        nameEn: 'shorts',
-        nameRo: 'scurtmetraje',
-        href: '/shorts',
-    },
-    {
-        nameEn: 'commercial',
-        nameRo: 'reclame',
-        href: '/commercial',
-    },
-    {
-        nameEn: 'about',
-        nameRo: 'despre',
-        href: '/about',
-    },
-    {
-        nameEn: 'contact',
-        nameRo: 'contact',
-        href: '/contact',
-    },
-    {
-        nameEn: 'project',
-        nameRo: 'proiect',
-        href: '/project',
-    },
-    {
-        nameEn: 'converter',
-        nameRo: 'convertor',
-        href: '/converter',
-    },
-];
 
 
 export default function Menu() {
@@ -84,10 +44,10 @@ export default function Menu() {
 
     const toggleIcon = (
         <Image
-            src="/assets/logos/logo-wb.png"
+            src="/assets/logos/logo-atemporal.png"
             alt="menu"
-            height="50"
-            width="50"
+            height="60"
+            width="200"
             priority={true}
             draggable={false}
             onClick={() => {
@@ -99,7 +59,7 @@ export default function Menu() {
                 }
             }}
             tabIndex={1}
-            className="select-none bg-black bg-opacity-30 p-2 rounded-[100px] focus:outline-none focus:ring-2 focus:ring-white"
+            className="select-none p-2 focus:outline-none"
         />
     );
 

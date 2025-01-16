@@ -1,29 +1,19 @@
-'use client';
-
 import {
-    useContext,
-} from 'react';
-
-import {
-    LanguageContext,
-} from '@/app/context';
-
-import './styles.css';
+    Language,
+} from '@/data/index';
 
 import ProjectImages from '@/components/ProjectImages';
 import ProjectDisclaimer from '@/components/ProjectDisclaimer';
 
 
 
-export default function Project() {
-    const {
-        language,
-    } = useContext(LanguageContext);
-
+export default function Content({
+    language,
+} : {
+    language: Language,
+}) {
     return (
-        <div
-            className="mb-8 mt-8 lg:mt-0 p-8 lg:p-2 m-auto max-w-[700px] project-text"
-        >
+        <>
             <ProjectImages
                 width="w-auto"
                 withLink={true}
@@ -143,6 +133,6 @@ export default function Project() {
             </p>
 
             <ProjectDisclaimer />
-        </div>
+        </>
     );
 }

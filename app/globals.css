@@ -3,9 +3,15 @@
 @tailwind utilities;
 
 
+
+html {
+    scrollbar-gutter: stable;
+}
+
 body {
     color: white;
     background: black;
+    overflow-x: hidden;
 }
 
 @layer utilities {

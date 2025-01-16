@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
-import { Didact_Gothic } from 'next/font/google';
+import { League_Spartan } from 'next/font/google';
 
 import './globals.css';
 
@@ -9,9 +9,9 @@ import AppWrapper from '@/components/AppWrapper';
 
 
 
-const inter = Didact_Gothic({
+const font = League_Spartan({
     subsets: ['latin'],
-    weight: '400',
+    weight: ['300', '400'],
 });
 
 export const metadata: Metadata = {
@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${inter.className} max-w-[2560px] mx-auto`}>
+            <body className={`${font.className} max-w-[2560px] mx-auto`}>
                 <AppWrapper>
                     {children}
                 </AppWrapper>

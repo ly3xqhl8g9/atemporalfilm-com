@@ -11,7 +11,18 @@ export interface ILanguageContext {
     setLanguage: (language: Language) => void;
 }
 
+export interface IAppContext {
+    contactMenu: boolean;
+    setContactMenu: (contactMenu: boolean) => void;
+}
+
+
 export const LanguageContext = createContext<ILanguageContext>({
-    language: 'ro',
-    setLanguage: (language) => {}
+    language: 'en',
+    setLanguage: (language) => {},
+});
+
+export const AppContext = createContext<IAppContext>({
+    contactMenu: false,
+    setContactMenu: (contactMenu) => {},
 });

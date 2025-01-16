@@ -18,7 +18,9 @@ export default function ProjectDisclaimer() {
 
     return (
         <>
-            <p>
+            <p
+                className="select-none"
+            >
                 {language === 'en'
                     ? 'For detailed information on the other programs co-financed by the European Union, please visit'
                     : 'Pentru informații detaliate despre celelalte programe cofinanțate de Uniunea Europeană, vă invităm să vizitați'
@@ -34,7 +36,7 @@ export default function ProjectDisclaimer() {
             </p>
 
             <div
-                className="flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-end text-right"
+                className="flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-end text-right select-none"
             >
                 <div>
                     <a
@@ -57,7 +59,7 @@ export default function ProjectDisclaimer() {
                 </div>
 
                 <div
-                    className="my-4"
+                    className="my-4 select-none"
                 >
                     <div
                         className="select-none text-center font-bold italic"
