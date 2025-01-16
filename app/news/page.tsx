@@ -12,7 +12,7 @@ import Image from 'next/image';
 
 import './styles.css';
 
-import Content from './Content';
+import Content from './components/Content';
 
 
 

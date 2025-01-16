@@ -8,7 +8,7 @@ import {
     LanguageContext,
 } from '@/app/context';
 
-import Person from './Person';
+import Person from './components/Person';
 
 
 
