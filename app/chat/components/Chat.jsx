@@ -39,6 +39,7 @@ export default function Chat({ messages }) {
                     {msg.image ? (
                       <img
                         src={msg.image}
+                        alt="assistant"
                         className="max-w-full w-[384px] rounded-md"
                       />
                     ) : msg.content.length > 0 ? (
@@ -65,6 +66,7 @@ export default function Chat({ messages }) {
                   {msg.image && (
                     <img
                       src={msg.image}
+                      alt="user"
                       className="max-w-full max-h-64 rounded-md mb-3"
                     />
                   )}
