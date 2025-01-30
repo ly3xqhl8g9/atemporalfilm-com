@@ -70,6 +70,14 @@ export default function Footer() {
                         chat
                     </Link>
                 </li>
+
+                <li>
+                    <Link
+                        href="/converter"
+                    >
+                        converter
+                    </Link>
+                </li>
             </ul>
 
             <div
