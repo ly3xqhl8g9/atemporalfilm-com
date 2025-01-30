@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Image from 'next/image';
 
 import ProjectDisclaimer from '@/components/ProjectDisclaimer';
@@ -12,7 +13,7 @@ export default function Footer() {
             className="flex flex-row items-center justify-between bg-black z-50 p-4 px-8 max-w-[1800px] mx-auto"
         >
             <ul
-                className="flex justify-center gap-12"
+                className="flex justify-center items-center gap-12 select-none"
             >
                 <li>
                     <a
@@ -60,6 +61,14 @@ export default function Footer() {
                             height={25}
                         />
                     </a>
+                </li>
+
+                <li>
+                    <Link
+                        href="/chat"
+                    >
+                        chat
+                    </Link>
                 </li>
             </ul>
 

@@ -76,6 +76,8 @@ export default function Converter() {
         ffmpeg.on('log', ({ message }) => {
             if (messageRef.current) messageRef.current.innerHTML = message
         })
+        // mp4 to wav
+
         // toBlobURL is used to bypass CORS issue, urls with the same
         // domain can be used directly.
         await ffmpeg.load({
