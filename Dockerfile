@@ -8,4 +8,4 @@ COPY . .
 RUN deno install
 RUN deno task build
 
-ENTRYPOINT ["deno", "task", "--allow-net", "start"]
+ENTRYPOINT ["deno", "task", "start"]
