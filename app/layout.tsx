@@ -16,7 +16,7 @@ const font = League_Spartan({
 
 export const metadata: Metadata = {
     applicationName: 'atemporalfilm.com',
-    title: 'atemporal film',
+    title: 'Atemporal Film',
     description: 'post-production sound, editing services, and field recording services',
     keywords: 'post-production sound, editing services, field recording services',
     category: 'Business',
