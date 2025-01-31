@@ -9,3 +9,7 @@ RUN deno install
 RUN deno task build
 
 ENTRYPOINT ["deno", "task", "start"]
+
+
+### Build Command
+# > docker build -t atemporalfilm-com .
