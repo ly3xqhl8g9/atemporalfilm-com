@@ -18,6 +18,7 @@ import {
 
 import ContactDetails from '@/components/ContactDetails';
 import Socials from '@/components/Socials';
+import Input from '@/components/Input';
 
 
 
@@ -31,7 +32,32 @@ export default function Menu() {
 
     const menuRef = useRef<HTMLDivElement | null>(null);
 
+    const [showForm, setShowForm] = useState(false);
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+
+
+    const sendForm = () => {
+        const data = {
+            name,
+            phone,
+            email,
+            message,
+        };
+
+        fetch('/api/send_contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).catch((_error) => {
+        });
+    }
 
 
     // useEffect(() => {
@@ -93,15 +119,60 @@ export default function Menu() {
                 />
             </button>
 
-            <ContactDetails
-                hoveredIndex={hoveredIndex}
-                setHoveredIndex={setHoveredIndex}
-            />
+            {!showForm && (
+                <>
+                    <ContactDetails
+                        showForm={showForm}
+                        setShowForm={setShowForm}
+                        hoveredIndex={hoveredIndex}
+                        setHoveredIndex={setHoveredIndex}
+                    />
 
-            <Socials
-                hoveredIndex={hoveredIndex}
-                setHoveredIndex={setHoveredIndex}
-            />
+                    <Socials
+                        hoveredIndex={hoveredIndex}
+                        setHoveredIndex={setHoveredIndex}
+                    />
+                </>
+            )}
+
+            {showForm && (
+                <div>
+                    <Input
+                        label="Name"
+                        value={name}
+                        onChange={(value) => setName(value)}
+                    />
+
+                    <Input
+                        label="Phone"
+                        value={phone}
+                        onChange={(value) => setPhone(value)}
+                    />
+
+                    <Input
+                        label="Email"
+                        value={email}
+                        onChange={(value) => setEmail(value)}
+                    />
+
+                    <Input
+                        label="Message"
+                        value={message}
+                        onChange={(value) => setMessage(value)}
+                    />
+
+                    <div
+                        className="flex justify-center items-center"
+                    >
+                        <button
+                            onClick={sendForm}
+                            className="bg-purple-800 text-white min-w-[200px] px-4 py-2 rounded-none m-auto"
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -6,9 +6,13 @@ import { LanguageContext } from '@/app/context';
 
 
 export default function ContactDetails({
+    showForm,
+    setShowForm,
     hoveredIndex,
     setHoveredIndex,
 } : {
+    showForm: boolean;
+    setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
     hoveredIndex?: number | null;
     setHoveredIndex?: (index: number | null) => void;
 }) {
@@ -53,7 +57,12 @@ export default function ContactDetails({
 
     return (
         <div className="text-right text-lg w-full px-8">
-            <h3 className="text-xl my-8">Contact</h3>
+            <button
+                className="text-xl my-8"
+                onClick={() => setShowForm(true)}
+            >
+                {language === 'en' ? 'Formular de Contact' : 'Contact Us Here'}
+            </button>
 
             {sections.map((section, index) => (
                 <div
