@@ -16,9 +16,9 @@ import {
     AppContext
 } from '@/app/context';
 
-import ContactDetails from '@/components/ContactDetails';
-import ContactForm from '@/components/ContactForm';
-import Socials from '@/components/Socials';
+import ContactDetails from '@/containers/Contact/ContactDetails';
+import ContactForm from '@/containers/Contact/ContactForm';
+import Socials from '@/containers/Socials';
 
 
 

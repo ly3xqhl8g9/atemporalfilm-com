@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-import ProjectDisclaimer from '@/components/ProjectDisclaimer';
+import ProjectDisclaimer from '@/containers/ProjectDisclaimer';
 
 import {
     socialLinks,

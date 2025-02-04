@@ -1,4 +1,4 @@
-import NoSSRWrapper from '@/components/NoSSRWrapper';
+import NoSSRWrapper from '@/containers/NoSSRWrapper';
 import Converter from './Converter';
 
 

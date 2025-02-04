@@ -1,4 +1,4 @@
-import LandingHero from '@/components/LandingHero';
+import LandingHero from '@/containers/LandingHero';
 
 
 

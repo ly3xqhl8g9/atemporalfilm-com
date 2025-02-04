@@ -2,8 +2,8 @@ import {
     Language,
 } from '@/data/index';
 
-import ProjectImages from '@/components/ProjectImages';
-import ProjectDisclaimer from '@/components/ProjectDisclaimer';
+import ProjectImages from '@/containers/ProjectImages';
+import ProjectDisclaimer from '@/containers/ProjectDisclaimer';
 
 
 

@@ -9,10 +9,10 @@ import {
     LanguageContext,
 } from '@/app/context';
 
-import Menu from '@/components/Menu';
-import MenuText from '@/components/MenuText';
+import Menu from '@/containers/Menu/Menu';
+import MenuText from '@/containers/Menu/MenuText';
 import LanguageSwitch from '@/components/LanguageSwitch';
-import MenuContact from '@/components/MenuContact';
+import MenuContact from '@/containers/Contact/MenuContact';
 
 
 

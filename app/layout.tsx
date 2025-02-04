@@ -5,7 +5,7 @@ import { League_Spartan } from 'next/font/google';
 
 import './globals.css';
 
-import AppWrapper from '@/components/AppWrapper';
+import AppWrapper from '@/containers/AppWrapper';
 
 
 

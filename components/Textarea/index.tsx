@@ -4,7 +4,7 @@ import {
 
 
 
-export interface InputProps {
+export interface TextareaProps {
     value: string | number;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -19,7 +19,7 @@ export interface InputProps {
 }
 
 
-const Input: React.FC<InputProps> = ({
+const Textarea: React.FC<TextareaProps> = ({
     value,
     onChange,
     placeholder,
@@ -63,4 +63,4 @@ const Input: React.FC<InputProps> = ({
 };
 
 
-export default Input;
+export default Textarea;

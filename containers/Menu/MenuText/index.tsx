@@ -23,7 +23,7 @@ import {
 } from '@/data/constants';
 
 import LanguageSwitch from '@/components/LanguageSwitch';
-import ProjectImages from '@/components/ProjectImages';
+import ProjectImages from '@/containers/ProjectImages';
 
 
 

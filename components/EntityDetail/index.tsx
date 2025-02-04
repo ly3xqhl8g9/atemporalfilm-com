@@ -14,8 +14,8 @@ import {
     LanguageContext,
 } from '@/app/context';
 
-import IMDBLink from '@/components/IMDBLink';
-import YouTubeLink from '@/components/YouTubeLink';
+import IMDBLink from '@/containers/Links/IMDBLink';
+import YouTubeLink from '@/containers/Links/YouTubeLink';
 
 
 
