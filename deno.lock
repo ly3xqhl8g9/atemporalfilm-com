@@ -17,6 +17,7 @@
     "npm:node-mailjet@^6.0.6": "6.0.6",
     "npm:postcss@^8.5.1": "8.5.1",
     "npm:react-dom@19.0.0-rc-66855b96-20241106": "19.0.0-rc-66855b96-20241106_react@19.0.0-rc-66855b96-20241106",
+    "npm:react-responsive-carousel@^3.2.23": "3.2.23",
     "npm:react@19.0.0-rc-66855b96-20241106": "19.0.0-rc-66855b96-20241106",
     "npm:sharp@~0.33.5": "0.33.5",
     "npm:tailwindcss@^3.4.17": "3.4.17_postcss@8.5.1",
@@ -679,6 +680,9 @@
     },
     "chownr@3.0.0": {
       "integrity": "sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g=="
+    },
+    "classnames@2.5.1": {
+      "integrity": "sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow=="
     },
     "client-only@0.0.1": {
       "integrity": "sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA=="
@@ -2133,8 +2137,22 @@
         "scheduler"
       ]
     },
+    "react-easy-swipe@0.0.21": {
+      "integrity": "sha512-OeR2jAxdoqUMHIn/nS9fgreI5hSpgGoL5ezdal4+oO7YSSgJR8ga+PkYGJrSrJ9MKlPcQjMQXnketrD7WNmNsg==",
+      "dependencies": [
+        "prop-types"
+      ]
+    },
     "react-is@16.13.1": {
       "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
+    },
+    "react-responsive-carousel@3.2.23": {
+      "integrity": "sha512-pqJLsBaKHWJhw/ItODgbVoziR2z4lpcJg+YwmRlSk4rKH32VE633mAtZZ9kDXjy4wFO+pgUZmDKPsPe1fPmHCg==",
+      "dependencies": [
+        "classnames",
+        "prop-types",
+        "react-easy-swipe"
+      ]
     },
     "react@19.0.0": {
       "integrity": "sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ=="
@@ -2787,6 +2805,7 @@
         "npm:node-mailjet@^6.0.6",
         "npm:postcss@^8.5.1",
         "npm:react-dom@19.0.0-rc-66855b96-20241106",
+        "npm:react-responsive-carousel@^3.2.23",
         "npm:react@19.0.0-rc-66855b96-20241106",
         "npm:sharp@~0.33.5",
         "npm:tailwindcss@^3.4.17",

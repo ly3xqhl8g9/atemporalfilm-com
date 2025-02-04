@@ -58,10 +58,14 @@ export default function ContactDetails({
     return (
         <div className="text-right text-lg w-full px-8">
             <button
-                className="text-xl my-8"
+                className={`text-xl my-8 ${
+                    hoveredIndex !== null && hoveredIndex !== 30 ? 'text-gray-900' : 'text-white'
+                }`}
                 onClick={() => setShowForm(true)}
+                onMouseEnter={() => setHoveredIndex?.(30)}
+                onMouseLeave={() => setHoveredIndex?.(null)}
             >
-                {language === 'en' ? 'Formular de Contact' : 'Contact Us Here'}
+                {language === 'en' ? 'Contact Us Here' : 'Formular de Contact'}
             </button>
 
             {sections.map((section, index) => (

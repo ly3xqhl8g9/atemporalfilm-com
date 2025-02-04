@@ -26,7 +26,8 @@ ${JSON.stringify(
 `;
 }
 
-const EMAILER = 'contact@atemporalfilm.com';
+const EMAILER_FROM = 'contact@atemporalfilm.com';
+const EMAILER_TO = process.env.EMAILER_TO || EMAILER_FROM;
 
 
 export default async function handler(
@@ -44,11 +45,11 @@ export default async function handler(
                         "Messages":[
                             {
                                 "From": {
-                                    "Email": EMAILER,
+                                    "Email": EMAILER_FROM,
                                 },
                                 "To": [
                                     {
-                                        "Email": EMAILER,
+                                        "Email": EMAILER_TO,
                                     },
                                 ],
                                 "Subject": '[contact atemporalfilm.com]',

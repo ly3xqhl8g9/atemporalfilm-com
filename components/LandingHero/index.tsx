@@ -13,7 +13,7 @@ export default function LandingHero() {
                 className="flex flex-col justify-end items-start relative h-dvh z-0"
             >
                 <Image
-                    src="/landing.jpg"
+                    src="/landing.webp"
                     alt="Landing"
                     fill={true}
                     priority={true}

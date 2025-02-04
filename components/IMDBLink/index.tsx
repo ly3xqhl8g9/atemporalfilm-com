@@ -23,8 +23,8 @@ export default function IMDBLink({
         >
             <Image
                 src="/assets/logos/logo-imdb.png"
-                height={large ? "50" : "40"}
-                width={large ? "50" : "40"}
+                height={large ? "50" : "30"}
+                width={large ? "50" : "30"}
                 alt="imdb"
                 priority={true}
                 draggable={false}

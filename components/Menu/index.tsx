@@ -124,17 +124,6 @@ export default function Menu() {
 
                 <li>
                     <a
-                        href="https://www.facebook.com/AtemporalFilms"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
-                    >
-                        fb
-                    </a>
-                </li>
-
-                <li>
-                    <a
                         href="https://www.linkedin.com/company/atemporal-film"
                         target="_blank"
                         rel="noreferrer"

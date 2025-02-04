@@ -2,25 +2,11 @@
 
 import Image from 'next/image';
 
+import {
+    socialLinks,
+} from '@/data/constants';
 
 
-const socialLinks = [
-    {
-        href: "https://www.instagram.com/atemporalfilm",
-        icon: "/assets/logos/logo-instagram.png",
-        alt: "Instagram"
-    },
-    {
-        href: "https://www.facebook.com/AtemporalFilms",
-        icon: "/assets/logos/logo-facebook.png",
-        alt: "Facebook"
-    },
-    {
-        href: "https://www.linkedin.com/company/atemporal-film",
-        icon: "/assets/logos/logo-linkedin.png",
-        alt: "Linkedin"
-    }
-];
 
 const INDEX_OFFSET = 100;
 

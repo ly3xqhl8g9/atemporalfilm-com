@@ -5,6 +5,10 @@ import Image from 'next/image';
 
 import ProjectDisclaimer from '@/components/ProjectDisclaimer';
 
+import {
+    socialLinks,
+} from '@/data/constants';
+
 
 
 export default function Footer() {
@@ -15,53 +19,26 @@ export default function Footer() {
             <ul
                 className="flex justify-center items-center gap-12 select-none"
             >
-                <li>
-                    <a
-                        href="https://www.instagram.com/atemporalfilm"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
+                {socialLinks.map((social) => (
+                    <li
+                        key={social.alt}
+                        className="focus:outline-none"
                     >
-                        <Image
-                            src="/assets/logos/logo-instagram.png"
-                            alt="Instagram"
-                            width={25}
-                            height={25}
-                        />
-                    </a>
-                </li>
-
-                <li>
-                    <a
-                        href="https://www.facebook.com/AtemporalFilms"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
-                    >
-                        <Image
-                            src="/assets/logos/logo-facebook.png"
-                            alt="Facebook"
-                            width={25}
-                            height={25}
-                        />
-                    </a>
-                </li>
-
-                <li>
-                    <a
-                        href="https://www.linkedin.com/company/atemporal-film"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
-                    >
-                        <Image
-                            src="/assets/logos/logo-linkedin.png"
-                            alt="Linkedin"
-                            width={25}
-                            height={25}
-                        />
-                    </a>
-                </li>
+                        <a
+                            href={social.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="py-2 px-3 focus:outline-none"
+                        >
+                            <Image
+                                src={social.icon}
+                                alt={social.alt}
+                                width={25}
+                                height={25}
+                            />
+                        </a>
+                    </li>
+                ))}
 
                 <li>
                     <Link

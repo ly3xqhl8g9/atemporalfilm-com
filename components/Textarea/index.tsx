@@ -16,7 +16,6 @@ export interface InputProps {
     max?: number;
     step?: number;
     inputMode?: 'numeric' | 'decimal' | 'email';
-    pattern?: string;
 }
 
 
@@ -37,7 +36,7 @@ const Input: React.FC<InputProps> = ({
                 <label className="block mb-1">{label}</label>
             )}
 
-            <input
+            <textarea
                 className={styleTrim(`
                     bg-purple-200 text-black placeholder-purple-500
                     focus:outline-none focus:ring-2 focus:ring-purple-800
@@ -45,6 +44,7 @@ const Input: React.FC<InputProps> = ({
                     px-4 py-2
                     ${compact ? 'w-24' : 'w-60 md:w-72'}
                     ${centered ? 'text-center' : 'text-left'}
+                    min-h-24 max-h-48
                 `)}
                 placeholder={placeholder}
                 value={value}

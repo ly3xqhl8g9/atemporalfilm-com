@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${font.className} max-w-[2560px] mx-auto`}>
+            <body className={`${font.className} max-w-[2560px] min-h-screen mx-auto`}>
                 <AppWrapper>
                     {children}
                 </AppWrapper>

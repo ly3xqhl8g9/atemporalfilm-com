@@ -1,8 +1,12 @@
+'use client';
+
 import {
     Language,
 } from '@/data/index';
 
-import Image from 'next/image';
+import {
+    Person as IPerson,
+} from '@/data/constants';
 
 
 
@@ -11,19 +15,12 @@ export default function Person({
     data,
 } : {
     language: Language,
-    data: any,
+    data: IPerson,
 }) {
     return (
         <div
             className="text-center flex flex-col items-center gap-2"
         >
-            <Image
-                src={data.image}
-                alt={data.name}
-                width={200}
-                height={200}
-            />
-
             <div>
                 {data.name}
             </div>

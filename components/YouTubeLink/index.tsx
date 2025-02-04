@@ -21,8 +21,8 @@ export default function YouTubeLink({
         >
             <Image
                 src="/assets/logos/logo-youtube.png"
-                height="35"
-                width="35"
+                height="25"
+                width="25"
                 alt="imdb"
                 priority={true}
                 draggable={false}
