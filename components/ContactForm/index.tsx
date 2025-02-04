@@ -58,7 +58,9 @@ export default function ContactForm({
 
 
     useEffect(() => {
-        if (name && email && email.includes('@') && message) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (name && email && emailPattern.test(email) && message) {
             setValidMessage(true);
         } else {
             setValidMessage(false);
