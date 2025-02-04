@@ -34,6 +34,10 @@ export const languageData = {
             en: 'Send',
             ro: 'Trimite',
         },
+        sending: {
+            en: 'Sending...',
+            ro: 'Se trimite...',
+        },
         sent: {
             en: 'Message sent! We will get back to you as soon as possible.',
             ro: 'Mesaj trimis! Vă vom contacta în cel mai scurt timp posibil.',

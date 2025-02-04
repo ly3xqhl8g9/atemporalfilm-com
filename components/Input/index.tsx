@@ -39,7 +39,7 @@ const Input: React.FC<InputProps> = ({
 
             <input
                 className={styleTrim(`
-                    bg-purple-200 text-black placeholder-purple-500
+                    bg-purple-100 text-black placeholder-purple-500
                     focus:outline-none focus:ring-2 focus:ring-purple-800
                     border border-purple-800 rounded-none
                     px-4 py-2

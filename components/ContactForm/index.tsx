@@ -17,6 +17,11 @@ import {
 
 
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const FIELD_LENGTH = 200;
+const MESSAGE_LENGTH = 20_000;
+
+
 export default function ContactForm({
     setShowForm,
 } : {
@@ -30,16 +35,19 @@ export default function ContactForm({
     const [message, setMessage] = useState('');
 
     const [validMessage, setValidMessage] = useState(false);
+    const [loadingSend, setLoadingSend] = useState(false);
     const [sentEmail, setSentEmail] = useState(false);
     const [emailError, setEmailError] = useState(false);
 
 
     const sendForm = () => {
+        setLoadingSend(true);
+
         const data = {
-            name,
-            phone,
-            email,
-            message,
+            name: name.trim(),
+            phone: phone.trim(),
+            email: email.trim(),
+            message: message.trim(),
         };
 
         fetch('/api/send_contact', {
@@ -51,16 +59,21 @@ export default function ContactForm({
         }).then(() => {
             setMessage('');
             setSentEmail(true);
+            setLoadingSend(false);
         }).catch((_error) => {
             setEmailError(true);
+            setLoadingSend(false);
         });
     }
 
 
     useEffect(() => {
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (name && email && emailPattern.test(email) && message) {
+        if (
+            name && email && EMAIL_PATTERN.test(email) && message
+            && name.length < FIELD_LENGTH
+            && email.length < FIELD_LENGTH
+            && message.length < MESSAGE_LENGTH
+        ) {
             setValidMessage(true);
         } else {
             setValidMessage(false);
@@ -133,10 +146,13 @@ export default function ContactForm({
             >
                 <button
                     onClick={sendForm}
-                    disabled={!validMessage}
+                    disabled={!validMessage || loadingSend}
                     className="bg-purple-800 disabled:opacity-50 text-white min-w-[200px] px-4 py-2 rounded-none m-auto"
                 >
-                    {languageData.contactForm.send[language]}
+                    {loadingSend
+                        ? languageData.contactForm.sending[language]
+                        : languageData.contactForm.send[language]
+                    }
                 </button>
             </div>
         </div>
