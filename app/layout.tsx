@@ -29,15 +29,6 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://atemporalfilm.com',
     },
-    icons: {
-        other: [
-            {
-                rel: 'mask-icon',
-                url: '/safari-pinned-tab.svg',
-                color: '#000000',
-            },
-        ],
-    },
     openGraph: {
         type: 'website',
         url: 'https://atemporalfilm.com',
