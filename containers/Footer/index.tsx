@@ -35,6 +35,12 @@ export default function Footer() {
                                 alt={social.alt}
                                 width={25}
                                 height={25}
+                                style={{
+                                    width: '25px',
+                                    height: '25px',
+                                    minWidth: '25px',
+                                    minHeight: '25px',
+                                }}
                             />
                         </a>
                     </li>

@@ -49,6 +49,12 @@ export default function Socials({
                             draggable={false}
                             unselectable="on"
                             tabIndex={-1}
+                            style={{
+                                width: '25px',
+                                height: '25px',
+                                minWidth: '25px',
+                                minHeight: '25px',
+                            }}
                         />
                     </a>
                 </li>

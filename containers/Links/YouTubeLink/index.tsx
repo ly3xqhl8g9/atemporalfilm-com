@@ -29,7 +29,7 @@ export default function YouTubeLink({
                 className="select-none p-1"
                 style={{
                     width: 'auto',
-                    height: '26px',
+                    height: '32px',
                 }}
             />
         </a>

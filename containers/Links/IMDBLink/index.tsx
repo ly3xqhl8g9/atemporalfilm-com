@@ -23,15 +23,15 @@ export default function IMDBLink({
         >
             <Image
                 src="/assets/logos/logo-imdb.png"
-                height={large ? "30" : "20"}
-                width={large ? "30" : "20"}
+                height={large ? "40" : "32"}
+                width={large ? "40" : "32"}
                 alt="imdb"
                 priority={true}
                 draggable={false}
                 className="select-none p-1"
                 style={{
                     width: 'auto',
-                    height: 'auto',
+                    height: '32px',
                 }}
             />
         </a>

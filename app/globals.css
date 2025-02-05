@@ -3,15 +3,27 @@
 @tailwind utilities;
 
 
-
 html {
-    scrollbar-gutter: stable;
+    overflow-y: scroll;
+}
+
+@supports (scrollbar-gutter: stable) {
+    html {
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+    }
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    overflow-x: hidden;
+    scrollbar-width: thin;
 }
 
 body {
     color: white;
     background: black;
-    overflow-x: hidden;
 }
 
 @layer utilities {
