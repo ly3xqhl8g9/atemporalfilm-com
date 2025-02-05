@@ -12,9 +12,11 @@ const INDEX_OFFSET = 100;
 
 
 export default function Socials({
+    hoverable,
     hoveredIndex,
     setHoveredIndex,
 } : {
+    hoverable?: boolean;
     hoveredIndex?: number | null;
     setHoveredIndex?: (index: number | null) => void;
 }) {
@@ -38,11 +40,12 @@ export default function Socials({
                             alt={social.alt}
                             width={25}
                             height={25}
-                            className={`transition-opacity duration-300 focus:outline-none select-none ${
-                                hoveredIndex !== null && hoveredIndex !== index - INDEX_OFFSET
-                                    ? 'opacity-10'
-                                    : 'opacity-100'
-                            }`}
+                            className={hoverable
+                                ? `transition-opacity duration-300 focus:outline-none select-none ${
+                                    hoveredIndex !== null && hoveredIndex !== index - INDEX_OFFSET
+                                        ? 'opacity-10'
+                                        : 'opacity-100'
+                                }` : ''}
                             draggable={false}
                             unselectable="on"
                             tabIndex={-1}

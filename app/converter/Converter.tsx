@@ -190,7 +190,7 @@ export default function Converter() {
             className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] min-w-[200px] flex items-center text-center justify-center bg-white rounded-full text-black py-2 px-4 rounded"
             onClick={load}
         >
-            {language === 'en' ? 'load converter' : 'încarcă convertorul'}
+            {language === 'en' ? 'load converter' : 'încarcă convertor'}
 
             {isLoading && (
                 <Spinner />

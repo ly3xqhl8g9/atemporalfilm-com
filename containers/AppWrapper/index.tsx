@@ -49,7 +49,12 @@ export default function AppWrapper({
                     className="block md:hidden max-w-[1800px] relative mx-auto"
                 >
                     <Menu />
-                    <LanguageSwitch />
+
+                    <div
+                        className="fixed z-50 top-[30px] right-[30px]"
+                    >
+                        <LanguageSwitch />
+                    </div>
                 </div>
 
                 <div

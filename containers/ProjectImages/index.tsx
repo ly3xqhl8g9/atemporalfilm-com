@@ -68,7 +68,7 @@ export default function ProjectImages({
     return (
         <div
             className={
-                `${width ? width : 'w-screen'} lg:w-auto lg:min-w-[610px] flex flex-col lg:flex-row gap-2 lg:gap-4 items-center justify-center my-2 mb-4 p-2 lg:p-3 bg-white ${pathname === '/' ? 'bg-opacity-40 lg:bg-opacity-100' : ''} shadow-2xl lg:rounded-full`
+                `${width ? width : 'w-screen'} md:w-auto md:min-w-[610px] flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-center my-2 mb-4 p-2 md:p-3 bg-white ${pathname === '/' ? 'bg-opacity-40 md:bg-opacity-100' : ''} shadow-2xl md:rounded-full`
             }
             tabIndex={-1}
         >

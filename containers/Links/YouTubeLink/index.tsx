@@ -21,15 +21,15 @@ export default function YouTubeLink({
         >
             <Image
                 src="/assets/logos/logo-youtube.png"
-                height="25"
-                width="25"
+                height="20"
+                width="20"
                 alt="imdb"
                 priority={true}
                 draggable={false}
                 className="select-none p-1"
                 style={{
                     width: 'auto',
-                    height: 'auto',
+                    height: '26px',
                 }}
             />
         </a>

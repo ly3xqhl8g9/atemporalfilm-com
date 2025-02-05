@@ -8,9 +8,6 @@ import {
 } from 'react';
 
 import Image from 'next/image';
-import {
-    usePathname,
-} from 'next/navigation';
 
 import {
     AppContext
@@ -22,11 +19,12 @@ import Socials from '@/containers/Socials';
 
 
 
-export default function Menu() {
-    const pathname = usePathname();
-
+export default function MenuContact({
+    inPage,
+} : {
+    inPage?: boolean;
+}) {
     const {
-        contactMenu,
         setContactMenu,
     } = useContext(AppContext);
 
@@ -37,6 +35,10 @@ export default function Menu() {
 
 
     useEffect(() => {
+        if (inPage) {
+            return;
+        }
+
         const handleClickOutside = (event: any) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
                 setContactMenu(false);
@@ -57,6 +59,7 @@ export default function Menu() {
             document.removeEventListener('keydown', handleEscape);
         };
     }, [
+        inPage,
         setContactMenu,
     ]);
 
@@ -64,29 +67,34 @@ export default function Menu() {
     return (
         <div
             ref={menuRef}
-            className="select-none fixed top-0 left-0 bottom-0 right-0 md:left-auto min-w-[600px] bg-black z-50 grid place-content-center"
+            className={inPage
+                ? ''
+                : 'select-none fixed top-0 left-0 bottom-0 right-0 md:left-auto min-w-[600px] bg-black z-50 grid place-content-center'
+            }
         >
-            <button
-                className="flex items-center justify-end w-full px-6"
-                tabIndex={-1}
-            >
-                <Image
-                    src="/assets/icons/icon-close.png"
-                    alt="menu"
-                    height="30"
-                    width="30"
-                    priority={true}
-                    draggable={false}
-                    onClick={() => {
-                        setContactMenu(false);
-                    }}
-                    tabIndex={1}
-                    className="select-none p-2 focus:outline-none"
-                    style={{
-                        filter: 'invert(1)',
-                    }}
-                />
-            </button>
+            {!inPage && (
+                <button
+                    className="flex items-center justify-end w-full px-6"
+                    tabIndex={-1}
+                >
+                    <Image
+                        src="/assets/icons/icon-close.png"
+                        alt="menu"
+                        height="30"
+                        width="30"
+                        priority={true}
+                        draggable={false}
+                        onClick={() => {
+                            setContactMenu(false);
+                        }}
+                        tabIndex={1}
+                        className="select-none p-2 focus:outline-none"
+                        style={{
+                            filter: 'invert(1)',
+                        }}
+                    />
+                </button>
+            )}
 
             {!showForm && (
                 <>

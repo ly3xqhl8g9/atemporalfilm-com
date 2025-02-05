@@ -19,7 +19,7 @@ export default function ProjectDisclaimer() {
     return (
         <>
             <p
-                className="select-none"
+                className="select-none my-4"
             >
                 {language === 'en'
                     ? 'For detailed information on the other programs co-financed by the European Union, please visit'
@@ -36,7 +36,7 @@ export default function ProjectDisclaimer() {
             </p>
 
             <div
-                className="flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-end text-right select-none"
+                className="flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-end text-center md:text-right select-none"
             >
                 <div>
                     <a

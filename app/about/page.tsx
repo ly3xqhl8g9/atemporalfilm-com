@@ -27,7 +27,7 @@ export default function About() {
 
     return (
         <div
-            className="max-w-[1800px] mx-auto min-h-screen flex flex-col items-center justify-center gap-8 select-none"
+            className="max-w-[1800px] pt-48 pb-24 md:pt-0 md:pb-0 mx-auto min-h-screen flex flex-col items-center justify-center gap-8 select-none"
         >
             <div
                 className="w-full h-[300px] flex flex-col gap-8 justify-center place-items-center"

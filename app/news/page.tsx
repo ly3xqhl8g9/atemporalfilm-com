@@ -34,7 +34,7 @@ export default function Project() {
                 />
             </div>
 
-            <div className="relative z-10 mx-auto max-w-[700px] px-8 lg:px-2 py-8 lg:pt-24">
+            <div className="relative z-10 mx-auto max-w-[700px] px-8 lg:px-2 py-8 pt-48">
                 <Content
                     language={language}
                 />

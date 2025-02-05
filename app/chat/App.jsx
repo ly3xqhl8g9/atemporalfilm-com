@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 
 import Chat from "./components/Chat";
 import ArrowRightIcon from "./components/icons/ArrowRightIcon";
@@ -6,6 +6,12 @@ import StopIcon from "./components/icons/StopIcon";
 import Progress from "./components/Progress";
 import ImageIcon from "./components/icons/ImageIcon";
 import ImagePreview from "./components/ImagePreview";
+
+import {
+    LanguageContext,
+} from '@/app/context';
+
+
 
 const IS_WEBGPU_AVAILABLE = !!navigator.gpu;
 const STICKY_SCROLL_THRESHOLD = 120;
@@ -29,6 +35,10 @@ const EXAMPLES = [
 ];
 
 function App() {
+  const {
+    language,
+  } = useContext(LanguageContext);
+
   // Create a reference to the worker object.
   const worker = useRef(null);
 
@@ -242,15 +252,17 @@ function App() {
           <div className="flex flex-col items-center mb-1 max-w-[436px] text-center">
             <h1 className="text-5xl font-bold mb-1">Janus Pro WebGPU</h1>
             <h2 className="font-semibold">
-              A novel autoregressive framework for unified<br/>
-              multimodal understanding and generation.
+              {language === 'en' ? 'a novel autoregressive framework for unified' : 'un model autoregresiv pentru o'}
+              <br/>
+              {language === 'en' ? 'multimodal understanding and generation' : 'înțelegere și generare multimodală'}
             </h2>
           </div>
 
           <div className="flex flex-col items-center px-4">
             <p className="max-w-[470px] mb-4">
               <br />
-              You are about to load{" "}
+              {language === 'en' ? 'You are about to load' : 'Vei încarcă'}
+              {" "}
               <a
                 href="https://huggingface.co/onnx-community/Janus-Pro-1B-ONNX"
                 target="_blank"
@@ -259,15 +271,16 @@ function App() {
               >
                 Janus-Pro-1B
               </a>
-              , a multimodal vision-language model that is optimized for
-              inference on the web. Everything runs 100% locally in your browser, meaning no data is sent to a server. Once
-              the model has loaded, it can even be used offline.
+              {language === 'en'
+                ? ', a multimodal vision-language model that is optimized for inference on the web. Everything runs 100% locally in your browser, meaning no data is sent to a server. Once the model has loaded, it can even be used offline.'
+                : ', un model multimodal de viziune-limbaj optimizat pentru inferență pe web. Totul rulează 100% local în browser-ul tău, ceea ce înseamnă că nu se trimit niciun fel de date către un server. Odată ce modelul a fost încărcat, poate fi folosit chiar și offline.'
+              }
             </p>
 
             {error && (
               <div className="text-red-500 text-center mb-2">
                 <p className="mb-1">
-                  Unable to load model due to the following error:
+                  {language === 'en' ? 'Unable to load model due to the following error:' : 'Nu s-a putut încărca modelul din cauza următoarei erori:'}
                 </p>
                 <p className="text-sm">{error}</p>
               </div>
@@ -282,7 +295,10 @@ function App() {
                 }}
                 disabled={status === null || status === "loading"}
               >
-                {status === null ? "feature checks..." : "load chat"}
+                {status === null
+                  ? language === 'en' ? 'feature checks...' : 'verificare funcționalități...'
+                  : language === 'en' ? 'load chat' : 'încarcă chat'
+                }
               </button>
             )}
           </div>
@@ -429,7 +445,11 @@ function App() {
           <textarea
             ref={textareaRef}
             className="scrollbar-thin w-full pl-11 pr-12 dark:bg-gray-700 py-4 rounded-lg bg-transparent border-none outline-none text-gray-800 disabled:text-gray-400 dark:text-gray-100 placeholder-gray-500 disabled:placeholder-gray-200 dark:placeholder-gray-300 dark:disabled:placeholder-gray-500 resize-none disabled:cursor-not-allowed"
-            placeholder="Type message or use '/imagine <prompt>' to generate an image."
+            placeholder={
+              language === 'en'
+                ? "type message or use '/imagine <prompt>'"
+                : 'scrie un mesaj sau folosește „/imagine <prompt>”'
+            }
             type="text"
             rows={1}
             value={input}
@@ -471,14 +491,14 @@ function App() {
       </div>
 
       <p className="text-xs text-gray-400 text-center mb-3">
-        Disclaimer: Generated content may be inaccurate or false.
+        {language === 'en' ? 'Disclaimer: Generated content may be inaccurate or false.' : 'Avertisment: Conținutul generat poate fi inexact sau fals.'}
       </p>
     </div>
   ) : (
     <div className="fixed w-screen h-screen bg-black z-10 bg-opacity-[92%] text-white text-2xl font-semibold flex justify-center items-center text-center">
-      WebGPU is not supported
+      {language === 'en' ? 'WebGPU is not supported' : 'WebGPU nu este disponibil'}
       <br />
-      by this browser :&#40;
+      {language === 'en' ? 'by this browser' : 'pe acest browser'}
     </div>
   );
 }

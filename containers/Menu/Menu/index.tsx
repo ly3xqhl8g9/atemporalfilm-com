@@ -20,6 +20,8 @@ import {
     menuLinks,
 } from '@/data/constants';
 
+import Socials from '@/containers/Socials';
+
 
 
 export default function Menu() {
@@ -98,7 +100,7 @@ export default function Menu() {
                                     userSelect: 'none',
                                 }}
                                 draggable={false}
-                                className="focus:outline-none focus:ring-2 focus:ring-white px-2 -mx-2"
+                                className="focus:outline-none px-2 -mx-2"
                             >
                                 {language === 'en' ? item.nameEn : item.nameRo}
                             </Link>
@@ -107,32 +109,9 @@ export default function Menu() {
                 })}
             </ul>
 
-
-            <ul
-                className="flex justify-center gap-12 mt-12"
-            >
-                <li>
-                    <a
-                        href="https://www.instagram.com/atemporalfilm"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
-                    >
-                        ig
-                    </a>
-                </li>
-
-                <li>
-                    <a
-                        href="https://www.linkedin.com/company/atemporal-film"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white"
-                    >
-                        in
-                    </a>
-                </li>
-            </ul>
+            <Socials
+                hoverable={false}
+            />
         </div>
     );
 }

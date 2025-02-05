@@ -14,7 +14,7 @@ import {
 export default function Footer() {
     return (
         <div
-            className="flex flex-row items-center justify-between bg-black z-50 p-4 px-8 max-w-[1800px] mx-auto"
+            className="md:flex flex-row items-center justify-between bg-black z-50 p-4 px-8 max-w-[1800px] mx-auto"
         >
             <ul
                 className="flex justify-center items-center gap-12 select-none"
@@ -58,7 +58,7 @@ export default function Footer() {
             </ul>
 
             <div
-                className="text-sm text-right lg:max-w-[800px] z-50 flex flex-row items-center gap-4"
+                className="lg:flex lg:max-w-[800px] gap-4 items-center z-50 text-sm text-center md:text-right md:ml-4"
             >
                 <ProjectDisclaimer />
             </div>

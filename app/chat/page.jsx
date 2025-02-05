@@ -1,9 +1,9 @@
 'use client';
 
-import NoSSRWrapper from '@/components/NoSSRWrapper';
+import NoSSRWrapper from '@/containers/NoSSRWrapper';
 
-import App from "./App.jsx";
-import "./index.css";
+import App from './App.jsx';
+import './index.css';
 
 
 

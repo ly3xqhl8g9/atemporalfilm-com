@@ -25,8 +25,8 @@ export const menuLinks = [
         href: '/news',
     },
     {
-        nameEn: 'Photo Gallery',
-        nameRo: 'Galerie Foto',
+        nameEn: 'Gallery',
+        nameRo: 'Galerie',
         href: '/gallery',
     },
     {

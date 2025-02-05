@@ -7,21 +7,23 @@ export default function PageDetail({
     children,
     fullWidth,
 } : {
-    name: string,
+    name?: string,
     children: React.ReactNode,
     fullWidth?: boolean,
 }) {
     return (
         <div
             className={
-                `m-auto p-4 ${fullWidth ? 'w-full' : 'max-w-[800px]'}`
+                `pt-48 m-auto p-4 ${fullWidth ? 'w-full' : 'max-w-[800px]'}`
             }
         >
-            <h1
-                className="grid place-content-center text-4xl lg:text-6xl mt-24 mb-24"
-            >
-                {name}
-            </h1>
+            {name && (
+                <h1
+                    className="grid place-content-center text-4xl lg:text-6xl mt-24 mb-24"
+                >
+                    {name}
+                </h1>
+            )}
 
             {children}
         </div>
