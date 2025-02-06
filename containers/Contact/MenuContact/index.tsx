@@ -39,7 +39,14 @@ export default function MenuContact({
             return;
         }
 
-        const handleClickOutside = (event: any) => {
+        const handleScroll = (event: Event | WheelEvent) => {
+            if (window.innerWidth > 800) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }
+
+        const handleClickOutside = (event: any /* MouseEvent */) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
                 setContactMenu(false);
             }
@@ -51,12 +58,18 @@ export default function MenuContact({
             }
         };
 
+        window.addEventListener('scroll', handleScroll, { passive: false });
+        window.addEventListener('wheel', handleScroll, { passive: false });
+
         document.addEventListener('mousedown', handleClickOutside);
         document.addEventListener('keydown', handleEscape);
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscape);
+
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('wheel', handleScroll);
         };
     }, [
         inPage,
@@ -69,7 +82,7 @@ export default function MenuContact({
             ref={menuRef}
             className={inPage
                 ? ''
-                : 'select-none fixed top-0 left-0 bottom-0 right-0 md:left-auto min-w-[600px] bg-black z-50 grid place-content-center'
+                : 'select-none absolute top-0 left-0 bottom-0 right-0 md:left-auto min-w-[600px] bg-black z-50 grid place-content-center'
             }
         >
             {!inPage && (

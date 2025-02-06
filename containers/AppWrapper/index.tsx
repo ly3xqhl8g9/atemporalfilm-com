@@ -67,7 +67,7 @@ export default function AppWrapper({
 
                 {contactMenu && (
                     <div
-                        className="animate-slideinright w-40 h-full absolute top-0 right-0 z-50"
+                        className="animate-slideinright w-40 h-full fixed top-0 right-0 bottom-o z-50"
                         style={{
                             transform: 'translate3d(200%, 0, 0)',
                         }}

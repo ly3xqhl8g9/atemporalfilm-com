@@ -87,22 +87,22 @@ export default function Menu() {
             </button>
 
             <ul>
-                {menuLinks.map(item => {
+                {menuLinks.map(menuLink => {
                     return (
                         <div
-                            key={item.href}
+                            key={menuLink.href}
                             className="text-2xl md:text-4xl mx-10 my-6"
                         >
                             <Link
-                                href={item.href}
+                                href={menuLink.href}
                                 style={{
-                                    color: window.location.pathname === item.href ? '#586d70' : 'white',
+                                    color: window.location.pathname === menuLink.href ? '#586d70' : 'white',
                                     userSelect: 'none',
                                 }}
                                 draggable={false}
                                 className="focus:outline-none px-2 -mx-2"
                             >
-                                {language === 'en' ? item.nameEn : item.nameRo}
+                                {menuLink.name[language]}
                             </Link>
                         </div>
                     );

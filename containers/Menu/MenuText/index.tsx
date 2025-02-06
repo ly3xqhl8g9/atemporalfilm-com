@@ -96,27 +96,24 @@ export default function Menu() {
                     <ul
                         className="flex flex-row gap-8"
                     >
-                        {menuLinks.map(item => {
-                            if (item.href === '/') {
+                        {menuLinks.map(menuLink => {
+                            if (menuLink.href === '/') {
                                 return;
                             }
 
-                            let name = language === 'en' ? item.nameEn : item.nameRo;
-                            name = name.charAt(0).toUpperCase() + name.slice(1);
-
                             return (
                                 <div
-                                    key={item.href}
+                                    key={menuLink.href}
                                     className="text-xl"
                                 >
                                     <Link
-                                        href={item.href === '/contact' ? '#' : item.href}
+                                        href={menuLink.href === '/contact' ? '#' : menuLink.href}
                                         style={{
-                                            color: pathname === item.href ? '#ffffff' : '#f0f0f0',
+                                            color: pathname === menuLink.href ? '#ffffff' : '#f0f0f0',
                                             textShadow: '0px 1px 1px #292929',
                                         }}
                                         onClick={(event) => {
-                                            if (item.href === '/contact') {
+                                            if (menuLink.href === '/contact') {
                                                 event.preventDefault();
                                                 setContactMenu(!contactMenu);
                                             }
@@ -124,7 +121,7 @@ export default function Menu() {
                                         draggable={false}
                                         className="select-none focus:outline-none px-2 -mx-2 font-light"
                                     >
-                                        {name}
+                                        {menuLink.name[language]}
                                     </Link>
                                 </div>
                             );

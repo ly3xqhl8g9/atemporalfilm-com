@@ -1,37 +1,51 @@
 export const menuLinks = [
     {
-        nameEn: 'Home',
-        nameRo: 'Acasă',
+        name: {
+            en: 'Home',
+            ro: 'Acasă',
+        },
         href: '/',
     },
     {
-        nameEn: 'Work',
-        nameRo: 'Proiecte',
+        name: {
+            en: 'Work',
+            ro: 'Proiecte',
+        },
         href: '/work',
     },
     {
-        nameEn: 'About',
-        nameRo: 'Despre',
+        name: {
+            en: 'About',
+            ro: 'Despre',
+        },
         href: '/about',
     },
     // {
-    //     nameEn: 'Careers',
-    //     nameRo: 'Jobs',
+    //     name: {
+    //         en: 'Careers',
+    //         ro: 'Jobs',
+    //     },
     //     href: '/careers',
     // },
     {
-        nameEn: 'News',
-        nameRo: 'Noutăți',
+        name: {
+            en: 'News',
+            ro: 'Noutăți',
+        },
         href: '/news',
     },
     {
-        nameEn: 'Gallery',
-        nameRo: 'Galerie',
+        name: {
+            en: 'Gallery',
+            ro: 'Galerie',
+        },
         href: '/gallery',
     },
     {
-        nameEn: 'Contact',
-        nameRo: 'Contact',
+        name: {
+            en: 'Contact',
+            ro: 'Contact',
+        },
         href: '/contact',
     },
 ];
