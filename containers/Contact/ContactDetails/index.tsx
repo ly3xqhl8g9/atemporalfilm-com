@@ -1,9 +1,25 @@
 'use client';
 
 import { useContext } from 'react';
+
 import { LanguageContext } from '@/app/context';
+import {
+    Language,
+} from '@/data/index';
+
+import {
+    ContactIcon,
+} from '@/data/icons';
+
+import {
+    LocalizedContent,
+    Section,
+    sections,
+} from '@/data/contact';
 
 
+
+const CONTACT_INDEX = 30;
 
 export default function ContactDetails({
     showForm,
@@ -18,82 +34,77 @@ export default function ContactDetails({
 }) {
     const { language } = useContext(LanguageContext);
 
-    const sections = [
-        {
-            type: 'person',
-            content: [
-                'ȘTEFAN AZAHARIOAIE',
-                language === 'en' ? 'sound designer, editor' : 'design sunet, monteur',
-                { type: 'tel', value: '+40 743 343 800', href: 'tel:+40743343800' },
-                { type: 'email', value: 'stefan@atemporalfilm.com', href: 'mailto:stefan@atemporalfilm.com' }
-            ]
-        },
-        {
-            type: 'person',
-            content: [
-                'DIANA SMEU',
-                'COO',
-                { type: 'tel', value: '+40 770 789 376', href: 'tel:++40770789376' },
-                { type: 'email', value: 'diana@atemporalfilm.com', href: 'mailto:diana@atemporalfilm.com' }
-            ]
-        },
-        {
-            type: 'email',
-            content: [
-                { type: 'email', value: 'atemporalfilm@gmail.com', href: 'mailto:atemporalfilm@gmail.com' }
-            ]
-        },
-        {
-            type: 'locations',
-            title: language === 'en' ? 'Locations' : 'Locații',
-            content: [
-                `${language === 'en' ? 'Piatra-Neamt' : 'Piatra-Neamț'}, Progresului 71`,
-                `${language === 'en' ? 'Piatra-Neamt' : 'Piatra-Neamț'}, Traian 6`,
-                `${language === 'en' ? 'Bucharest' : 'București'}, ${language === 'en' ? 'Vasile Lascar' : 'Vasile Lascăr'} 23-25`,
-                `${language === 'en' ? 'Romania' : 'România'}`
-            ]
-        }
-    ];
+
+    const getLocalizedContent = (content: string | LocalizedContent<Language> | any) => {
+        if (typeof content === 'string') return content;
+        if (content && content[language]) return content[language];
+        return content;
+    };
+
+    const renderSection = (section: Section, index: number) => {
+        return (
+            <div
+                key={index}
+                className={`mb-8 transition-all duration-300 ${
+                    hoveredIndex !== null && hoveredIndex !== index ? 'text-gray-900' : 'text-gray-400'
+                }`}
+                onMouseEnter={() => setHoveredIndex?.(index)}
+                onMouseLeave={() => setHoveredIndex?.(null)}
+            >
+                {section.type === 'locations' && (
+                    <h4 className="text-lg mb-1">{section.title[language]}</h4>
+                )}
+
+                {section.type === 'person' && (
+                    <>
+                        <p>{section.content.name}</p>
+                        <p>{getLocalizedContent(section.content.title)}</p>
+                        {section.content.contact.map((item, i) => (
+                            <p key={i}>
+                                <a href={item.href} className="underline">
+                                    {item.value}
+                                </a>
+                            </p>
+                        ))}
+                    </>
+                )}
+
+                {section.type === 'email' && section.content.contact.map((item, i) => (
+                    <p key={i}>
+                        <a href={item.href} className="underline">
+                            {item.value}
+                        </a>
+                    </p>
+                ))}
+
+                {section.type === 'locations' && section.content[language].map((item, i) => (
+                    <p key={i}>{item}</p>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="text-right text-lg w-full px-8">
             <button
                 className={`text-xl my-8 ${
-                    hoveredIndex !== null && hoveredIndex !== 30 ? 'text-gray-900' : 'text-white'
+                    hoveredIndex !== null && hoveredIndex !== CONTACT_INDEX ? 'text-gray-900' : 'text-white'
                 }`}
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                    setShowForm(true);
+                    setHoveredIndex?.(null);
+                }}
                 onMouseEnter={() => setHoveredIndex?.(30)}
                 onMouseLeave={() => setHoveredIndex?.(null)}
             >
                 {language === 'en' ? 'Contact Us Here' : 'Formular de Contact'}
+
+                <ContactIcon
+                    stroke={hoveredIndex !== null && hoveredIndex !== CONTACT_INDEX ? '#212121' : '#ffffff'}
+                />
             </button>
 
-            {sections.map((section, index) => (
-                <div
-                    key={index}
-                    className={`mb-8 transition-all duration-300 ${
-                        hoveredIndex !== null && hoveredIndex !== index ? 'text-gray-900' : 'text-gray-400'
-                    }`}
-                    onMouseEnter={() => setHoveredIndex?.(index)}
-                    onMouseLeave={() => setHoveredIndex?.(null)}
-                >
-                    {section.type === 'locations' && (
-                        <h4 className="text-lg mb-1">{section.title}</h4>
-                    )}
-
-                    {section.content.map((item, itemIndex) => (
-                        <p key={itemIndex}>
-                            {typeof item === 'string' ? (
-                                item
-                            ) : (
-                                <a href={item.href} className="underline">
-                                    {item.value}
-                                </a>
-                            )}
-                        </p>
-                    ))}
-                </div>
-            ))}
+            {sections.map((section, index) => renderSection(section, index))}
         </div>
     );
 }

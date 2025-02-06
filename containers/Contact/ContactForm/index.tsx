@@ -15,11 +15,17 @@ import {
     languageData,
 } from '@/data/language';
 
+import {
+    backArrowIcon,
+} from '@/data/icons';
+
+import {
+    FIELD_LENGTH,
+    MESSAGE_LENGTH,
+    EMAIL_PATTERN,
+} from '@/data/validation';
 
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const FIELD_LENGTH = 200;
-const MESSAGE_LENGTH = 20_000;
 
 
 export default function ContactForm({
@@ -106,7 +112,16 @@ export default function ContactForm({
     }
 
     return (
-        <div>
+        <div
+            className="relative"
+        >
+            <button
+                onClick={() => setShowForm(false)}
+                className="absolute top-[-20px] left-0"
+            >
+                {backArrowIcon}
+            </button>
+
             <Input
                 label={languageData.contactForm.name[language]}
                 value={name}
@@ -136,7 +151,7 @@ export default function ContactForm({
             />
 
             <div
-                className="max-w-[300px] my-4 mx-auto text-sm text-center"
+                className="max-w-[280px] my-4 mx-auto text-sm text-center"
             >
                 {languageData.contactForm.submitDisclaimer[language]}
             </div>
@@ -147,7 +162,7 @@ export default function ContactForm({
                 <button
                     onClick={sendForm}
                     disabled={!validMessage || loadingSend}
-                    className="bg-purple-800 disabled:opacity-50 text-white min-w-[200px] px-4 py-2 rounded-none m-auto"
+                    className="bg-purple-800 disabled:opacity-50 text-white min-w-[280px] px-4 py-2 rounded-none m-auto"
                 >
                     {loadingSend
                         ? languageData.contactForm.sending[language]

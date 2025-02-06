@@ -1,3 +1,6 @@
+export type Language = 'en' | 'ro';
+
+
 export const languageData = {
     aboutPage: {
         line1: {

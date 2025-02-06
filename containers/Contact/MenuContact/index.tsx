@@ -7,11 +7,13 @@ import {
     useEffect,
 } from 'react';
 
-import Image from 'next/image';
-
 import {
     AppContext
 } from '@/app/context';
+
+import {
+    closeIcon,
+} from '@/data/icons';
 
 import ContactDetails from '@/containers/Contact/ContactDetails';
 import ContactForm from '@/containers/Contact/ContactForm';
@@ -89,23 +91,11 @@ export default function MenuContact({
                 <button
                     className="flex items-center justify-end w-full px-6"
                     tabIndex={-1}
+                    onClick={() => {
+                        setContactMenu(false);
+                    }}
                 >
-                    <Image
-                        src="/assets/icons/icon-close.png"
-                        alt="menu"
-                        height="30"
-                        width="30"
-                        priority={true}
-                        draggable={false}
-                        onClick={() => {
-                            setContactMenu(false);
-                        }}
-                        tabIndex={1}
-                        className="select-none p-2 focus:outline-none"
-                        style={{
-                            filter: 'invert(1)',
-                        }}
-                    />
+                    {closeIcon}
                 </button>
             )}
 

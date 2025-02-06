@@ -1,5 +1,4 @@
-export type Language = 'en' | 'ro';
-
+export * from './language';
 
 
 export interface Entity {
