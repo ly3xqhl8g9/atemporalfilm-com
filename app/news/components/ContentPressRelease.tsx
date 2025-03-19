@@ -196,20 +196,14 @@ export default function ContentPressRelease({
                             ? 'Contact details for the beneficiary:'
                             : 'Date de contact beneficiar:'
                         }
-                    </p>
-
-                    <p>
+                        <br />
                         {language === 'en'
                             ? 'IULIAN-ȘTEFAN AZAHARIOAIE, Project Manager'
                             : 'IULIAN-ȘTEFAN AZAHARIOAIE, Manager de proiect'
                         }
-                    </p>
-
-                    <p>
+                        <br />
                         Phone: +40743343800, +40770789376
-                    </p>
-
-                    <p>
+                        <br />
                         Email: atemporalfilm@gmail.com
                     </p>
                 </>
