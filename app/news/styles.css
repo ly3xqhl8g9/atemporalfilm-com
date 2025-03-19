@@ -2,8 +2,12 @@
     font-size: 1.6rem;
 }
 
+.project-text h2 {
+    font-size: 1.2rem;
+}
+
 .project-text h3 {
-    font-size: 1.3rem;
+    font-size: 1rem;
 }
 
 .project-text h1,
@@ -24,4 +28,22 @@
 
 .project-text a {
     text-decoration: underline;
+}
+
+.project-text button {
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.project-text button:hover {
+    transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.project-text button + div {
+    animation: fadeIn 0.5s ease-in-out;
 }

@@ -4,15 +4,19 @@ import {
     useContext,
 } from 'react';
 
+import Image from 'next/image';
+
 import {
     LanguageContext,
 } from '@/app/context';
 
-import Image from 'next/image';
+import ContentProject from './components/ContentProject';
+import ContentPressRelease from './components/ContentPressRelease';
+
+import ProjectImages from '@/containers/ProjectImages';
+import ProjectDisclaimer from '@/containers/ProjectDisclaimer';
 
 import './styles.css';
-
-import Content from './components/Content';
 
 
 
@@ -35,9 +39,28 @@ export default function Project() {
             </div>
 
             <div className="relative z-10 mx-auto max-w-[700px] px-8 lg:px-2 py-8 pt-48">
-                <Content
-                    language={language}
+                <ProjectImages
+                    width="w-auto"
+                    withLink={true}
                 />
+
+                <div
+                    className="my-24"
+                >
+                    <ContentProject
+                        language={language}
+                    />
+                </div>
+
+                <div
+                    className="my-24"
+                >
+                    <ContentPressRelease
+                        language={language}
+                    />
+                </div>
+
+                <ProjectDisclaimer />
             </div>
         </div>
     );
