@@ -22,28 +22,18 @@ export default function ContentProject({
     return (
         <>
             <h1>
-                {language === 'en' ? 'Project title' : 'Titlul proiectului'}
+                {language === 'en' ? 'PRESS RELEASE' : 'COMUNICAT DE PRESĂ'}
             </h1>
-            <h2>
+            <h3>
                 {language === 'en'
-                    ? 'DEVELOPMENT OF THE DIGITAL RESOURCES OF THE SOCIETY SC ATEMPORAL FILM SRL'
-                    : 'DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL'
+                    ? '04/30/2024'
+                    : '30.04.2024'
                 }
-            </h2>
+            </h3>
             <h2>
                 {language === 'en'
-                    ? 'SMIS CODE 312248'
-                    : 'COD SMIS 312248'
-                }
-            </h2>
-
-            <h1>
-                {language === 'en' ? 'Project description' : 'Descrierea proiectului'}
-            </h1>
-            <h2>
-                {language === 'en'
-                    ? 'ATEMPORAL FILM S.R.L. implements the project entitled DEVELOPMENT OF THE DIGITAL RESOURCES OF THE SOCIETY SC ATEMPORAL FILM S.R.L.'
-                    : 'ATEMPORAL FILM S.R.L. implementează proiectul cu titlul DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM S.R.L.'
+                    ? 'Announcement to begin the implementation of the project "DEVELOPMENT OF DIGITAL RESOURCES OF SC ATEMPORAL FILM SRL", SMIS Code 312248'
+                    : 'Anunț începere implementare proiect „DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL”, Cod SMIS 312248'
                 }
             </h2>
 
@@ -61,8 +51,36 @@ export default function ContentProject({
                 <>
                     <p>
                         {language === 'en'
+                            ? 'SC ATEMPORAL FILM S.R.L., fiscal identification code 39509159, registered with the Trade Register under no. J27/604/2018, headquartered in Piatra Neamț Municipality, Traian Boulevard, no. 6, Block S5, Floor 4, App. 83, Neamț County, Romania, announces the signing, on 10.04.2024, of Financing Contract no. 21 for the implementation of the project entitled: "DEVELOPMENT OF DIGITAL RESOURCES OF SC ATEMPORAL FILM SRL", corresponding to SMIS Code 312248.'
+                            : 'SC ATEMPORAL FILM S.R.L., cod de identificare fiscală  39509159, înregistrată la Registrul Comerțului sub nr.  J27/604/2018, cu sediul în localitatea Municipiul Piatra Neamț, Bulevardul Traian, nr. 6, Bloc S5, Etaj 4, Ap. 83, județul Neamț, România, anunță semnarea, în data de 10.04.2024,  a Contractului de finanțare nr. 21 pentru implementarea proiectului cu titlul: „DEZVOLTAREA RESURSELOR DIGITALE ALE SOCIETATII SC ATEMPORAL FILM SRL”, aferent Cod SMIS 312248.'
+                        }
+                    </p>
+
+                    <p>
+                        {language === 'en'
+                            ? 'The project will be implemented at the company\'s headquarters in Piatra Neamț Municipality, Traian Boulevard, no. 6, Block S5, Floor 4, Apartment 83, Neamț County, through a non-reimbursable funding granted through the North-East Regional Program 2021-2027, Priority 2: North-East - A more digitalized region, Specific Objective RSO1.2 - ERDF - RSO1.2_Capturing the advantages of digitalization, for the benefit of citizens, companies, research organizations and public authorities.'
+                            : 'Proiectul va fi implementat la sediul companiei din localitatea Municipiul Piatra Neamț, Bulevardul Traian, nr. 6, Bloc S5, Etaj 4, Ap. 83, județul Neamț, prin intermediul unei finanțări nerambursabile acordate prin Programul Regional Nord-Est 2021-2027, Prioritatea 2:  Nord-Est – O regiune mai digitalizată, Obiectivul specific RSO1.2 - FEDR - RSO1.2_Valorificarea avantajelor digitalizării, în beneficiul cetățenilor, al companiilor, al organizațiilor de cercetare și al autorităților publice.'
+                        }
+                    </p>
+
+                    <p>
+                        {language === 'en'
+                            ? 'The total value of the project is 436,324.73 lei, of which 392,691.78 lei represents the non-reimbursable financing (equivalent to 90% of the total eligible amount approved), of which 333,788.01 lei the non-reimbursable eligible amount from the funds (ERDF/ESF+/CF/FTJ) and 58903.77 lei the non-reimbursable eligible amount from the national budget, according to the financing contract signed with the North-East Regional Development Agency, as the Managing Authority for the North-East Regional Program 2021-2027. The value of the eligible co-financing of the Beneficiary is 43,632.95 lei (equivalent to 10% of the total eligible amount approved).'
+                            : 'Valoarea totală a proiectului este de 436.324,73 lei, din care 392.691,78 lei reprezintă finanțarea nerambursabilă (echivalentă cu 90% din valoarea totală eligibilă aprobată), din care 333.788.01 lei valoarea eligibilă nerambursabilă din fondurilor (FEDR/FSE+/FC/FTJ) si 58903.77 lei valoarea eligibilă nerambursabilă din bugetul naţional, conform contractului de finanțare semnat cu Agenția pentru Dezvoltare Regională Nord-Est, în calitate de Autoritate de Management pentru Programul Regional Nord-Est 2021-2027. Valoarea co-finanţarii eligibile a Beneficiarului este de 43.632,95 lei (echivalentă cu 10% din valoarea totală eligibilă aprobată).'
+                        }
+                    </p>
+
+                    <p>
+                        {language === 'en'
                             ? 'The general objective of the project is the digitization of the resources of the company S.C. ATEMPORAL FILM S.R.L. to streamline and digitize a series of processes of our company. These processes are: Data storage (audio recordings), Radio frequency transmission, Cloud computing. Based on the investment, we will acquire modern, state-of-the-art equipment that will allow our employees to perform these processes at a performant and competitive level. To promote the investment and to attract new customers and markets, we will develop and launch a web platform for the promotion of the company\'s activity and portfolio.'
                             : 'Obiectivul general al proiectului este digitalizarea resurselor societății S.C. ATEMPORAL FILM S.R.L. pentru a eficientiza și digitaliza o serie de procese ale companiei noastre. Aceste procese sunt: Stocarea de date (înregistrări audio), Transmisiei în radiofrecvență, Cloud computing. Pe baza investiției, vom achiziționa echipamente moderne, de ultimă generație, care vor permite angajaților noștri efectuarea acestor procese la un nivel performant și competitiv. Pentru a promova investiția și pentru a atrage clienți și piețe noi, vom dezvolta și lansa o platformă web pentru promovarea activității și portofoliului companiei.'
+                        }
+                    </p>
+
+                    <p>
+                        {language === 'en'
+                            ? 'The project contributes to achieving the specific objective of the call PRNE/107/PRNE_P2/OP1/RSO1.2/PRNE_A29 - PR/NE/2023/PI2/RSO1.2/1 – SME DIGITALISATION since by making the investment proposed by the beneficiary, it aims to digitize the commercial company.'
+                            : 'Proiectul contribuie la realizarea obiectivului specific al apelului PRNE/107/PRNE_P2/OP1/RSO1.2/PRNE_A29 - PR/NE/2023/PI2/RSO1.2/1 – DIGITALIZARE IMM întrucât prin realizarea investiției propuse de către beneficiar, acesta urmărește digitalizarea societății comerciale.'
                         }
                     </p>
 
@@ -122,13 +140,6 @@ export default function ContentProject({
 
                     <p>
                         {language === 'en'
-                            ? 'The total value of the project is 436,324.73 lei, of which 392,691.78 lei represents non-reimbursable funding (equivalent to 90% of the total eligible value approved), of which 333,788.01 lei represents the eligible non-reimbursable value from the funds (FEDR/FSE+/FC/FTJ) and 58,903.77 lei represents the eligible non-reimbursable value from the national budget, according to the financing contract signed with the North-East Regional Development Agency, as Managing Authority for the North-East Regional Program 2021-2027. The value of the eligible co-financing of the Beneficiary is 43,632.95 lei (equivalent to 10% of the total eligible value approved).'
-                            : 'Valoarea totală a proiectului este de 436.324,73 lei, din care 392.691,78 lei reprezintă finanțarea nerambursabilă (echivalentă cu 90% din valoarea totală eligibilă aprobată), din care 333.788.01 lei valoarea eligibilă nerambursabilă din fondurilor (FEDR/FSE+/FC/FTJ) si 58903.77 lei valoarea eligibilă nerambursabilă din bugetul naţional, conform contractului de finanțare semnat cu Agenția pentru Dezvoltare Regională Nord-Est, în calitate de Autoritate de Management pentru Programul Regional Nord-Est 2021-2027. Valoarea co-finanţarii eligibile a Beneficiarului este de 43.632,95 lei (echivalentă cu 10% din valoarea totală eligibilă aprobată).'
-                        }
-                    </p>
-
-                    <p>
-                        {language === 'en'
                             ? 'The implementation period of the project is from the date of signing the financing contract, 10.04.2024, until 10.04.2025.'
                             : 'Perioada de implementare a proiectului este de la data semnării contractului de finanțare, 10.04.2024, până la 10.04.2025.'
                         }
@@ -146,6 +157,22 @@ export default function ContentProject({
                         >
                             www.regionordest.ro
                         </a>
+                    </p>
+
+                    <p>
+                        {language === 'en'
+                            ? 'Contact details for the beneficiary:'
+                            : 'Date de contact beneficiar:'
+                        }
+                        <br />
+                        {language === 'en'
+                            ? 'IULIAN-ȘTEFAN AZAHARIOAIE, Project Manager'
+                            : 'IULIAN-ȘTEFAN AZAHARIOAIE, Manager de proiect'
+                        }
+                        <br />
+                        Phone: +40743343800, +40770789376
+                        <br />
+                        Email: atemporalfilm@gmail.com
                     </p>
                 </>
             )}
