@@ -46,21 +46,6 @@ export default function Footer() {
                     </li>
                 ))}
 
-                <li>
-                    <Link
-                        href="/chat"
-                    >
-                        chat
-                    </Link>
-                </li>
-
-                <li>
-                    <Link
-                        href="/converter"
-                    >
-                        converter
-                    </Link>
-                </li>
             </ul>
 
             <div
