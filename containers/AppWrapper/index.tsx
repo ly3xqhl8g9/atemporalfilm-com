@@ -3,6 +3,7 @@
 import React, {
     useState,
 } from 'react';
+import { usePathname } from 'next/navigation';
 
 import {
     AppContext,
@@ -31,6 +32,11 @@ export default function AppWrapper({
         setLanguage,
     ] = useState<'en' | 'ro'>('en');
 
+    // Pe homepage (`/`) ascundem meniul/limba din AppWrapper —
+    // homepage-ul are propriul header (în <LandingHero />).
+    const pathname = usePathname();
+    const isHome = pathname === '/';
+
 
     return (
         <AppContext.Provider
@@ -45,23 +51,27 @@ export default function AppWrapper({
                     setLanguage,
                 }}
             >
-                <div
-                    className="block md:hidden max-w-[1800px] relative mx-auto"
-                >
-                    <Menu />
+                {!isHome && (
+                    <>
+                        <div
+                            className="block md:hidden max-w-[1800px] relative mx-auto"
+                        >
+                            <Menu />
 
-                    <div
-                        className="fixed z-50 top-[30px] right-[30px]"
-                    >
-                        <LanguageSwitch />
-                    </div>
-                </div>
+                            <div
+                                className="fixed z-50 top-[30px] right-[30px]"
+                            >
+                                <LanguageSwitch />
+                            </div>
+                        </div>
 
-                <div
-                    className="hidden md:block max-w-[1800px] relative mx-auto"
-                >
-                    <MenuText />
-                </div>
+                        <div
+                            className="hidden md:block max-w-[1800px] relative mx-auto"
+                        >
+                            <MenuText />
+                        </div>
+                    </>
+                )}
 
                 {children}
 

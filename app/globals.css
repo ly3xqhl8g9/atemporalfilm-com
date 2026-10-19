@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 
+/* Atemporal Film — paleta de culori a homepage-ului
+   (folosită în containers/LandingHero/landing.module.css) */
+:root {
+    --bg:        oklch(0.955 0.003 80);
+    --fg:        oklch(0.18 0.005 80);
+    --fg-soft:   oklch(0.40 0.005 80);
+    --fg-faint:  oklch(0.58 0.005 80);
+    --rule:      oklch(0.82 0.005 80);
+}
+
+
 html {
     overflow-y: scroll;
 }

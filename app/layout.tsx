@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
-import { League_Spartan } from 'next/font/google';
+import {
+    League_Spartan,
+    EB_Garamond,
+    JetBrains_Mono,
+    Caveat,
+} from 'next/font/google';
 
 import './globals.css';
 
@@ -12,6 +17,28 @@ import AppWrapper from '@/containers/AppWrapper';
 const font = League_Spartan({
     subsets: ['latin'],
     weight: ['300', '400'],
+});
+
+const fontSerif = EB_Garamond({
+    subsets: ['latin'],
+    weight: ['400', '500'],
+    style: ['normal', 'italic'],
+    variable: '--font-serif',
+    display: 'swap',
+});
+
+const fontMono = JetBrains_Mono({
+    subsets: ['latin'],
+    weight: ['400', '500'],
+    variable: '--font-mono',
+    display: 'swap',
+});
+
+const fontHand = Caveat({
+    subsets: ['latin'],
+    weight: ['500', '600'],
+    variable: '--font-hand',
+    display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -57,7 +84,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${font.className} max-w-[2560px] min-h-screen mx-auto`}>
+            <body className={`${font.className} ${fontSerif.variable} ${fontMono.variable} ${fontHand.variable} max-w-[2560px] min-h-screen mx-auto`}>
                 <AppWrapper>
                     {children}
                 </AppWrapper>

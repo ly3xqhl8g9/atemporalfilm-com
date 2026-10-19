@@ -1,0 +1,841 @@
+/* Atemporal Film — homepage styles
+   Port 1:1 din design-ul Claude (styles.css), adaptat pentru CSS Modules.
+   Variabilele :root sunt definite în app/globals.css (CSS Modules nu
+   permite selectori :global la top-level). */
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.page {
+    position: relative;
+    /* 200vh ca să existe distanță de scroll → cofinance alunecă sus */
+    min-height: 200vh;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-serif), 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+
+    /* Format afiș de film (2:3) — modifică aici dacă vrei să ajustezi
+       dimensiunea afișelor; toate componentele galeriei se recalculează. */
+    --img-w:     280px;   /* lățime poster */
+    --img-h:     420px;   /* înălțime poster (2:3) */
+    --vf-w:      340px;   /* viewfinder ușor mai lat decât posterul */
+    --vf-h:      460px;   /* viewfinder ușor mai înalt */
+    --gallery-w: 320px;   /* galeria centrală */
+}
+
+.page * { box-sizing: border-box; }
+.page a { color: inherit; text-decoration: none; }
+
+
+/* ── GRAIN — static SVG film grain (no drift) ────────── */
+.grain {
+    position: fixed;
+    inset: -10px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.45;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 240px 240px;
+}
+
+
+/* ── HEADER ───────────────────────────────────────────── */
+.siteHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 140px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 38px 64px 0;
+    z-index: 50;
+    pointer-events: none;
+}
+.siteHeader > * { pointer-events: auto; }
+
+.logo {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 0.85;
+    font-family: var(--font-hand), 'Caveat', cursive;
+    color: var(--fg);
+    letter-spacing: -0.005em;
+}
+.logoWord  { display: block; font-weight: 600; }
+.logoWord1 { font-size: 38px; transform: rotate(-2deg); }
+.logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
+
+/* ── NAV — coloană verticală numerotată, dreapta-aliniată ── */
+.navMain {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 9px;
+    color: var(--fg);
+}
+
+.navItem {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: var(--font-serif), 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    letter-spacing: 0.005em;
+    color: var(--fg);
+    text-decoration: none;
+    transition: opacity 0.2s ease, transform 0.4s cubic-bezier(.2,.7,.2,1);
+    transform-origin: right center;
+}
+.navItem:hover { opacity: 0.5; }
+.navItem:hover .navDash { background: var(--fg); }
+
+.navText { display: inline-block; }
+
+.navDash {
+    display: inline-block;
+    width: 28px;
+    height: 1px;
+    background: var(--fg-faint);
+    align-self: center;
+    transition: background 0.2s ease;
+}
+
+.navNum {
+    font-family: var(--font-mono), monospace;
+    font-style: normal;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    min-width: 22px;
+    text-align: right;
+}
+
+.navRule {
+    width: 56px;
+    height: 0.5px;
+    background: var(--rule);
+    margin: 6px 0 4px;
+}
+
+.langBtn {
+    appearance: none;
+    background: transparent;
+    border: 0.5px solid var(--rule);
+    border-radius: 2px;
+    padding: 6px 12px 5px;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.langBtn:hover {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+}
+.langBtnArrow { font-size: 9px; opacity: 0.7; }
+
+
+/* ── SIDE TEXTS — fixed; content swaps with fade ─────── */
+.side {
+    position: fixed;
+    font-family: var(--font-serif), serif;
+    z-index: 40;
+}
+
+.sideEyebrow {
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-bottom: 14px;
+}
+
+.sideText {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--fg);
+    margin: 0 0 18px;
+    font-style: italic;
+    text-wrap: pretty;
+}
+
+.sideTextSm {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--fg-soft);
+    margin: 0 0 18px;
+    text-wrap: pretty;
+}
+
+.sideMeta {
+    font-family: var(--font-mono), monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--fg-faint);
+    margin-top: 6px;
+    display: block;
+}
+
+.sideLeft1 {
+    left: 64px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+}
+
+.sideLeft2 {
+    left: 290px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    text-align: center;
+}
+.sideLeft2 .sideTextSm { text-align: center; }
+
+.sideRight {
+    right: 64px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+}
+
+
+/* ── VIEWFINDER — four corners + REC + frame counter ── */
+.viewfinder {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--vf-w);
+    height: var(--vf-h);
+    z-index: 35;
+    pointer-events: none;
+}
+
+.vfCorner {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-color: var(--fg);
+    border-style: solid;
+    border-width: 0;
+}
+.vfTl { top: 0;    left: 0;  border-top-width:    1.5px; border-left-width:  1.5px; }
+.vfTr { top: 0;    right: 0; border-top-width:    1.5px; border-right-width: 1.5px; }
+.vfBl { bottom: 0; left: 0;  border-bottom-width: 1.5px; border-left-width:  1.5px; }
+.vfBr { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+.vfTick {
+    position: absolute;
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+}
+.vfRec {
+    top: -22px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.vfRec::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: oklch(0.55 0.18 30);
+    animation: recBlink 1.6s ease-in-out infinite;
+}
+.vfFrame { bottom: -22px; right: 0; }
+
+@keyframes recBlink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.25; }
+}
+
+
+/* ── ACTIVE TITLE — fixed, top under nav ────────────── */
+.activeTitle {
+    position: fixed;
+    top: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 45;
+    pointer-events: none;
+    width: 360px;
+}
+.activeTitleEn {
+    display: block;
+    font-family: var(--font-serif), serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--fg);
+    letter-spacing: 0.005em;
+}
+.activeTitleRo {
+    display: block;
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-top: 6px;
+}
+
+
+/* ── GALLERY — vertical scroll-snap column ───────────── */
+.gallery {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--gallery-w);
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    z-index: 30;
+
+    /* fade top + bottom */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 28%, black 72%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, black 28%, black 72%, transparent 100%);
+}
+.gallery::-webkit-scrollbar { display: none; }
+
+.galleryPad {
+    flex-shrink: 0;
+    /* jumătate de viewport minus jumătate din înălțimea posterului */
+    height: calc(50vh - var(--img-h) / 2);
+    scroll-snap-align: none;
+}
+
+.slot {
+    flex-shrink: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+}
+
+.slotImg {
+    width: var(--img-w);
+    height: var(--img-h);
+    object-fit: cover;
+    display: block;
+    transition:
+        opacity   0.55s ease,
+        transform 0.7s  cubic-bezier(.2, .7, .2, 1),
+        filter    0.55s ease;
+
+    /* default = neighbor: full B&W, faded back */
+    filter: grayscale(1) contrast(1.08) brightness(0.92);
+    opacity: 0.32;
+    transform: scale(0.88);
+}
+.slotActive .slotImg {
+    /* center of viewfinder — full color, in focus */
+    filter: grayscale(0) saturate(1.05) contrast(1.05);
+    opacity: 1;
+    transform: scale(1);
+}
+.slotNeighbor .slotImg {
+    /* immediately adjacent — still B&W, slightly more present */
+    opacity: 0.55;
+    transform: scale(0.93);
+}
+
+
+/* ── END CUE — bottom of gallery ─────────────────────── */
+.endCue {
+    flex-shrink: 0;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+    gap: 16px;
+    scroll-snap-align: none;
+}
+.endCueLine {
+    width: 1px;
+    height: 60px;
+    background: var(--fg-faint);
+}
+.endCueText {
+    font-family: var(--font-mono), monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+}
+
+
+/* ── COFINANCE FOOTER ────────────────────────────────── */
+/* Pinned la bottom: 0; transform-ul (translateY) e setat inline din JS
+   în funcție de scroll-ul paginii, ca să alunece în sus din afara viewport-ului
+   și să rămână acolo ca temelie. */
+.cofinance {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-top: 0.5px solid var(--rule);
+    padding: 0;
+    z-index: 60;
+    will-change: transform;
+}
+
+.cofinanceInner {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    min-height: 78px;
+    font-family: var(--font-serif), serif;
+}
+
+.cofinanceLogos {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 28px;
+    background: var(--bg);
+    border-right: 0.5px solid var(--rule);
+}
+
+.cfLogo {
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    line-height: 1.15;
+    color: var(--fg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.cfLogoEu { display: flex; align-items: center; gap: 8px; }
+.cfStars {
+    font-size: 7px;
+    color: oklch(0.92 0.12 95);
+    background: oklch(0.32 0.18 260);
+    padding: 6px 8px;
+    letter-spacing: 0.05em;
+    line-height: 1.05;
+    border-radius: 1px;
+}
+.cfCap { color: var(--fg); font-size: 8.5px; }
+
+.cfLogoRegio {
+    font-family: var(--font-serif), serif;
+    font-style: italic;
+    font-size: 17px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: oklch(0.55 0.18 30);
+}
+.cfLogoAdr {
+    font-weight: 500;
+    font-size: 11px;
+    border: 0.5px solid var(--fg);
+    padding: 4px 7px;
+    display: inline-block;
+}
+.cfLogoAdr span { font-size: 7px; opacity: 0.7; }
+
+.cofinanceMid {
+    background: oklch(0.16 0.005 80);
+    color: var(--bg);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    min-height: 78px;
+}
+.cfLink {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: oklch(0.85 0.005 80);
+}
+
+.cofinanceText {
+    background: oklch(0.16 0.005 80);
+    color: var(--bg);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    font-size: 12px;
+    line-height: 1.4;
+    text-wrap: pretty;
+    max-width: 460px;
+    min-height: 78px;
+}
+.cofinanceText a { text-decoration: underline; }
+
+.cofinanceLinks {
+    background: oklch(0.16 0.005 80);
+    color: var(--bg);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 24px;
+    font-family: var(--font-serif), serif;
+    font-size: 11px;
+    line-height: 1.6;
+    min-height: 78px;
+}
+.cofinanceLinks a { text-decoration: underline; opacity: 0.85; }
+.cofinanceLinks a:hover { opacity: 1; }
+
+.cofinanceTag {
+    background: oklch(0.78 0.18 85);
+    color: oklch(0.18 0.005 80);
+    font-family: var(--font-serif), serif;
+    font-style: italic;
+    font-size: 16px;
+    padding: 0 28px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 78px;
+}
+
+
+/* ── FILM DETAIL — overlay banner cinematic ──────────── */
+.detailBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 6, 4, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: zoom-out;
+    animation: detailFadeIn 0.28s ease;
+}
+
+@keyframes detailFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.detailBanner {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    aspect-ratio: 2.35 / 1;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #1a1612;
+    color: #f5f0e3;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+    cursor: default;
+    animation: detailZoomIn 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes detailZoomIn {
+    from { transform: scale(0.78); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+
+.detailBg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.05);
+    filter: saturate(0.85) contrast(1.05);
+}
+
+.detailVignette {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 50%, rgba(20, 14, 8, 0.0) 0%, rgba(8, 4, 0, 0.55) 90%),
+        linear-gradient(120deg, rgba(8, 6, 4, 0.7) 0%, rgba(8, 6, 4, 0.15) 45%, rgba(8, 6, 4, 0.55) 100%);
+}
+
+
+/* layout grid: 6 zone (3 col x 3 row, fără mid-row mid-col) */
+.detailContent {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100%;
+    padding: 36px 56px;
+    gap: 16px 24px;
+    font-family: var(--font-mono), monospace;
+}
+
+
+/* TOP-LEFT — festival */
+.detailTopLeft {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+.detailFestYear {
+    font-family: var(--font-mono), monospace;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    opacity: 0.9;
+}
+.detailFestName {
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    opacity: 0.7;
+    line-height: 1.4;
+    max-width: 200px;
+}
+.detailLaurel {
+    color: #e8dfc8;
+    margin-top: 4px;
+    opacity: 0.6;
+}
+
+
+/* TOP-RIGHT — category tag */
+.detailTopRight {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 0.5px solid rgba(245, 240, 227, 0.4);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: rgba(20, 14, 8, 0.35);
+}
+.detailTag {
+    white-space: nowrap;
+    opacity: 0.95;
+}
+.detailTagSep { opacity: 0.4; }
+
+
+/* CENTER-LEFT — title + description */
+.detailTitleBlock {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    align-self: center;
+    max-width: 540px;
+}
+.detailEyebrow {
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    opacity: 0.65;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+}
+.detailTitleMain {
+    font-family: var(--font-serif), serif;
+    /* condensed-ish via -letter-spacing + heavy weight */
+    font-weight: 500;
+    font-size: clamp(36px, 5.6vw, 78px);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin: 0;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+}
+.detailTitleRo {
+    font-family: var(--font-serif), serif;
+    font-style: italic;
+    font-size: 16px;
+    opacity: 0.7;
+    margin-top: 12px;
+}
+.detailDescription {
+    font-family: var(--font-serif), serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.5;
+    opacity: 0.85;
+    margin: 18px 0 0;
+    max-width: 480px;
+    text-wrap: pretty;
+}
+
+
+/* CENTER-RIGHT — awards quotes */
+.detailQuotes {
+    grid-column: 3;
+    grid-row: 2;
+    align-self: center;
+    justify-self: end;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    text-align: center;
+    max-width: 220px;
+}
+.detailQuote {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.detailQuoteStars {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #f5f0e3;
+    opacity: 0.95;
+}
+.detailQuoteSource {
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    opacity: 0.6;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+
+
+/* BOTTOM-LEFT — meta table */
+.detailMeta {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-top: 0.5px solid rgba(245, 240, 227, 0.25);
+    padding-top: 14px;
+    max-width: 540px;
+}
+.detailMetaRow {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 24px;
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    line-height: 1.5;
+}
+.detailMetaLabel {
+    opacity: 0.55;
+}
+.detailMetaValue {
+    color: #f5f0e3;
+}
+
+
+/* BOTTOM-RIGHT — close action */
+.detailCloseBtn {
+    grid-column: 3;
+    grid-row: 3;
+    justify-self: end;
+    align-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border: 0.5px solid rgba(245, 240, 227, 0.45);
+    border-radius: 4px;
+    background: rgba(20, 14, 8, 0.35);
+    color: #f5f0e3;
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.detailCloseBtn:hover {
+    background: rgba(245, 240, 227, 0.12);
+    border-color: rgba(245, 240, 227, 0.7);
+}
+
+
+/* responsive — pe ecrane mai înguste, devine mai vertical */
+@media (max-width: 900px) {
+    .detailBanner {
+        aspect-ratio: auto;
+        height: 90vh;
+        max-height: 720px;
+    }
+    .detailContent {
+        padding: 24px 24px;
+        grid-template-columns: 1fr 1fr;
+    }
+    .detailTopRight { grid-column: 2; }
+    .detailTitleBlock { grid-column: 1 / span 2; }
+    .detailQuotes {
+        grid-column: 1 / span 2;
+        grid-row: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-self: stretch;
+        max-width: none;
+        gap: 16px;
+    }
+    .detailMeta { grid-column: 1 / span 2; }
+    .detailCloseBtn { grid-column: 2; grid-row: auto; }
+}
+
+
+/* ── responsive ───────────────────────────────────────── */
+@media (max-width: 1180px) {
+    .sideLeft2 { display: none; }
+}
+
+@media (max-width: 900px) {
+    .page {
+        /* afiș scalat pentru ecrane mai mici (tot 2:3) */
+        --img-w:     200px;
+        --img-h:     300px;
+        --vf-w:      240px;
+        --vf-h:      330px;
+        --gallery-w: 240px;
+    }
+    .siteHeader { padding: 24px 28px 0; }
+    .navMain { gap: 24px; font-size: 15px; }
+    .navServices { padding-left: 0; }
+    .sideLeft1 { left: 24px; width: 140px; }
+    .sideRight { right: 24px; width: 140px; }
+    .cofinanceInner { grid-template-columns: 1fr; }
+    .cofinanceLogos,
+    .cofinanceMid,
+    .cofinanceText,
+    .cofinanceLinks,
+    .cofinanceTag {
+        border-right: 0;
+        border-bottom: 0.5px solid var(--rule);
+    }
+}
