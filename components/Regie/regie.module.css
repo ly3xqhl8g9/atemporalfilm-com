@@ -1,0 +1,513 @@
+/* ============================================================
+   Modul Regie — stiluri (doar în previzualizarea locală)
+   ============================================================ */
+
+.launch,
+.panel,
+.selTag,
+.pin {
+    --rg-ink:    #ececec;
+    --rg-soft:   rgba(236, 236, 236, 0.62);
+    --rg-line:   rgba(255, 255, 255, 0.13);
+    --rg-fill:   rgba(255, 255, 255, 0.06);
+    --rg-fill-2: rgba(255, 255, 255, 0.11);
+    --rg-bg:     rgba(16, 16, 16, 0.94);
+    --rg-red:    #e5484d;
+    --rg-red-2:  #f2555a;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+
+/* ── buton de pornire ─────────────────────────────────────── */
+
+.launch {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2147483000;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--rg-line);
+    border-radius: 999px;
+    background: var(--rg-bg);
+    color: var(--rg-ink);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+.launch:hover {
+    background: #000;
+}
+
+.launch:focus-visible {
+    outline: 2px solid var(--rg-red);
+    outline-offset: 3px;
+}
+
+.dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rg-red, #e5484d);
+    box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.24);
+}
+
+
+/* ── contururi pe pagină ─────────────────────────────────── */
+
+.hoverBox,
+.selBox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 2147482500;
+}
+
+.hoverBox {
+    outline: 1px dashed rgba(229, 72, 77, 0.95);
+    outline-offset: 1px;
+}
+
+.selBox {
+    outline: 2px solid #e5484d;
+    outline-offset: 2px;
+}
+
+.selTag {
+    position: absolute;
+    left: -2px;
+    bottom: calc(100% + 7px);
+    max-width: 340px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    background: var(--rg-red);
+    color: #fff;
+    font-size: 10.5px;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* ── note pe pagină ──────────────────────────────────────── */
+
+.pinLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 2147482600;
+}
+
+.pin {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--rg-red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+    cursor: pointer;
+}
+
+.pinActive {
+    background: #101010;
+}
+
+.pin:focus-visible {
+    outline: 2px solid #101010;
+    outline-offset: 2px;
+}
+
+
+/* ── panoul ──────────────────────────────────────────────── */
+
+.panel {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 2147483000;
+    display: flex;
+    flex-direction: column;
+    width: 316px;
+    max-height: calc(100vh - 32px);
+    overflow: hidden;
+    border: 1px solid var(--rg-line);
+    border-radius: 12px;
+    background: var(--rg-bg);
+    color: var(--rg-ink);
+    font-size: 12px;
+    line-height: 1.45;
+    text-align: left;
+    box-shadow: 0 20px 64px rgba(0, 0, 0, 0.38);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    cursor: auto;
+}
+
+.left {
+    right: auto;
+    left: 16px;
+}
+
+.panel button {
+    min-height: 30px;
+    padding: 5px 9px;
+    border: 1px solid var(--rg-line);
+    border-radius: 6px;
+    background: var(--rg-fill);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.panel button:hover:not(:disabled) {
+    background: var(--rg-fill-2);
+}
+
+.panel button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.panel button:focus-visible,
+.panel textarea:focus-visible,
+.panel input:focus-visible {
+    outline: 2px solid var(--rg-red);
+    outline-offset: 2px;
+}
+
+.panel textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    padding: 7px 9px;
+    border: 1px solid var(--rg-line);
+    border-radius: 6px;
+    background: var(--rg-fill);
+    color: inherit;
+    font: inherit;
+    resize: vertical;
+}
+
+.panel textarea::placeholder {
+    color: rgba(236, 236, 236, 0.4);
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px 10px 14px;
+    border-bottom: 1px solid var(--rg-line);
+}
+
+.rec {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+}
+
+.page {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--rg-soft);
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.headBtns {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.panel .headBtns button {
+    min-width: 30px;
+    padding: 4px 0;
+    border-color: transparent;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 14px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.collapsed .head {
+    border-bottom: 0;
+}
+
+.help {
+    margin: 0;
+    color: var(--rg-soft);
+}
+
+.panel .wide {
+    width: 100%;
+    text-align: left;
+}
+
+.panel .on {
+    border-color: var(--rg-red);
+    background: rgba(229, 72, 77, 0.18);
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 11px;
+    border: 1px solid var(--rg-line);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.cardTitle {
+    overflow: hidden;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.meta {
+    margin-top: -5px;
+    overflow: hidden;
+    color: var(--rg-soft);
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.swatch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 4px 0 9px;
+    border: 1px solid var(--rg-line);
+    border-radius: 6px;
+    background: var(--rg-fill);
+    cursor: pointer;
+}
+
+.swatch input {
+    width: 24px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.noteLabel {
+    color: var(--rg-soft);
+    font-size: 11px;
+}
+
+.noteLabel textarea {
+    color: var(--rg-ink);
+    font-size: 12px;
+}
+
+.panel .linkBtn {
+    align-self: flex-start;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--rg-soft);
+    font-size: 11px;
+    text-decoration: underline;
+}
+
+.panel .linkBtn:hover:not(:disabled) {
+    background: none;
+    color: var(--rg-ink);
+}
+
+
+/* ── lista de cue-uri ────────────────────────────────────── */
+
+.list ol {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.listHead {
+    color: var(--rg-soft);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.empty {
+    margin: 6px 0 0;
+    color: var(--rg-soft);
+}
+
+.list li {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    border-top: 1px solid var(--rg-line);
+}
+
+.list li:first-child {
+    border-top: 0;
+}
+
+.panel .cueBtn {
+    display: flex;
+    flex: 1;
+    gap: 9px;
+    min-width: 0;
+    padding: 8px 4px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    text-align: left;
+}
+
+.panel .cueBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.cueSel .cueBtn {
+    box-shadow: inset 2px 0 0 var(--rg-red);
+}
+
+.num {
+    flex: none;
+    color: var(--rg-red-2);
+    font-weight: 600;
+}
+
+.cueText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cueText em {
+    color: var(--rg-soft);
+    font-style: normal;
+}
+
+.cueText small {
+    overflow: hidden;
+    color: var(--rg-soft);
+    font-size: 11px;
+    text-overflow: ellipsis;
+}
+
+.panel .x {
+    align-self: center;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--rg-soft);
+    font-size: 14px;
+}
+
+
+/* ── subsol ──────────────────────────────────────────────── */
+
+.foot {
+    padding: 10px 14px 12px;
+    border-top: 1px solid var(--rg-line);
+}
+
+.footBtns {
+    display: flex;
+    gap: 6px;
+}
+
+.panel .ghost {
+    background: transparent;
+}
+
+.panel .primary {
+    flex: 1;
+    border-color: var(--rg-red);
+    background: var(--rg-red);
+    color: #fff;
+    font-weight: 600;
+}
+
+.panel .primary:hover:not(:disabled) {
+    background: var(--rg-red-2);
+}
+
+.status {
+    margin: 8px 0 0;
+    color: var(--rg-soft);
+    font-size: 11px;
+}
+
+
+/* ── ecrane înguste (telefon) ────────────────────────────── */
+
+@media (max-width: 640px) {
+    .panel {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: auto;
+        max-height: 50vh;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .left {
+        left: 0;
+    }
+
+    .launch {
+        right: 12px;
+        bottom: 12px;
+    }
+}

@@ -4,6 +4,7 @@ import React, {
     useState,
 } from 'react';
 import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 import {
     AppContext,
@@ -14,6 +15,13 @@ import Menu from '@/containers/Menu/Menu';
 import MenuText from '@/containers/Menu/MenuText';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import MenuContact from '@/containers/Contact/MenuContact';
+
+
+// Modul Regie — unealta de design din previzualizarea locală.
+// Se încarcă DOAR în development; nu ajunge pe site-ul public.
+const Regie = process.env.NODE_ENV === 'development'
+    ? dynamic(() => import('@/components/Regie'), { ssr: false })
+    : null;
 
 
 
@@ -85,6 +93,8 @@ export default function AppWrapper({
                         <MenuContact />
                     </div>
                 )}
+
+                {Regie && <Regie />}
             </LanguageContext.Provider>
         </AppContext.Provider>
     );

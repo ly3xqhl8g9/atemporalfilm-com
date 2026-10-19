@@ -35,3 +35,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Modul Regie — cue-uri trimise din previzualizarea locală
+/.regie/
