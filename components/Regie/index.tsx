@@ -301,6 +301,7 @@ html.regie-on, html.regie-on *:not([data-regie-ui]):not([data-regie-ui] *) {
     cursor: crosshair !important;
     user-select: none !important;
     -webkit-user-select: none !important;
+    -webkit-user-drag: none !important;
 }
 html.regie-on.regie-drag, html.regie-on.regie-drag * { cursor: grabbing !important; }
 `;
@@ -563,6 +564,11 @@ export default function Regie() {
             const el = current && current.contains(target) ? current : target;
             if (el !== current) select(el);
             const existing = cueFor(el);
+            try {
+                root.setPointerCapture(e.pointerId);
+            } catch {
+                /* unele browsere refuză captura — nu e grav */
+            }
             dragRef.current = {
                 el,
                 clickTarget: target,
@@ -596,6 +602,15 @@ export default function Regie() {
                 // click simplu în interiorul selecției → coborâm la elementul apăsat
                 select(d.clickTarget);
             }
+        };
+
+        const onCancel = () => {
+            const d = dragRef.current;
+            if (!d) return;
+            dragRef.current = null;
+            root.classList.remove('regie-drag');
+            const c = cueFor(d.el);
+            d.el.style.setProperty('translate', `${c?.move?.dx ?? d.baseDx}px ${c?.move?.dy ?? d.baseDy}px`);
         };
 
         const block = (e: Event) => {
@@ -639,6 +654,7 @@ export default function Regie() {
         window.addEventListener('pointermove', onMove, true);
         window.addEventListener('pointerdown', onDown, true);
         window.addEventListener('pointerup', onUp, true);
+        window.addEventListener('pointercancel', onCancel, true);
         window.addEventListener('keydown', onKey, true);
         blocked.forEach((type) => window.addEventListener(type, block, true));
 
@@ -673,6 +689,7 @@ export default function Regie() {
             window.removeEventListener('pointermove', onMove, true);
             window.removeEventListener('pointerdown', onDown, true);
             window.removeEventListener('pointerup', onUp, true);
+            window.removeEventListener('pointercancel', onCancel, true);
             window.removeEventListener('keydown', onKey, true);
             blocked.forEach((type) => window.removeEventListener(type, block, true));
             root.classList.remove('regie-on', 'regie-drag');
