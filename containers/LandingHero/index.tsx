@@ -382,6 +382,8 @@ const HOME   = N;          // primul slot din copia din mijloc
 const filmOf   = (slot: number) => ((slot % N) + N) % N;
 const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
 const IDLE_MS  = 160;      // derularea s-a oprit dacă nu mai vine niciun eveniment
+/** înălțimea tile-ului pistei sonore (public/assets/ui/soundtrack.svg, H din scripts/pista-sonora.py) */
+const BAND_TILE = 2000;
 
 
 /* ============================================================
@@ -399,6 +401,11 @@ export default function LandingHero() {
     const lastActiveRef = useRef(HOME);
     const listTrackRef  = useRef<HTMLOListElement | null>(null);
     const listItemRefs  = useRef<(HTMLLIElement | null)[]>([]);
+    // pista sonoră: urmează derularea galeriei, dar nu și săriturile dintre copii
+    const bandRef       = useRef<HTMLDivElement | null>(null);
+    const bandYRef      = useRef(0);
+    const lastTopRef    = useRef(0);
+    const exposureRef   = useRef<number[]>([]);
 
     const t = UI[lang];
 
@@ -466,6 +473,38 @@ export default function LandingHero() {
             const d = Math.abs(i - f);
             el.style.opacity = String(Math.max(0.16, 1 - 0.6 * d));
         });
+
+        /* LUMINA DIN LASĂ (30.10, seria a cincea): în spatele ramei e lumină.
+           Afișul se aprinde treptat cât intră în ramă — culoare, expunere,
+           claritate — și se stinge la fel când iese. --e: 0 = afară, 1 = în ramă. */
+        const exp = exposureRef.current;
+        slotRefs.current.forEach((el, i) => {
+            const img = el?.firstElementChild as HTMLElement | null;
+            if (!img) return;
+            const x = Math.max(0, 1 - Math.abs(i - f));
+            const e = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
+            if (exp[i] === e) return;
+            exp[i] = e;
+            // e = 0: alb-negru, subexpus, transparent (ca vecinii de până acum)
+            // e = 1: culoare plină, expus, clar (ca afișul din ramă)
+            img.style.filter =
+                `grayscale(${(1 - e).toFixed(3)}) saturate(${(1 + 0.05 * e).toFixed(3)}) ` +
+                `contrast(${(1.15 - 0.10 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
+            img.style.opacity   = (0.72 + 0.28 * e).toFixed(3);
+            img.style.transform = `scale(${(0.96 + 0.04 * e).toFixed(4)})`;
+        });
+
+        /* PISTA SONORĂ — banda stereo din dreapta ramei curge odată cu pelicula.
+           Mișcarea vine din derulare; săriturile invizibile dintre copiile galeriei
+           (jumpTo) nu o mișcă, deci banda nu sare niciodată. */
+        const top = gallery.scrollTop;
+        bandYRef.current += top - lastTopRef.current;
+        lastTopRef.current = top;
+        const band = bandRef.current;
+        if (band) {
+            const y = ((bandYRef.current % BAND_TILE) + BAND_TILE) % BAND_TILE;
+            band.style.transform = `translate3d(0, ${-y}px, 0)`;
+        }
     }, [slotPitch]);
 
     const goTo = useCallback((slot: number) => {
@@ -479,6 +518,7 @@ export default function LandingHero() {
         gallery.style.scrollBehavior = 'auto';
         gallery.scrollTop = slot * slotPitch();
         gallery.style.scrollBehavior = '';
+        lastTopRef.current = gallery.scrollTop;   // săritura nu mișcă pista sonoră
         lastActiveRef.current = slot;
         setActive(slot);
         syncList();
@@ -560,6 +600,10 @@ export default function LandingHero() {
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />
 
+            {/* LASA — lumina din spatele ramei: fundalul e mai luminos în centru,
+                acolo unde intră afișul (30.10, seria a cincea) */}
+            <div className={styles.gateLight} aria-hidden="true" />
+
 
             {/* HEADER fix */}
             <header className={styles.siteHeader}>
@@ -632,10 +676,22 @@ export default function LandingHero() {
                 galerie; afișul activ stă în interiorul ei, la fel contorul. */}
             <div className={styles.viewfinder} aria-hidden="true">
                 <div className={styles.vfGlass} />
-                {/* REC a urcat în antet, lângă timecode (30.10, seria a treia) */}
-                <div className={`${styles.vfTick} ${styles.vfFrame}`}>
-                    {String(film + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
-                </div>
+                {/* contorul „15 / 19” scos — filmele nu se numerotează (30.10, seria a cincea) */}
+            </div>
+
+
+            {/* PISTA SONORĂ — bandă neagră cu forma de undă stereo, în dreapta ramei,
+                ca pista optică de lângă fotogramă pe pelicula de 35 mm (30.10, seria a cincea).
+                Curge odată cu galeria; în dreptul ramei e luminată, în rest subexpusă. */}
+            <div className={styles.soundtrack} aria-hidden="true">
+                <div
+                    ref={bandRef}
+                    className={styles.soundtrackStrip}
+                    style={{
+                        height:         `calc(100% + ${BAND_TILE}px)`,
+                        backgroundSize: `100% ${BAND_TILE}px`,
+                    }}
+                />
             </div>
 
 
@@ -650,15 +706,11 @@ export default function LandingHero() {
                 {SLOTS.map((i) => {
                     const p        = PROJECTS[filmOf(i)];
                     const isActive = i === active;
-                    const slotClass = [
-                        styles.slot,
-                        isActive                           ? styles.slotActive   : '',
-                        Math.abs(i - active) === 1         ? styles.slotNeighbor : '',
-                    ].filter(Boolean).join(' ');
+                    // expunerea (culoare, lumină, mărime) o dă syncList, după distanța față de ramă
                     return (
                         <div
                             key={i}
-                            className={slotClass}
+                            className={styles.slot}
                             ref={(el) => { slotRefs.current[i] = el; }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}

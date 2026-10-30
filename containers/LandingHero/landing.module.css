@@ -34,6 +34,10 @@
        Pe 2048 px: x = 335 (seria a patra), adică 684 px la stânga centrului
        (măsurat ca restul paginii); pe ecrane înguste nu coboară sub 64 px. */
     --list-x:    max(64px, calc(50vw - 684px));
+    /* logo-ul: pe 2048 px la x = 197 (seria a cincea: +100 px), adică 827 px
+       la stânga centrului; pe ecrane înguste nu coboară sub 64 px.
+       Timecode-urile pornesc la 170 px după el. */
+    --logo-x:    max(64px, calc(50% - 827px));
 }
 
 .page * { box-sizing: border-box; }
@@ -108,9 +112,9 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    /* logo-ul: coborât 13 px și mutat 33 px spre dreapta (seria a patra),
-       centrat vertical pe rândul timecode-urilor */
-    padding: 51px 64px 0 97px;
+    /* logo-ul: seria a cincea — +100 px spre dreapta, +7 px în jos
+       (pe 2048×864: x = 197, y = 58) */
+    padding: 58px 64px 0 var(--logo-x);
     z-index: 50;
     pointer-events: none;
 }
@@ -131,19 +135,20 @@
 
 /* ── TIMECODE ÎN ANTET (30.10, seriile a treia și a patra) ──
    Trei timecode-uri la 24 fps: New York · Shanghai · București, apoi REC.
-   Pe 2048×864: încep la x = 262, y = 72. Pe ecrane mai înguste timecode-ul
-   București și REC trec pe al doilea rând, ca să nu intre peste galerie. */
+   Pe 2048×864 (seria a cincea): încep la x = 367, y = 76, la 24 px unul de
+   altul (și REC). Pe ecrane mai înguste timecode-ul București și REC trec pe
+   al doilea rând, ca să nu intre peste galerie. */
 .hdClocks {
     position: absolute;
-    left: 262px;
-    top: 72px;
+    left: calc(var(--logo-x) + 170px);
+    top: 76px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 22px;
+    column-gap: 24px;
     row-gap: 8px;
     /* nu intră peste afișele din galerie */
-    max-width: calc(50vw - var(--img-w) / 2 - 262px - 12px);
+    max-width: calc(50vw - var(--img-w) / 2 - var(--logo-x) - 170px - 12px);
     font-family: var(--font-mono), monospace;
     font-size: 9.5px;
     line-height: 14px;
@@ -152,11 +157,11 @@
     white-space: nowrap;
 }
 .hdClock { font-variant-numeric: tabular-nums; }
-.hdClockGroup { display: inline-flex; gap: inherit; column-gap: 22px; }
+.hdClockGroup { display: inline-flex; gap: inherit; column-gap: 24px; }
 .hdTimecodeGroup {
     display: inline-flex;
     align-items: center;
-    gap: 14px;
+    gap: 24px;
 }
 .hdTimecode { color: var(--fg); min-width: 15.5ch; }
 .hdClockGroup .hdTimecode { color: var(--fg-soft); }
@@ -177,9 +182,8 @@
     animation: recBlink 1.6s ease-in-out infinite;
 }
 @media (max-width: 1399px) {
-    .siteHeader { padding-left: 64px; }
-    .hdClocks { left: 236px; letter-spacing: 0.04em; max-width: calc(50vw - var(--img-w) / 2 - 236px - 6px); }
-    .hdClockGroup { column-gap: 14px; }
+    .hdClocks { letter-spacing: 0.04em; column-gap: 14px; }
+    .hdClockGroup, .hdTimecodeGroup { column-gap: 14px; }
 }
 
 /* ── NAV — un rând orizontal sub antet, împărțit în jurul galeriei ──
@@ -207,8 +211,16 @@
     pointer-events: auto;
 }
 .navGroupLeft  { grid-column: 1; justify-content: flex-end; }
-/* aliniat cu creditul și cu site-urile din bara de jos (seria a patra) */
-.navGroupRight { position: absolute; top: 0; left: var(--col-r); justify-content: flex-start; }
+/* seria a cincea: meniul mai mic (×0,83), cuvintele mai strânse, mutat
+   62 px spre stânga și ~30 px în jos (pe 2048×864: x ≈ 1284, centrul la y ≈ 98) */
+.navGroupRight {
+    position: absolute;
+    top: 30px;
+    left: calc(var(--col-r) - 62px);
+    justify-content: flex-start;
+    column-gap: 8px;
+}
+.navGroupRight .navItem { font-size: 14px; }
 
 .navItem {
     display: inline-flex;
@@ -307,9 +319,10 @@
     overflow: hidden;
     z-index: 40;
     pointer-events: none;
-    /* se stinge sub logo (sus) și deasupra barei de jos */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 112px, black 184px, black calc(100% - 170px), transparent calc(100% - 85px));
-            mask-image: linear-gradient(to bottom, transparent 112px, black 184px, black calc(100% - 170px), transparent calc(100% - 85px));
+    /* fereastra listei (seria a cincea): de la y = 120 (sub antet) până la
+       239 px deasupra marginii de jos (pe 864: y = 625), cu margini scurte */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 96px, black 120px, black calc(100% - 239px), transparent calc(100% - 215px));
+            mask-image: linear-gradient(to bottom, transparent 96px, black 120px, black calc(100% - 239px), transparent calc(100% - 215px));
 }
 .filmListTrack {
     position: absolute;
@@ -346,13 +359,13 @@
 
 .sideRight {
     /* creditul: în coloana din dreapta, aproape de centrul vertical
-       (pe 2048×864: x ≈ 1346, y = 406) */
-    left: var(--col-r);
-    top: calc(50% - 26px);
-    width: 240px;
+       (seria a cincea: 52 px spre stânga, pe un singur rând —
+       pe 2048×864: x = 1294, y = 407) */
+    left: calc(var(--col-r) - 52px);
+    top: calc(50% - 25px);
 }
-.sideRight .sideEyebrow { margin-bottom: 2px; line-height: 1.5; }
-.sideRight .sideMeta    { margin-top: 6px; }
+.sideRight .sideEyebrow { margin-bottom: 2px; line-height: 1.5; white-space: nowrap; }
+.sideRight .sideMeta    { margin-top: 2px; }
 
 
 /* ── VIEWFINDER — four corners + REC + frame counter ── */
@@ -373,17 +386,76 @@
     background: url("/assets/ui/vizor.webp") center / 100% 100% no-repeat;
 }
 
-.vfTick {
-    position: absolute;
-    font-family: var(--font-mono), monospace;
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.92);
-    text-shadow: 0 0 4px rgba(0, 0, 0, 0.85), 0 0 1px rgba(0, 0, 0, 1);
+/* contorul „15 / 19” din ramă a fost scos (seria a cincea) */
+
+
+/* ── LASA — lumina din spatele ramei (seria a cincea) ──────
+   Ca la lasa unui proiector: în spatele ferestrei e o sursă de lumină.
+   Fundalul se luminează spre centru, iar afișul care intră în ramă se
+   aprinde treptat (expunerea fiecărui afiș e calculată din JS, după
+   distanța lui față de ramă). Lumina e caldă, ca o lampă cu incandescență. */
+.gateLight {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        /* lumina din lasă: albă, plină până puțin dincolo de ramă, apoi se stinge */
+        radial-gradient(ellipse calc(var(--vf-w) / 2 + 190px) calc(var(--vf-h) / 2 + 170px) at 50% 50%,
+            oklch(1 0.003 85) 0%, oklch(1 0.003 85) 52%,
+            oklch(0.995 0.008 85 / 0.55) 74%, oklch(0.99 0.01 85 / 0) 100%),
+        /* restul sălii, foarte puțin mai întunecat spre margini */
+        radial-gradient(ellipse 75% 95% at 50% 50%,
+            oklch(0.18 0.005 80 / 0) 45%, oklch(0.18 0.005 80 / 0.035) 100%);
 }
-/* contorul stă în interiorul ramei, peste afiș (REC a urcat în antet) */
-.vfFrame { bottom: 8%; right: 11%; }
+
+
+/* ── PISTA SONORĂ — banda stereo din dreapta ramei (seria a cincea) ──
+   Ca pista optică de lângă fotogramă, pe pelicula de 35 mm: bandă neagră,
+   două canale (L / R) de formă de undă albă, bilaterală. Desenul e în
+   /assets/ui/soundtrack.svg (generat de scripts/pista-sonora.py) și curge
+   odată cu galeria (transform din JS). În dreptul ramei e luminată; deasupra
+   și dedesubt e subexpusă, la fel ca afișele vecine. */
+.soundtrack {
+    --gate-top: calc(50% - var(--vf-h) / 2);
+    --gate-bot: calc(50% + var(--vf-h) / 2);
+    position: fixed;
+    top: 0;
+    left: calc(50% + var(--vf-w) / 2 + 12px);
+    width: 36px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 34;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0, rgba(0, 0, 0, 0.72) 8%,
+        rgba(0, 0, 0, 0.72) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
+        black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.72) calc(var(--gate-bot) + 40px),
+        rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+            mask-image: linear-gradient(to bottom,
+        transparent 0, rgba(0, 0, 0, 0.72) 8%,
+        rgba(0, 0, 0, 0.72) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
+        black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.72) calc(var(--gate-bot) + 40px),
+        rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+}
+/* subexpunerea din afara ramei: albul pistei devine gri */
+.soundtrack::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.6) calc(var(--gate-top) - 40px), rgba(0, 0, 0, 0) calc(var(--gate-top) + 16px),
+        rgba(0, 0, 0, 0) calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.6) calc(var(--gate-bot) + 40px));
+}
+.soundtrackStrip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: url("/assets/ui/soundtrack.svg") 0 0 repeat-y;
+    will-change: transform;
+}
 
 @keyframes recBlink {
     0%, 100% { opacity: 1; }
@@ -431,8 +503,8 @@
 .notReady .gallery,
 .notReady .filmList,
 .notReady .sideRight,
-.notReady .vfFrame { opacity: 0 !important; }
-.filmList, .vfFrame { transition: opacity 0.6s ease; }
+.notReady .soundtrack { opacity: 0 !important; }
+.filmList { transition: opacity 0.6s ease; }
 
 /* săritura invizibilă dintre copiile listei (galeria fără capăt):
    fără tranziții, ca afișul să nu „clipească” */
@@ -460,10 +532,7 @@
     height: var(--img-h);
     object-fit: cover;
     display: block;
-    transition:
-        opacity   0.55s ease,
-        transform 0.7s  cubic-bezier(.2, .7, .2, 1),
-        filter    0.55s ease;
+    /* fără tranziții: expunerea urmează derularea cadru cu cadru (seria a cincea) */
 
     /* forma geamului vizorului (seria a patra): afișul e decupat după
        conturul ferestrei din rama-vizor, cu colțurile ei rotunjite — masca
@@ -472,19 +541,9 @@
     -webkit-mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
             mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
 
-    /* implicit = afișele din afara ramei: alb-negru, subexpuse, transparente */
-    filter: grayscale(1) contrast(1.15) brightness(0.36);
-    opacity: 0.45;
-    transform: scale(0.94);
-}
-.slotActive .slotImg {
-    /* center of viewfinder — full color, in focus */
-    filter: grayscale(0) saturate(1.05) contrast(1.05);
-    opacity: 1;
-    transform: scale(1);
-}
-.slotNeighbor .slotImg {
-    /* precedentul și următorul — alb-negru, mai întunecate, cu opacitate */
+    /* implicit = în afara ramei: alb-negru, subexpus, transparent.
+       Cât intră în ramă, JS-ul (syncList) îl aprinde treptat până la
+       culoare plină — lumina din lasă (seria a cincea). */
     filter: grayscale(1) contrast(1.15) brightness(0.4);
     opacity: 0.72;
     transform: scale(0.96);
@@ -501,7 +560,7 @@
     left: 0;
     right: 0;
     height: 65px;
-    background: var(--bg);
+    background: transparent;   /* pe fundalul paginii (cu lumina lasei), fără bandă separată */
     z-index: 60;
     font-family: var(--font-serif), serif;
     color: var(--fg);
@@ -516,7 +575,7 @@
 
 .cofinanceLeft  { left: calc(var(--list-x) - 14px); }
 .cofinanceLogos { left: 19.6vw; gap: 20px; }
-.cofinanceRight { left: var(--col-r); gap: 26px; }
+.cofinanceRight { left: calc(var(--col-r) - 37px); gap: 26px; transform: translateY(-2px); }   /* seria a cincea */
 
 .cfLogo {
     font-family: var(--font-mono), monospace;
