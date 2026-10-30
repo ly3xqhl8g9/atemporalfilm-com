@@ -70,14 +70,33 @@
 .logoWord1 { font-size: 38px; transform: rotate(-2deg); }
 .logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
 
-/* ── NAV — coloană verticală numerotată, dreapta-aliniată ── */
-.navMain {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 9px;
+/* ── NAV — un rând orizontal sub antet, împărțit în jurul galeriei ──
+   Două grupuri a câte trei, oglindite față de centru: stânga se aliniază
+   spre centru, dreapta pornește din centru. --nav-mid = spațiul liber din
+   mijloc (titlul + galeria). Pe 2048 px: grupurile la ~260 px de margini. */
+.navRow {
+    --nav-mid: clamp(400px, 27.5vw, 562px);
+    position: fixed;
+    top: 141px;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: 1fr var(--nav-mid) 1fr;
+    align-items: center;
     color: var(--fg);
+    pointer-events: none;
 }
+
+.navGroup {
+    display: flex;
+    align-items: center;
+    /* 54 px între elemente pe ecrane mari; se strânge pe ecrane mai înguste */
+    column-gap: clamp(12px, (50vw - var(--nav-mid) / 2 - 442px) / 2, 54px);
+    pointer-events: auto;
+}
+.navGroupLeft  { grid-column: 1; justify-content: flex-end; }
+.navGroupRight { grid-column: 3; justify-content: flex-start; }
 
 .navItem {
     display: inline-flex;
@@ -115,13 +134,6 @@
     text-transform: uppercase;
     min-width: 22px;
     text-align: right;
-}
-
-.navRule {
-    width: 56px;
-    height: 0.5px;
-    background: var(--rule);
-    margin: 6px 0 4px;
 }
 
 .langBtn {
@@ -191,21 +203,38 @@
     display: block;
 }
 
-.sideLeft1 {
+/* Grupul din stânga: descrierea (mare) + anul/premiile alături.
+   Ancorat ușor deasupra centrului (eyebrow-ul la 50% − 154 px). */
+.sideLeftGroup {
+    position: fixed;
     left: 64px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 200px;
+    top: calc(50% - 154px);
+    z-index: 40;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
 }
+.sideLeftGroup .side { position: static; }
+
+.sideLeft1 { width: 300px; }
+.sideLeft1 .sideEyebrow { font-size: 17px; margin-bottom: 22px; }
+.sideLeft1 .sideText    { font-size: 26px; line-height: 1.5; margin-bottom: 26px; }
+.sideLeft1 .sideMeta    { font-size: 14px; }
 
 .sideLeft2 {
-    left: 290px;
-    top: 50%;
-    transform: translateY(-50%);
     width: 200px;
+    margin-top: 61px;   /* anul stă în dreptul primului rând al descrierii */
     text-align: center;
 }
-.sideLeft2 .sideTextSm { text-align: center; }
+.sideLeft2 .sideEyebrow { font-size: 15px; margin-bottom: 20px; }
+.sideLeft2 .sideTextSm  { text-align: center; }
+
+/* sub 1600 px: anul/premiile coboară sub descriere, aliniate la stânga */
+@media (max-width: 1599px) {
+    .sideLeftGroup { flex-direction: column; gap: 28px; }
+    .sideLeft2 { margin-top: 0; text-align: left; }
+    .sideLeft2 .sideTextSm { text-align: left; }
+}
 
 .sideRight {
     right: 64px;
@@ -395,7 +424,9 @@
 /* ── COFINANCE FOOTER ────────────────────────────────── */
 /* Pinned la bottom: 0; transform-ul (translateY) e setat inline din JS
    în funcție de scroll-ul paginii, ca să alunece în sus din afara viewport-ului
-   și să rămână acolo ca temelie. */
+   și să rămână acolo ca temelie.
+   30.10.2026: tot pe fundalul paginii (fără blocurile negru / galben) și
+   micșorat la ~83%. Conținutul rămâne neschimbat deocamdată. */
 .cofinance {
     position: fixed;
     bottom: 0;
@@ -412,114 +443,109 @@
     display: grid;
     grid-template-columns: auto 1fr auto auto auto;
     align-items: center;
-    min-height: 78px;
+    min-height: 65px;
     font-family: var(--font-serif), serif;
+    color: var(--fg);
 }
 
 .cofinanceLogos {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 14px 28px;
-    background: var(--bg);
+    gap: 20px;
+    padding: 12px 23px;
     border-right: 0.5px solid var(--rule);
 }
 
 .cfLogo {
     font-family: var(--font-mono), monospace;
-    font-size: 9px;
+    font-size: 7.5px;
     line-height: 1.15;
     color: var(--fg);
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
-.cfLogoEu { display: flex; align-items: center; gap: 8px; }
+.cfLogoEu { display: flex; align-items: center; gap: 7px; }
 .cfStars {
-    font-size: 7px;
+    font-size: 6px;
     color: oklch(0.92 0.12 95);
     background: oklch(0.32 0.18 260);
-    padding: 6px 8px;
+    padding: 5px 7px;
     letter-spacing: 0.05em;
     line-height: 1.05;
     border-radius: 1px;
 }
-.cfCap { color: var(--fg); font-size: 8.5px; }
+.cfCap { color: var(--fg); font-size: 7px; }
 
 .cfLogoRegio {
     font-family: var(--font-serif), serif;
     font-style: italic;
-    font-size: 17px;
+    font-size: 14px;
     text-transform: none;
     letter-spacing: 0;
     color: oklch(0.55 0.18 30);
 }
 .cfLogoAdr {
     font-weight: 500;
-    font-size: 11px;
+    font-size: 9px;
     border: 0.5px solid var(--fg);
-    padding: 4px 7px;
+    padding: 3px 6px;
     display: inline-block;
 }
-.cfLogoAdr span { font-size: 7px; opacity: 0.7; }
+.cfLogoAdr span { font-size: 6px; opacity: 0.7; }
 
 .cofinanceMid {
-    background: oklch(0.16 0.005 80);
-    color: var(--bg);
     height: 100%;
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    min-height: 78px;
+    padding: 0 20px;
+    min-height: 65px;
 }
 .cfLink {
     font-family: var(--font-mono), monospace;
-    font-size: 11px;
+    font-size: 9px;
     letter-spacing: 0.04em;
-    color: oklch(0.85 0.005 80);
+    color: var(--fg-soft);
 }
 
 .cofinanceText {
-    background: oklch(0.16 0.005 80);
-    color: var(--bg);
     height: 100%;
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    font-size: 12px;
+    padding: 0 20px;
+    font-size: 10px;
     line-height: 1.4;
+    color: var(--fg-soft);
     text-wrap: pretty;
-    max-width: 460px;
-    min-height: 78px;
+    max-width: 382px;
+    min-height: 65px;
 }
 .cofinanceText a { text-decoration: underline; }
 
 .cofinanceLinks {
-    background: oklch(0.16 0.005 80);
-    color: var(--bg);
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 24px;
+    padding: 0 20px;
     font-family: var(--font-serif), serif;
-    font-size: 11px;
+    font-size: 9px;
     line-height: 1.6;
-    min-height: 78px;
+    color: var(--fg-soft);
+    min-height: 65px;
 }
 .cofinanceLinks a { text-decoration: underline; opacity: 0.85; }
 .cofinanceLinks a:hover { opacity: 1; }
 
 .cofinanceTag {
-    background: oklch(0.78 0.18 85);
-    color: oklch(0.18 0.005 80);
     font-family: var(--font-serif), serif;
     font-style: italic;
-    font-size: 16px;
-    padding: 0 28px;
+    font-size: 13px;
+    color: var(--fg);
+    padding: 0 23px;
     height: 100%;
     display: flex;
     align-items: center;
-    min-height: 78px;
+    min-height: 65px;
 }
 
 
@@ -825,9 +851,9 @@
         --gallery-w: 240px;
     }
     .siteHeader { padding: 24px 28px 0; }
-    .navMain { gap: 24px; font-size: 15px; }
-    .navServices { padding-left: 0; }
-    .sideLeft1 { left: 24px; width: 140px; }
+    .sideLeftGroup { left: 24px; }
+    .sideLeft1 { width: 140px; }
+    .sideLeft1 .sideText { font-size: 16px; }
     .sideRight { right: 24px; width: 140px; }
     .cofinanceInner { grid-template-columns: 1fr; }
     .cofinanceLogos,

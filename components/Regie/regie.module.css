@@ -164,9 +164,39 @@
     cursor: auto;
 }
 
-.left {
-    right: auto;
-    left: 16px;
+/* transparență: panoul se estompează cât timp mouse-ul e pe pagină
+   (treapta aleasă cu ◐), și revine complet când îl atingi */
+.panel {
+    opacity: var(--rg-idle, 1);
+    transition: opacity 0.18s ease;
+}
+.panel:hover {
+    opacity: 1;
+}
+
+/* bara de sus = mâner pentru mutat panoul */
+.grab {
+    cursor: grab;
+    touch-action: none;
+}
+.grab:active {
+    cursor: grabbing;
+}
+
+.panel .headOn {
+    color: var(--rg-red-2);
+}
+
+/* panoul scos într-o fereastră separată: ocupă toată fereastra */
+.detached {
+    position: static;
+    width: auto;
+    height: 100vh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    opacity: 1;
 }
 
 .panel button {
@@ -500,10 +530,6 @@
         width: auto;
         max-height: 50vh;
         border-radius: 12px 12px 0 0;
-    }
-
-    .left {
-        left: 0;
     }
 
     .launch {

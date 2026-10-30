@@ -9,6 +9,10 @@
    salvează lista în .regie/ultimul.json (prin /api/regie), iar
    Claude o transformă în cod care merge pe orice ecran.
 
+   Panoul: îl muți trăgând de bara de sus (dublu-click = înapoi în
+   colț), ◐ îl face transparent cât timp mouse-ul nu e pe el, iar ⧉ îl
+   scoate într-o fereastră separată (o poți pune pe alt ecran).
+
    Tot ce faci aici e DOAR vizual și temporar — nu schimbă codul.
    Componenta se încarcă numai în development (vezi
    containers/AppWrapper) și nu ajunge pe site-ul public.
@@ -105,7 +109,11 @@ interface FiberLike {
 
 const STORAGE_CUES = 'regie:cues:v1';
 const STORAGE_ON = 'regie:activ';
-const STORAGE_DOCK = 'regie:dock';
+const STORAGE_POS = 'regie:pozitie';
+const STORAGE_FADE = 'regie:transparenta';
+
+/** Treptele de transparență ale panoului când mouse-ul nu e pe el. */
+const FADE_STEPS = [1, 0.7, 0.45, 0.25];
 
 function load<T>(key: string, fallback: T): T {
     try {
@@ -137,6 +145,20 @@ const toBox = (r: DOMRect): Box => ({
 
 const isRegieUI = (node: EventTarget | null): boolean =>
     node instanceof Element && !!node.closest('[data-regie-ui]');
+
+/** Elementul conține bucăți fixate pe ecran (header, galerie, texte laterale)?
+    Dacă da, mutarea sau mărirea lui le-ar scoate din ecran pe toate —
+    așa s-a întâmplat cu cue-ul „mutat tot containerul paginii”. */
+function holdsLayout(el: Element): boolean {
+    if (el === document.body || el === document.documentElement) return true;
+    const all = el.getElementsByTagName('*');
+    for (let i = 0; i < all.length && i < 5000; i += 1) {
+        if (window.getComputedStyle(all[i]).position === 'fixed') return true;
+    }
+    return false;
+}
+
+const LAYOUT_MSG = 'Elementul ăsta ține tot layout-ul paginii — dacă îl mut, sar toate celelalte. Alege ceva din interiorul lui sau lasă-i o notă.';
 
 const cleanText = (el: Element) =>
     ((el as HTMLElement).innerText || el.textContent || '')
@@ -315,7 +337,9 @@ export default function Regie() {
 
     const [mounted, setMounted] = useState(false);
     const [active, setActive] = useState(false);
-    const [dock, setDock] = useState<'right' | 'left'>('right');
+    const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+    const [fade, setFade] = useState(1);
+    const [popup, setPopup] = useState<Window | null>(null);
     const [collapsed, setCollapsed] = useState(false);
     const [pinMode, setPinMode] = useState(false);
     const [status, setStatus] = useState('');
@@ -335,6 +359,9 @@ export default function Regie() {
     const originals = useRef(new Map<HTMLElement, Originals>());
     const hoverBoxRef = useRef<HTMLDivElement | null>(null);
     const selBoxRef = useRef<HTMLDivElement | null>(null);
+    const panelRef = useRef<HTMLElement | null>(null);
+    const popupHostRef = useRef<HTMLElement | null>(null);
+    const panelDragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
 
     const bump = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -390,6 +417,10 @@ export default function Regie() {
     };
 
     const update = (el: HTMLElement, patch: Partial<ElementCue>, rectBefore?: Box) => {
+        if ((patch.move || patch.scale) && holdsLayout(el)) {
+            setStatus(LAYOUT_MSG);
+            return;
+        }
         const existing = cueFor(el);
         let cue: ElementCue;
         let next: Cue[];
@@ -464,7 +495,8 @@ export default function Regie() {
     useEffect(() => {
         cuesRef.current = load<Cue[]>(STORAGE_CUES, []);
         setActive(load<boolean>(STORAGE_ON, false));
-        setDock(load<'right' | 'left'>(STORAGE_DOCK, 'right'));
+        setPos(load<{ x: number; y: number } | null>(STORAGE_POS, null));
+        setFade(load<number>(STORAGE_FADE, 1));
         setMounted(true);
 
         const style = document.createElement('style');
@@ -481,8 +513,41 @@ export default function Regie() {
     }, [active, mounted]);
 
     useEffect(() => {
-        if (mounted) save(STORAGE_DOCK, dock);
-    }, [dock, mounted]);
+        if (mounted) save(STORAGE_POS, pos);
+    }, [pos, mounted]);
+
+    useEffect(() => {
+        if (mounted) save(STORAGE_FADE, fade);
+    }, [fade, mounted]);
+
+
+    /* ── panoul în fereastră separată ── */
+
+    // fereastra închisă de mână → panoul revine în pagină
+    useEffect(() => {
+        if (!popup) return;
+        const timer = window.setInterval(() => {
+            if (popup.closed) {
+                popupHostRef.current = null;
+                setPopup(null);
+            }
+        }, 400);
+        const closeIt = () => popup.close();
+        window.addEventListener('pagehide', closeIt);
+        return () => {
+            window.clearInterval(timer);
+            window.removeEventListener('pagehide', closeIt);
+        };
+    }, [popup]);
+
+    // ieșirea din Modul Regie închide și fereastra
+    useEffect(() => {
+        if (!active && popup) {
+            popup.close();
+            popupHostRef.current = null;
+            setPopup(null);
+        }
+    }, [active, popup]);
 
 
     /* ── la schimbarea paginii: regăsim elementele cu cue-uri ── */
@@ -563,6 +628,11 @@ export default function Regie() {
             const current = selectedRef.current;
             const el = current && current.contains(target) ? current : target;
             if (el !== current) select(el);
+            if (holdsLayout(el)) {
+                // îl putem alege (notă, culoare), dar nu-l tragem
+                setStatus(LAYOUT_MSG);
+                return;
+            }
             const existing = cueFor(el);
             try {
                 root.setPointerCapture(e.pointerId);
@@ -656,6 +726,7 @@ export default function Regie() {
         window.addEventListener('pointerup', onUp, true);
         window.addEventListener('pointercancel', onCancel, true);
         window.addEventListener('keydown', onKey, true);
+        popup?.addEventListener('keydown', onKey, true);
         blocked.forEach((type) => window.addEventListener(type, block, true));
 
         let raf = 0;
@@ -691,13 +762,14 @@ export default function Regie() {
             window.removeEventListener('pointerup', onUp, true);
             window.removeEventListener('pointercancel', onCancel, true);
             window.removeEventListener('keydown', onKey, true);
+            popup?.removeEventListener('keydown', onKey, true);
             blocked.forEach((type) => window.removeEventListener(type, block, true));
             root.classList.remove('regie-on', 'regie-drag');
             hoverRef.current = null;
             dragRef.current = null;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [active]);
+    }, [active, popup]);
 
 
     /* ── acțiuni din panou ── */
@@ -708,6 +780,71 @@ export default function Regie() {
         selectedRef.current = null;
         selectedPinRef.current = null;
         setActive(false);
+    };
+
+    /* panoul se mută trăgând de bara de sus */
+    const onHeadDown = (e: React.PointerEvent<HTMLElement>) => {
+        if (popup || e.button !== 0) return;
+        if ((e.target as HTMLElement).closest('button')) return;
+        const r = panelRef.current?.getBoundingClientRect();
+        if (!r) return;
+        e.preventDefault();
+        panelDragRef.current = { startX: e.clientX, startY: e.clientY, baseX: r.left, baseY: r.top };
+        try {
+            e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+            /* nu e grav */
+        }
+    };
+
+    const onHeadMove = (e: React.PointerEvent<HTMLElement>) => {
+        const d = panelDragRef.current;
+        const panel = panelRef.current;
+        if (!d || !panel) return;
+        const w = panel.offsetWidth;
+        const x = Math.min(Math.max(d.baseX + e.clientX - d.startX, 8 - w + 80), window.innerWidth - 80);
+        const y = Math.min(Math.max(d.baseY + e.clientY - d.startY, 0), window.innerHeight - 40);
+        setPos({ x: Math.round(x), y: Math.round(y) });
+    };
+
+    const onHeadUp = () => {
+        panelDragRef.current = null;
+    };
+
+    const cycleFade = () => {
+        const i = FADE_STEPS.indexOf(fade);
+        setFade(FADE_STEPS[(i + 1) % FADE_STEPS.length]);
+    };
+
+    /* panoul într-o fereastră separată (o poți muta pe alt ecran) */
+    const detach = () => {
+        const w = window.open('', 'regie-panou', 'popup=yes,width=380,height=820');
+        if (!w) {
+            setStatus('Browserul a blocat fereastra. Permite ferestrele pop-up pentru localhost și apasă din nou ⧉.');
+            return;
+        }
+        const d = w.document;
+        d.title = 'REGIE — panou';
+        d.head.innerHTML = '';
+        d.body.innerHTML = '';
+        d.documentElement.className = document.documentElement.className;
+        d.body.className = document.body.className;
+        d.body.style.margin = '0';
+        d.body.style.background = '#101010';
+        document.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
+            d.head.appendChild(d.importNode(node, true));
+        });
+        const host = d.createElement('div');
+        d.body.appendChild(host);
+        popupHostRef.current = host;
+        setPopup(w);
+        w.focus();
+    };
+
+    const attach = () => {
+        popup?.close();
+        popupHostRef.current = null;
+        setPopup(null);
     };
 
     const togglePin = () => {
@@ -813,6 +950,221 @@ export default function Regie() {
     const pin = pinIndex >= 0 && cues[pinIndex].kind === 'pin' ? (cues[pinIndex] as PinCue) : null;
     const computed = sel ? window.getComputedStyle(sel) : null;
 
+    const panelUI = (
+        <aside
+            ref={panelRef}
+            data-regie-ui=""
+            aria-label="Modul Regie"
+            className={[
+                styles.panel,
+                popup ? styles.detached : '',
+                collapsed ? styles.collapsed : '',
+            ].filter(Boolean).join(' ')}
+            style={popup ? undefined : {
+                ...(pos ? { left: pos.x, top: pos.y, right: 'auto' } : {}),
+                ['--rg-idle' as string]: String(fade),
+            }}
+        >
+            <header
+                className={`${styles.head} ${popup ? '' : styles.grab}`}
+                onPointerDown={onHeadDown}
+                onPointerMove={onHeadMove}
+                onPointerUp={onHeadUp}
+                onPointerCancel={onHeadUp}
+                onDoubleClick={() => setPos(null)}
+                title={popup ? undefined : 'Trage de aici ca să muți panoul · dublu-click = înapoi în colț'}
+            >
+                <span className={styles.rec}>
+                    <span className={styles.dot} aria-hidden="true" />
+                    REGIE
+                </span>
+                <span className={styles.page}>{pathname}</span>
+                <span className={styles.headBtns}>
+                    {!popup && (
+                        <button
+                            type="button"
+                            className={fade < 1 ? styles.headOn : undefined}
+                            onClick={cycleFade}
+                            aria-label="Transparența panoului"
+                            title={`Transparent când mouse-ul nu e pe panou: ${Math.round(fade * 100)}% (click = următoarea treaptă)`}
+                        >
+                            ◐
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        onClick={popup ? attach : detach}
+                        aria-label={popup ? 'Adu panoul înapoi în pagină' : 'Scoate panoul într-o fereastră separată'}
+                        title={popup ? 'Adu panoul înapoi în pagină' : 'Scoate panoul într-o fereastră separată (o poți muta pe alt ecran)'}
+                    >
+                        {popup ? '⇲' : '⧉'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setCollapsed((v) => !v)}
+                        aria-label={collapsed ? 'Deschide panoul' : 'Strânge panoul'}
+                        title={collapsed ? 'Deschide panoul' : 'Strânge panoul'}
+                    >
+                        {collapsed ? '▢' : '–'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={exit}
+                        aria-label="Ieși din Modul Regie"
+                        title="Ieși din Modul Regie (cue-urile rămân)"
+                    >
+                        ×
+                    </button>
+                </span>
+            </header>
+
+            {!collapsed && (
+                <div className={styles.body}>
+                    {!sel && !pin && (
+                        <p className={styles.help}>
+                            Click pe un element ca să-l alegi, apoi trage-l unde vrei.
+                            Săgețile îl mută fin (Shift = 10 px). Esc renunță.
+                        </p>
+                    )}
+
+                    <button
+                        type="button"
+                        className={`${styles.wide} ${pinMode ? styles.on : ''}`}
+                        onClick={togglePin}
+                    >
+                        {pinMode ? 'Click oriunde pe pagină…' : '+ Notă nouă pe pagină'}
+                    </button>
+
+                    {sel && selIdent && (
+                        <section className={styles.card}>
+                            <div className={styles.cardTitle}>{labelOf(selIdent)}</div>
+                            {selIdent.components.length > 0 && (
+                                <div className={styles.meta}>{selIdent.components.join(' › ')}</div>
+                            )}
+
+                            <div className={styles.row}>
+                                <button type="button" onClick={selectParent}>↑ Părinte</button>
+                                <button type="button" onClick={() => scaleBy(1 / 1.1)}>− Mai mic</button>
+                                <button type="button" onClick={() => scaleBy(1.1)}>+ Mai mare</button>
+                            </div>
+
+                            <div className={styles.row}>
+                                <label className={styles.swatch}>
+                                    Text
+                                    <input
+                                        type="color"
+                                        value={selCue?.color || toHex(computed?.color || '', '#000000')}
+                                        onChange={(e) => update(sel, { color: e.target.value })}
+                                    />
+                                </label>
+                                <label className={styles.swatch}>
+                                    Fundal
+                                    <input
+                                        type="color"
+                                        value={selCue?.background || toHex(computed?.backgroundColor || '', '#ffffff')}
+                                        onChange={(e) => update(sel, { background: e.target.value })}
+                                    />
+                                </label>
+                                <button type="button" onClick={() => update(sel, { hidden: !selCue?.hidden })}>
+                                    {selCue?.hidden ? 'Arată' : 'Ascunde'}
+                                </button>
+                            </div>
+
+                            <label className={styles.noteLabel}>
+                                Notă pentru Claude
+                                <textarea
+                                    rows={2}
+                                    value={selCue?.note || ''}
+                                    placeholder="ex.: mai discret, aliniat cu titlul"
+                                    onChange={(e) => update(sel, { note: e.target.value })}
+                                />
+                            </label>
+
+                            {selCue && (
+                                <button type="button" className={styles.linkBtn} onClick={() => removeCue(selCue.id)}>
+                                    Anulează modificările acestui element
+                                </button>
+                            )}
+                        </section>
+                    )}
+
+                    {pin && (
+                        <section className={styles.card}>
+                            <div className={styles.cardTitle}>Notă pe pagină · {String(pinIndex + 1).padStart(2, '0')}</div>
+                            <label className={styles.noteLabel}>
+                                Ce vrei aici?
+                                <textarea
+                                    rows={3}
+                                    autoFocus
+                                    value={pin.note}
+                                    placeholder="ex.: aici vreau o poză cu echipa"
+                                    onChange={(e) => setPinNote(pin.id, e.target.value)}
+                                />
+                            </label>
+                            <button type="button" className={styles.linkBtn} onClick={() => removeCue(pin.id)}>
+                                Șterge nota
+                            </button>
+                        </section>
+                    )}
+
+                    <section className={styles.list} aria-label="Lista de cue-uri">
+                        <div className={styles.listHead}>Cue-uri ({cues.length})</div>
+                        {cues.length === 0 && <p className={styles.empty}>Nimic încă.</p>}
+                        <ol>
+                            {cues.map((c, i) => {
+                                const isSel = (c.kind === 'pin' && c.id === selectedPinRef.current)
+                                    || (c.kind === 'element' && !!sel && elByCue.current.get(c.id) === sel);
+                                const detail = c.kind === 'element'
+                                    ? [...changesOf(c), c.note ? `„${c.note}”` : ''].filter(Boolean).join(' · ') || 'fără modificări încă'
+                                    : (c.note ? `„${c.note}”` : 'fără text încă');
+                                return (
+                                    <li key={c.id} className={isSel ? styles.cueSel : undefined}>
+                                        <button type="button" className={styles.cueBtn} onClick={() => focusCue(c)}>
+                                            <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
+                                            <span className={styles.cueText}>
+                                                {c.kind === 'element' ? labelOf(c.target) : 'Notă pe pagină'}
+                                                {c.page !== pathname && <em> · {c.page}</em>}
+                                                <small>{detail}</small>
+                                            </span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={styles.x}
+                                            aria-label={`Șterge cue-ul ${i + 1}`}
+                                            onClick={() => removeCue(c.id)}
+                                        >
+                                            ×
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ol>
+                    </section>
+                </div>
+            )}
+
+            <footer className={styles.foot}>
+                <div className={styles.footBtns}>
+                    <button type="button" className={styles.ghost} onClick={onReset}>
+                        {confirmReset ? 'Sigur? Încă o dată' : 'Resetează'}
+                    </button>
+                    <button type="button" className={styles.ghost} onClick={copyText} disabled={!cues.length}>
+                        Copiază
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.primary}
+                        onClick={send}
+                        disabled={!cues.length || sending}
+                    >
+                        {sending ? 'Trimit…' : 'Trimite la Claude →'}
+                    </button>
+                </div>
+                {status && <p className={styles.status} role="status">{status}</p>}
+            </footer>
+        </aside>
+    );
+
     return createPortal(
         <>
             {!active && (
@@ -855,194 +1207,9 @@ export default function Regie() {
                         ) : null))}
                     </div>
 
-                    <aside
-                        data-regie-ui=""
-                        aria-label="Modul Regie"
-                        className={[
-                            styles.panel,
-                            dock === 'left' ? styles.left : '',
-                            collapsed ? styles.collapsed : '',
-                        ].filter(Boolean).join(' ')}
-                    >
-                        <header className={styles.head}>
-                            <span className={styles.rec}>
-                                <span className={styles.dot} aria-hidden="true" />
-                                REGIE
-                            </span>
-                            <span className={styles.page}>{pathname}</span>
-                            <span className={styles.headBtns}>
-                                <button
-                                    type="button"
-                                    onClick={() => setDock((d) => (d === 'right' ? 'left' : 'right'))}
-                                    aria-label="Mută panoul în partea cealaltă"
-                                    title="Mută panoul în partea cealaltă"
-                                >
-                                    ⇆
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setCollapsed((v) => !v)}
-                                    aria-label={collapsed ? 'Deschide panoul' : 'Strânge panoul'}
-                                    title={collapsed ? 'Deschide panoul' : 'Strânge panoul'}
-                                >
-                                    {collapsed ? '▢' : '–'}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={exit}
-                                    aria-label="Ieși din Modul Regie"
-                                    title="Ieși din Modul Regie (cue-urile rămân)"
-                                >
-                                    ×
-                                </button>
-                            </span>
-                        </header>
-
-                        {!collapsed && (
-                            <div className={styles.body}>
-                                {!sel && !pin && (
-                                    <p className={styles.help}>
-                                        Click pe un element ca să-l alegi, apoi trage-l unde vrei.
-                                        Săgețile îl mută fin (Shift = 10 px). Esc renunță.
-                                    </p>
-                                )}
-
-                                <button
-                                    type="button"
-                                    className={`${styles.wide} ${pinMode ? styles.on : ''}`}
-                                    onClick={togglePin}
-                                >
-                                    {pinMode ? 'Click oriunde pe pagină…' : '+ Notă nouă pe pagină'}
-                                </button>
-
-                                {sel && selIdent && (
-                                    <section className={styles.card}>
-                                        <div className={styles.cardTitle}>{labelOf(selIdent)}</div>
-                                        {selIdent.components.length > 0 && (
-                                            <div className={styles.meta}>{selIdent.components.join(' › ')}</div>
-                                        )}
-
-                                        <div className={styles.row}>
-                                            <button type="button" onClick={selectParent}>↑ Părinte</button>
-                                            <button type="button" onClick={() => scaleBy(1 / 1.1)}>− Mai mic</button>
-                                            <button type="button" onClick={() => scaleBy(1.1)}>+ Mai mare</button>
-                                        </div>
-
-                                        <div className={styles.row}>
-                                            <label className={styles.swatch}>
-                                                Text
-                                                <input
-                                                    type="color"
-                                                    value={selCue?.color || toHex(computed?.color || '', '#000000')}
-                                                    onChange={(e) => update(sel, { color: e.target.value })}
-                                                />
-                                            </label>
-                                            <label className={styles.swatch}>
-                                                Fundal
-                                                <input
-                                                    type="color"
-                                                    value={selCue?.background || toHex(computed?.backgroundColor || '', '#ffffff')}
-                                                    onChange={(e) => update(sel, { background: e.target.value })}
-                                                />
-                                            </label>
-                                            <button type="button" onClick={() => update(sel, { hidden: !selCue?.hidden })}>
-                                                {selCue?.hidden ? 'Arată' : 'Ascunde'}
-                                            </button>
-                                        </div>
-
-                                        <label className={styles.noteLabel}>
-                                            Notă pentru Claude
-                                            <textarea
-                                                rows={2}
-                                                value={selCue?.note || ''}
-                                                placeholder="ex.: mai discret, aliniat cu titlul"
-                                                onChange={(e) => update(sel, { note: e.target.value })}
-                                            />
-                                        </label>
-
-                                        {selCue && (
-                                            <button type="button" className={styles.linkBtn} onClick={() => removeCue(selCue.id)}>
-                                                Anulează modificările acestui element
-                                            </button>
-                                        )}
-                                    </section>
-                                )}
-
-                                {pin && (
-                                    <section className={styles.card}>
-                                        <div className={styles.cardTitle}>Notă pe pagină · {String(pinIndex + 1).padStart(2, '0')}</div>
-                                        <label className={styles.noteLabel}>
-                                            Ce vrei aici?
-                                            <textarea
-                                                rows={3}
-                                                autoFocus
-                                                value={pin.note}
-                                                placeholder="ex.: aici vreau o poză cu echipa"
-                                                onChange={(e) => setPinNote(pin.id, e.target.value)}
-                                            />
-                                        </label>
-                                        <button type="button" className={styles.linkBtn} onClick={() => removeCue(pin.id)}>
-                                            Șterge nota
-                                        </button>
-                                    </section>
-                                )}
-
-                                <section className={styles.list} aria-label="Lista de cue-uri">
-                                    <div className={styles.listHead}>Cue-uri ({cues.length})</div>
-                                    {cues.length === 0 && <p className={styles.empty}>Nimic încă.</p>}
-                                    <ol>
-                                        {cues.map((c, i) => {
-                                            const isSel = (c.kind === 'pin' && c.id === selectedPinRef.current)
-                                                || (c.kind === 'element' && !!sel && elByCue.current.get(c.id) === sel);
-                                            const detail = c.kind === 'element'
-                                                ? [...changesOf(c), c.note ? `„${c.note}”` : ''].filter(Boolean).join(' · ') || 'fără modificări încă'
-                                                : (c.note ? `„${c.note}”` : 'fără text încă');
-                                            return (
-                                                <li key={c.id} className={isSel ? styles.cueSel : undefined}>
-                                                    <button type="button" className={styles.cueBtn} onClick={() => focusCue(c)}>
-                                                        <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
-                                                        <span className={styles.cueText}>
-                                                            {c.kind === 'element' ? labelOf(c.target) : 'Notă pe pagină'}
-                                                            {c.page !== pathname && <em> · {c.page}</em>}
-                                                            <small>{detail}</small>
-                                                        </span>
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className={styles.x}
-                                                        aria-label={`Șterge cue-ul ${i + 1}`}
-                                                        onClick={() => removeCue(c.id)}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                </li>
-                                            );
-                                        })}
-                                    </ol>
-                                </section>
-                            </div>
-                        )}
-
-                        <footer className={styles.foot}>
-                            <div className={styles.footBtns}>
-                                <button type="button" className={styles.ghost} onClick={onReset}>
-                                    {confirmReset ? 'Sigur? Încă o dată' : 'Resetează'}
-                                </button>
-                                <button type="button" className={styles.ghost} onClick={copyText} disabled={!cues.length}>
-                                    Copiază
-                                </button>
-                                <button
-                                    type="button"
-                                    className={styles.primary}
-                                    onClick={send}
-                                    disabled={!cues.length || sending}
-                                >
-                                    {sending ? 'Trimit…' : 'Trimite la Claude →'}
-                                </button>
-                            </div>
-                            {status && <p className={styles.status} role="status">{status}</p>}
-                        </footer>
-                    </aside>
+                    {popup && popupHostRef.current
+                        ? createPortal(panelUI, popupHostRef.current)
+                        : panelUI}
                 </>
             )}
         </>,

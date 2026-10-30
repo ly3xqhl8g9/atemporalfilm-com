@@ -462,13 +462,14 @@ export default function LandingHero() {
                     <span className={`${styles.logoWord} ${styles.logoWord2}`}>Film</span>
                 </Link>
 
-                {/* NAV — coloană verticală numerotată (atipic, dreapta-aliniat) */}
-                <nav className={styles.navMain} aria-label="Main navigation">
-                    <Link href="/about" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.about}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>01</span>
-                    </Link>
+            </header>
+
+
+            {/* NAV — un rând orizontal sub antet, împărțit în jurul galeriei
+                (stânga: Echipa · Servicii · Recente / dreapta: Despre · Contact · limbă).
+                Așezare din Modul Regie, 30.10.2026. */}
+            <nav className={styles.navRow} aria-label="Main navigation">
+                <div className={`${styles.navGroup} ${styles.navGroupLeft}`}>
                     <Link href="/about" className={styles.navItem}>
                         <span className={styles.navText}>{t.nav.people}</span>
                         <span className={styles.navDash} aria-hidden="true" />
@@ -479,18 +480,24 @@ export default function LandingHero() {
                         <span className={styles.navDash} aria-hidden="true" />
                         <span className={styles.navNum}>03</span>
                     </Link>
-                    <Link href="/contact" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.contact}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>04</span>
-                    </Link>
                     <Link href="/news" className={styles.navItem}>
                         <span className={styles.navText}>{t.nav.latest}</span>
                         <span className={styles.navDash} aria-hidden="true" />
                         <span className={styles.navNum}>05</span>
                     </Link>
+                </div>
 
-                    <div className={styles.navRule} aria-hidden="true" />
+                <div className={`${styles.navGroup} ${styles.navGroupRight}`}>
+                    <Link href="/about" className={styles.navItem}>
+                        <span className={styles.navText}>{t.nav.about}</span>
+                        <span className={styles.navDash} aria-hidden="true" />
+                        <span className={styles.navNum}>01</span>
+                    </Link>
+                    <Link href="/contact" className={styles.navItem}>
+                        <span className={styles.navText}>{t.nav.contact}</span>
+                        <span className={styles.navDash} aria-hidden="true" />
+                        <span className={styles.navNum}>04</span>
+                    </Link>
 
                     {/* LANG TOGGLE — afișează limba următoare; click ciclează RO → EN → FR → RO */}
                     <button
@@ -503,21 +510,25 @@ export default function LandingHero() {
                         {LANG_LABEL[LANG_NEXT[lang]]}
                         <span className={styles.langBtnArrow} aria-hidden="true">⇆</span>
                     </button>
-                </nav>
-            </header>
+                </div>
+            </nav>
 
 
-            {/* TEXTE LATERALE — fixe ca poziție, conținutul se schimbă cu fade */}
-            <aside className={`${styles.side} ${styles.sideLeft1}`} style={fadeStyle}>
-                <div className={styles.sideEyebrow}>{t.eyebrowDesc}</div>
-                <p className={styles.sideText}>{projDescription}</p>
-                <div className={styles.sideMeta}>{t.sideMetaUnde}</div>
-            </aside>
+            {/* TEXTE LATERALE — fixe ca poziție, conținutul se schimbă cu fade.
+                Stânga: descrierea (mare) + anul/premiile alături, ca un singur grup
+                (pe ecrane mai înguste de 1600 px, anul/premiile coboară sub descriere). */}
+            <div className={styles.sideLeftGroup} style={fadeStyle}>
+                <aside className={`${styles.side} ${styles.sideLeft1}`}>
+                    <div className={styles.sideEyebrow}>{t.eyebrowDesc}</div>
+                    <p className={styles.sideText}>{projDescription}</p>
+                    <div className={styles.sideMeta}>{t.sideMetaUnde}</div>
+                </aside>
 
-            <aside className={`${styles.side} ${styles.sideLeft2}`} style={fadeStyle}>
-                <div className={styles.sideEyebrow}>{proj.year}</div>
-                <p className={styles.sideTextSm}>{projAwards}</p>
-            </aside>
+                <aside className={`${styles.side} ${styles.sideLeft2}`}>
+                    <div className={styles.sideEyebrow}>{proj.year}</div>
+                    <p className={styles.sideTextSm}>{projAwards}</p>
+                </aside>
+            </div>
 
             <aside className={`${styles.side} ${styles.sideRight}`} style={fadeStyle}>
                 <div className={styles.sideEyebrow}>{t.eyebrowPeople}</div>
