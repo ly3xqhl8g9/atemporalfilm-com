@@ -10,6 +10,7 @@ import Link from 'next/link';
 
 import Cofinance from '@/containers/Cofinance';
 import FilmDetail from '@/containers/FilmDetail';
+import HeaderClocks from '@/containers/HeaderClocks';
 
 import styles from './landing.module.css';
 
@@ -48,6 +49,15 @@ interface Project {
     peopleEn?: string;
     peopleFr?: string;
 
+    // Creditul din dreapta galeriei (Modul Regie, 30.10.2026, seria a treia):
+    //   work — pe scurt, ce a făcut echipa la film (ex. „Sound design, mixing, distribution”)
+    //   by   — cine (ex. „Stefan Azaharioaie”)
+    // Dacă lipsesc, se afișează textele temporare WORK_PLACEHOLDER / BY_DEFAULT.
+    work?:   string;
+    workEn?: string;
+    workFr?: string;
+    by?:     string;
+
     image: string;   // /assets/entities/...
 }
 
@@ -67,12 +77,9 @@ interface UITexts {
         contact:  string;
         latest:   string;
     };
-    eyebrowDesc:    string;
-    eyebrowPeople:  string;
-    sideMetaUnde:   string;
-    sideMetaPeople: string;
-    endCue:         string;
-    rec:            string;
+    films: string;   // eticheta listei de filme (doar pentru cititoarele de ecran)
+    by:    string;
+    rec:   string;
 }
 
 const UI: Record<Lang, UITexts> = {
@@ -84,12 +91,9 @@ const UI: Record<Lang, UITexts> = {
             contact:  'Contact',
             latest:   'Recente',
         },
-        eyebrowDesc:    'descrierea proiectului',
-        eyebrowPeople:  'cine a lucrat la el',
-        sideMetaUnde:   'unde am fost · ce am făcut',
-        sideMetaPeople: 'oameni',
-        endCue:         'scroll mai jos pentru info cofinanțare',
-        rec:            'REC',
+        films: 'Filme',
+        by:    'by',
+        rec:   'REC',
     },
     en: {
         nav: {
@@ -99,12 +103,9 @@ const UI: Record<Lang, UITexts> = {
             contact:  'Contact',
             latest:   'Latest',
         },
-        eyebrowDesc:    'project description',
-        eyebrowPeople:  'who worked on it',
-        sideMetaUnde:   'where we shot · what we did',
-        sideMetaPeople: 'people',
-        endCue:         'scroll down for co-financing info',
-        rec:            'REC',
+        films: 'Films',
+        by:    'by',
+        rec:   'REC',
     },
     fr: {
         nav: {
@@ -114,23 +115,20 @@ const UI: Record<Lang, UITexts> = {
             contact:  'Contact',
             latest:   'Récents',
         },
-        eyebrowDesc:    'description du projet',
-        eyebrowPeople:  'qui a travaillé dessus',
-        sideMetaUnde:   'où on a tourné · ce qu’on a fait',
-        sideMetaPeople: 'équipe',
-        endCue:         'défilez pour les infos de cofinancement',
-        rec:            'REC',
+        films: 'Films',
+        by:    'by',
+        rec:   'REC',
     },
 };
 
 
-/** Selector cu fallback la RO pentru câmpurile multilingve ale unui Project. */
-function pickLang(p: Project, lang: Lang, base: 'description' | 'awards' | 'people'): string {
-    if (lang === 'ro') return p[base];
-    const suffix = lang === 'en' ? 'En' : 'Fr';
-    const key = (base + suffix) as keyof Project;
-    const value = p[key];
-    return (typeof value === 'string' && value.length > 0) ? value : p[base];
+/** Ce a făcut echipa la film, în limba selectată (fallback: RO, apoi textul temporar). */
+const WORK_PLACEHOLDER = 'Sound design, mixing, distribution';   // TEMPORAR — de scris pentru fiecare film
+const BY_DEFAULT       = 'Stefan Azaharioaie';
+
+function pickWork(p: Project, lang: Lang): string {
+    const v = lang === 'en' ? p.workEn : lang === 'fr' ? p.workFr : undefined;
+    return v || p.work || WORK_PLACEHOLDER;
 }
 
 /** Titlul proiectului în limba selectată, cu fallback la EN. */
@@ -377,6 +375,8 @@ export default function LandingHero() {
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(0);
+    const listTrackRef  = useRef<HTMLOListElement | null>(null);
+    const listItemRefs  = useRef<(HTMLLIElement | null)[]>([]);
 
     const t = UI[lang];
 
@@ -411,6 +411,41 @@ export default function LandingHero() {
     }, []);
 
 
+    /* Lista de filme din stânga urmează galeria continuu: poziția în galerie
+       (ex. 3,4 = între al 4-lea și al 5-lea afiș) mută lista cu exact atât,
+       iar titlul aflat în dreptul ramei e plin, celelalte se sting cu distanța
+       — ca afișele vecine. Scris direct în stil (fără re-render React). */
+    const slotPitch = useCallback((): number => {
+        const a = slotRefs.current[0];
+        const b = slotRefs.current[1];
+        return a && b ? b.offsetTop - a.offsetTop : 1;
+    }, []);
+
+    const syncList = useCallback(() => {
+        const gallery = galleryRef.current;
+        const track   = listTrackRef.current;
+        const items   = listItemRefs.current;
+        if (!gallery || !track || items.length === 0) return;
+        const last = PROJECTS.length - 1;
+        const f    = Math.min(last, Math.max(0, gallery.scrollTop / slotPitch()));
+        const i0   = Math.floor(f);
+        const i1   = Math.min(last, i0 + 1);
+        const y0   = items[i0]?.offsetTop ?? 0;
+        const y1   = items[i1]?.offsetTop ?? y0;
+        const y    = y0 + (y1 - y0) * (f - i0);
+        track.style.transform = `translate3d(0, ${-y}px, 0)`;
+        items.forEach((el, i) => {
+            if (!el) return;
+            const d = Math.abs(i - f);
+            el.style.opacity = String(Math.max(0.16, 1 - 0.6 * d));
+        });
+    }, [slotPitch]);
+
+    const goTo = useCallback((i: number) => {
+        galleryRef.current?.scrollTo({ top: i * slotPitch(), behavior: 'smooth' });
+    }, [slotPitch]);
+
+
     useEffect(() => {
         const gallery = galleryRef.current;
         if (!gallery) return;
@@ -420,22 +455,32 @@ export default function LandingHero() {
             if (!ticking) {
                 requestAnimationFrame(() => {
                     updateActive();
+                    syncList();
                     ticking = false;
                 });
                 ticking = true;
             }
         };
         gallery.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
         updateActive();
-        return () => gallery.removeEventListener('scroll', onScroll);
-    }, [updateActive]);
+        syncList();
+        // fonturile schimbă înălțimea rândurilor → recalculăm după ce se încarcă
+        document.fonts?.ready.then(syncList).catch(() => {});
+        return () => {
+            gallery.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onScroll);
+        };
+    }, [updateActive, syncList]);
+
+    // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
+    useEffect(() => { syncList(); }, [lang, syncList]);
 
 
     const proj            = PROJECTS[active];
     const projTitle       = pickTitle(proj, lang);
-    const projDescription = pickLang(proj, lang, 'description');
-    const projAwards      = pickLang(proj, lang, 'awards');
-    const projPeople      = pickLang(proj, lang, 'people');
+    const projWork        = pickWork(proj, lang);
+    const projBy          = proj.by || BY_DEFAULT;
 
     const fadeStyle: React.CSSProperties = {
         opacity: textVisible ? 1 : 0,
@@ -460,6 +505,8 @@ export default function LandingHero() {
                     <span className={`${styles.logoWord} ${styles.logoWord2}`}>Film</span>
                 </Link>
 
+                {/* ceasurile + timecode 24 fps + REC — urcate din bara de jos (30.10, seria a treia) */}
+                <HeaderClocks recLabel={t.rec} />
             </header>
 
 
@@ -475,39 +522,46 @@ export default function LandingHero() {
             </nav>
 
 
-            {/* TEXTE LATERALE — fixe ca poziție, conținutul se schimbă cu fade.
-                Stânga: descrierea (mare) + anul/premiile alături, ca un singur grup
-                (pe ecrane mai înguste de 1600 px, anul/premiile coboară sub descriere). */}
-            <div className={styles.sideLeftGroup} style={fadeStyle}>
-                <aside className={`${styles.side} ${styles.sideLeft1}`}>
-                    <div className={styles.sideEyebrow}>{t.eyebrowDesc}</div>
-                    <p className={styles.sideText}>{projDescription}</p>
-                    <div className={styles.sideMeta}>{t.sideMetaUnde}</div>
-                </aside>
+            {/* STÂNGA — lista filmelor, în ordinea din galerie, sincronizată cu ea.
+                Titlul din dreptul ramei stă unde era „descrierea proiectului”;
+                cele de dinainte deasupra, cele următoare dedesubt. Click → galeria
+                merge la filmul respectiv. (Modul Regie, 30.10.2026, seria a treia:
+                descrierea, anul, premiile și „unde am fost” scoase de pe homepage.) */}
+            <nav className={styles.filmList} aria-label={t.films}>
+                <ol className={styles.filmListTrack} ref={listTrackRef}>
+                    {PROJECTS.map((p, i) => (
+                        <li
+                            key={p.image}
+                            ref={(el) => { listItemRefs.current[i] = el; }}
+                            className={styles.filmListItem}
+                            style={{ opacity: i === 0 ? 1 : Math.max(0.16, 1 - 0.6 * i) }}
+                        >
+                            <button
+                                type="button"
+                                className={styles.filmListBtn}
+                                onClick={() => goTo(i)}
+                                aria-current={i === active ? 'true' : undefined}
+                            >
+                                {pickTitle(p, lang)}
+                            </button>
+                        </li>
+                    ))}
+                </ol>
+            </nav>
 
-                <aside className={`${styles.side} ${styles.sideLeft2}`}>
-                    <div className={styles.sideEyebrow}>{proj.year}</div>
-                    <p className={styles.sideTextSm}>{projAwards}</p>
-                </aside>
-            </div>
-
+            {/* DREAPTA — creditul: ce a făcut echipa la film + cine.
+                Mutat mai aproape de ramă; lista de oameni scoasă (30.10, seria a treia). */}
             <aside className={`${styles.side} ${styles.sideRight}`} style={fadeStyle}>
-                <div className={styles.sideEyebrow}>{t.eyebrowPeople}</div>
-                <p
-                    className={styles.sideTextSm}
-                    style={{ whiteSpace: 'pre-line' }}
-                >
-                    {projPeople}
-                </p>
-                <div className={styles.sideMeta}>{t.sideMetaPeople}</div>
+                <div className={styles.sideEyebrow}>{projWork}</div>
+                <div className={styles.sideMeta}>{t.by} {projBy}</div>
             </aside>
 
 
             {/* VIZOR — rama de geam mat (din poza lui Ștefan, 30.10.2026), fixă peste
-                galerie; afișul activ stă în interiorul ei, la fel REC și contorul. */}
+                galerie; afișul activ stă în interiorul ei, la fel contorul. */}
             <div className={styles.viewfinder} aria-hidden="true">
                 <div className={styles.vfGlass} />
-                <div className={`${styles.vfTick} ${styles.vfRec}`}>{t.rec}</div>
+                {/* REC a urcat în antet, lângă timecode (30.10, seria a treia) */}
                 <div className={`${styles.vfTick} ${styles.vfFrame}`}>
                     {String(active + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}
                 </div>
@@ -551,17 +605,12 @@ export default function LandingHero() {
                     );
                 })}
                 <div className={styles.galleryPad} />
-                <div className={styles.galleryPad} />
-
-                {/* Indicator scroll — apare după ce galeria s-a derulat până jos */}
-                <div className={styles.endCue}>
-                    <div className={styles.endCueLine} />
-                    <div className={styles.endCueText}>{t.endCue}</div>
-                </div>
+                {/* indicatorul „scroll mai jos pentru info cofinanțare” scos:
+                    bara de jos e acum mereu vizibilă (30.10, seria a treia) */}
             </div>
 
 
-            {/* FOOTER de cofinanțare — dezvăluit când scrolezi pagina */}
+            {/* BARA DE JOS — fixă, mereu vizibilă: limba + cofinanțarea */}
             <Cofinance
                 langLabel={LANG_LABEL[LANG_NEXT[lang]]}
                 onToggleLang={() => setLang(LANG_NEXT[lang])}

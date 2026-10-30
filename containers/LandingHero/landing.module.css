@@ -6,8 +6,8 @@
 /* ── PAGE ─────────────────────────────────────────────── */
 .page {
     position: relative;
-    /* 200vh ca să existe distanță de scroll → cofinance alunecă sus */
-    min-height: 200vh;
+    /* bara de jos e fixă (30.10, seria a treia) → pagina nu mai are nevoie de scroll */
+    min-height: 100vh;
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-serif), 'EB Garamond', 'Iowan Old Style', Georgia, serif;
@@ -26,6 +26,9 @@
     /* pasul galeriei: afișele vecine se văd deasupra și dedesubtul ramei */
     --slot-h:    calc(var(--img-h) + 48px);
     --gallery-w: 320px;   /* galeria centrală */
+    /* coloana din dreapta (creditul + ADR/site-urile din bara de jos):
+       la 145 px de marginea ramei — pe 2048 px pornește la x = 1323 */
+    --col-r:     calc(50% + var(--vf-w) / 2 + 145px);
 }
 
 .page * { box-sizing: border-box; }
@@ -118,6 +121,57 @@
 .logoWord  { display: block; font-weight: 600; }
 .logoWord1 { font-size: 38px; transform: rotate(-2deg); }
 .logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
+
+/* ── CEASURI ÎN ANTET — urcate din bara de jos (30.10, seria a treia) ──
+   EDT · EET · CST, apoi timecode-ul la 24 fps pe ora României și REC.
+   Pe 2048×864: încep la x = 262, y = 72. Sub 1600 px timecode-ul și REC
+   trec pe al doilea rând, ca să nu intre peste galerie. */
+.hdClocks {
+    position: absolute;
+    left: 262px;
+    top: 72px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 22px;
+    row-gap: 8px;
+    /* nu intră peste afișele din galerie */
+    max-width: calc(50vw - var(--img-w) / 2 - 262px - 12px);
+    font-family: var(--font-mono), monospace;
+    font-size: 9.5px;
+    line-height: 14px;
+    letter-spacing: 0.08em;
+    color: var(--fg-soft);
+    white-space: nowrap;
+}
+.hdClock { font-variant-numeric: tabular-nums; }
+.hdClockGroup { display: inline-flex; gap: inherit; column-gap: 22px; }
+.hdTimecodeGroup {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+.hdTimecode { color: var(--fg); min-width: 15.5ch; }
+.hdRec {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--fg);
+    letter-spacing: 0.12em;
+}
+/* bulina: cât literele REC (puțin mai mare decât era în ramă) */
+.hdRec::before {
+    content: "";
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    background: oklch(0.55 0.18 30);
+    animation: recBlink 1.6s ease-in-out infinite;
+}
+@media (max-width: 1399px) {
+    .hdClocks { left: 236px; letter-spacing: 0.04em; max-width: calc(50vw - var(--img-w) / 2 - 236px - 6px); }
+    .hdClockGroup { column-gap: 14px; }
+}
 
 /* ── NAV — un rând orizontal sub antet, împărțit în jurul galeriei ──
    Două grupuri a câte trei, oglindite față de centru: stânga se aliniază
@@ -227,45 +281,66 @@
     display: block;
 }
 
-/* Grupul din stânga: descrierea (mare) + anul/premiile alături.
-   Ancorat ușor deasupra centrului (eyebrow-ul la 50% − 154 px). */
-.sideLeftGroup {
+/* ── LISTA DE FILME (stânga) ─────────────────────────────
+   Titlul din dreptul ramei stă la 50% − 154 px (unde era „descrierea
+   proiectului”); lista întreagă alunecă odată cu galeria (transform din JS).
+   Sus și jos se stinge ușor, ca să nu intre sub logo sau sub bara de jos. */
+.filmList {
+    --list-anchor: calc(50vh - 154px);
     position: fixed;
     left: 64px;
-    top: calc(50% - 154px);
+    top: 0;
+    height: 100vh;
+    width: min(420px, calc(50vw - var(--vf-w) / 2 - 64px - 56px));
+    overflow: hidden;
     z-index: 40;
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
+    pointer-events: none;
+    /* se stinge sub logo (sus) și deasupra barei de jos */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 112px, black 184px, black calc(100% - 170px), transparent calc(100% - 85px));
+            mask-image: linear-gradient(to bottom, transparent 112px, black 184px, black calc(100% - 170px), transparent calc(100% - 85px));
 }
-.sideLeftGroup .side { position: static; }
-
-.sideLeft1 { width: 300px; }
-.sideLeft1 .sideEyebrow { font-size: 17px; margin-bottom: 22px; }
-.sideLeft1 .sideText    { font-size: 26px; line-height: 1.5; margin-bottom: 26px; }
-.sideLeft1 .sideMeta    { font-size: 14px; }
-
-.sideLeft2 {
-    width: 200px;
-    margin-top: 61px;   /* anul stă în dreptul primului rând al descrierii */
-    text-align: center;
+.filmListTrack {
+    position: absolute;
+    top: var(--list-anchor);
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    will-change: transform;
 }
-.sideLeft2 .sideEyebrow { font-size: 15px; margin-bottom: 20px; }
-.sideLeft2 .sideTextSm  { text-align: center; }
-
-/* sub 1600 px: anul/premiile coboară sub descriere, aliniate la stânga */
-@media (max-width: 1599px) {
-    .sideLeftGroup { flex-direction: column; gap: 28px; }
-    .sideLeft2 { margin-top: 0; text-align: left; }
-    .sideLeft2 .sideTextSm { text-align: left; }
+.filmListItem {
+    margin: 0 0 12px;
+    pointer-events: auto;
 }
+.filmListBtn {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 17px;
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg);
+    text-wrap: pretty;
+}
+.filmListBtn:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 0.5px; }
+.filmListBtn:focus-visible { outline: 0.5px solid var(--fg); outline-offset: 4px; }
 
 .sideRight {
-    right: 64px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 200px;
+    /* creditul: mai aproape de ramă, aproape de centrul vertical
+       (pe 2048×864: x = 1323, y = 406) */
+    left: var(--col-r);
+    top: calc(50% - 26px);
+    width: 240px;
 }
+.sideRight .sideEyebrow { margin-bottom: 2px; line-height: 1.5; }
+.sideRight .sideMeta    { margin-top: 6px; }
 
 
 /* ── VIEWFINDER — four corners + REC + frame counter ── */
@@ -295,22 +370,7 @@
     color: rgba(255, 255, 255, 0.92);
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.85), 0 0 1px rgba(0, 0, 0, 1);
 }
-/* REC și contorul stau în interiorul ramei, peste afiș */
-.vfRec {
-    top: 8%;
-    left: 11%;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.vfRec::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: oklch(0.55 0.18 30);
-    animation: recBlink 1.6s ease-in-out infinite;
-}
+/* contorul stă în interiorul ramei, peste afiș (REC a urcat în antet) */
 .vfFrame { bottom: 8%; right: 11%; }
 
 @keyframes recBlink {
@@ -399,85 +459,32 @@
 }
 
 
-/* ── END CUE — bottom of gallery ─────────────────────── */
-.endCue {
-    flex-shrink: 0;
-    height: 50vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 80px;
-    gap: 16px;
-    scroll-snap-align: none;
-}
-.endCueLine {
-    width: 1px;
-    height: 60px;
-    background: var(--fg-faint);
-}
-.endCueText {
-    font-family: var(--font-mono), monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--fg-faint);
-}
-
-
-/* ── COFINANCE FOOTER ────────────────────────────────── */
-/* Pinned la bottom: 0; transform-ul (translateY) e setat inline din JS
-   în funcție de scroll-ul paginii, ca să alunece în sus din afara viewport-ului
-   și să rămână acolo ca temelie.
-   30.10.2026: tot pe fundalul paginii (fără blocurile negru / galben) și
-   micșorat la ~83%. Conținutul rămâne neschimbat deocamdată. */
+/* ── BARA DE JOS — fixă, fără linii (30.10, seria a treia) ──
+   Mereu vizibilă, pe fundalul paginii. Elementele sunt așezate pe orizontală
+   (pe 2048 px): limba la 23 px · UE + Regio la 401 px · ADR la 1284 px și
+   site-urile de la 1353 px (în dreptul coloanei din dreapta, --col-r). */
 .cofinance {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    height: 65px;
     background: var(--bg);
-    border-top: 0.5px solid var(--rule);
-    padding: 0;
     z-index: 60;
-    will-change: transform;
-}
-
-.cofinanceInner {
-    display: grid;
-    /* stânga: ceasuri + limbă · spațiu · logo-uri · site-uri · eticheta */
-    grid-template-columns: auto 1fr auto auto auto;
-    align-items: center;
-    min-height: 65px;
     font-family: var(--font-serif), serif;
     color: var(--fg);
 }
-
-.cofinanceLeft {
+.cofinance > * {
+    position: absolute;
+    top: 0;
+    bottom: 0;
     display: flex;
     align-items: center;
-    gap: 28px;
-    padding: 0 23px;
 }
-.cfClocks {
-    display: flex;
-    gap: 22px;
-    font-family: var(--font-mono), monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.08em;
-    color: var(--fg-soft);
-    white-space: nowrap;
-}
-.cfClock { font-variant-numeric: tabular-nums; }
 
-.cofinanceLogos {
-    grid-column: 3;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 12px 23px;
-    border-left: 0.5px solid var(--rule);
-}
+.cofinanceLeft  { left: 23px; }
+.cofinanceLogos { left: 19.6vw; gap: 20px; }
+.cofinanceRight { left: calc(var(--col-r) - 39px); gap: 24px; }
 
 .cfLogo {
     font-family: var(--font-mono), monospace;
@@ -517,32 +524,16 @@
 .cfLogoAdr span { font-size: 6px; opacity: 0.7; }
 
 .cofinanceLinks {
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 20px;
     font-family: var(--font-serif), serif;
     font-size: 9px;
     line-height: 1.45;
     color: var(--fg-soft);
-    min-height: 65px;
-    border-left: 0.5px solid var(--rule);
 }
 .cofinanceLinks a { text-decoration: underline; opacity: 0.85; }
 .cofinanceLinks a:hover { opacity: 1; }
-
-.cofinanceTag {
-    font-family: var(--font-serif), serif;
-    font-style: italic;
-    font-size: 13px;
-    color: var(--fg);
-    padding: 0 23px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    min-height: 65px;
-}
 
 
 /* ── FILM DETAIL — overlay banner cinematic ──────────── */
@@ -833,10 +824,6 @@
 
 
 /* ── responsive ───────────────────────────────────────── */
-@media (max-width: 1180px) {
-    .sideLeft2 { display: none; }
-}
-
 @media (max-width: 900px) {
     .page {
         /* afiș scalat pentru ecrane mai mici (tot 2:3) */
@@ -845,18 +832,7 @@
         --gallery-w: 240px;
     }
     .siteHeader { padding: 24px 28px 0; }
-    .sideLeftGroup { left: 24px; }
-    .sideLeft1 { width: 140px; }
-    .sideLeft1 .sideText { font-size: 16px; }
-    .sideRight { right: 24px; width: 140px; }
-    .cofinanceInner { grid-template-columns: 1fr; }
-    .cofinanceLogos { grid-column: auto; }
-    .cofinanceLogos, .cofinanceLinks { border-left: 0; }
-    .cofinanceLeft,
-    .cofinanceLogos,
-    .cofinanceLinks,
-    .cofinanceTag {
-        border-right: 0;
-        border-bottom: 0.5px solid var(--rule);
-    }
+    /* telefonul se rezolvă în faza 2b */
+    .filmList { left: 24px; }
+    .sideRight { width: 140px; }
 }
