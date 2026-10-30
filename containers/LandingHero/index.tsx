@@ -396,6 +396,8 @@ export default function LandingHero() {
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
+    // varianta de comparat: pista sonoră în interiorul vizorului (/?pista=in)
+    const [trackInside, setTrackInside]     = useState(false);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -489,13 +491,14 @@ export default function LandingHero() {
             // e = 0: alb-negru, subexpus, transparent (ca vecinii de până acum)
             // e = 1: culoare plină, expus, clar (ca afișul din ramă)
             img.style.filter =
-                `grayscale(${(1 - e).toFixed(3)}) saturate(${(1 + 0.05 * e).toFixed(3)}) ` +
-                `contrast(${(1.15 - 0.10 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
+                // în ramă (e = 1) afișul are exact culorile lui — fără saturație sau contrast adăugat
+                `grayscale(${(1 - e).toFixed(3)}) ` +
+                `contrast(${(1.15 - 0.15 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
             img.style.opacity   = (0.72 + 0.28 * e).toFixed(3);
             img.style.transform = `scale(${(0.96 + 0.04 * e).toFixed(4)})`;
             // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
             if (halo) {
-                halo.style.opacity   = (0.4 * e).toFixed(3);
+                halo.style.opacity   = (0.22 * e).toFixed(3);
                 halo.style.transform = img.style.transform;
             }
         });
@@ -581,6 +584,10 @@ export default function LandingHero() {
         };
     }, [updateActive, syncList, jumpTo, recenter]);
 
+    useEffect(() => {
+        setTrackInside(new URLSearchParams(window.location.search).get('pista') === 'in');
+    }, []);
+
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
 
@@ -601,7 +608,7 @@ export default function LandingHero() {
      *                      RENDER
      * -------------------------------------------------- */
     return (
-        <div className={`${styles.page} ${ready ? '' : styles.notReady}`}>
+        <div className={`${styles.page} ${ready ? '' : styles.notReady} ${trackInside ? styles.trackInside : ''}`}>
 
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />

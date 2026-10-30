@@ -8,6 +8,13 @@
     position: relative;
     /* bara de jos e fixă (30.10, seria a treia) → pagina nu mai are nevoie de scroll */
     min-height: 100vh;
+    /* FUNDALUL — o diafragmă mai jos (seria a cincea): jumătate din lumina de
+       înainte (luminanța 0,87 → 0,435; oklch L 0,955 → 0,758), ca afișul din
+       lasă să iasă în față. Textele secundare coboară și ele, ca să se citească. */
+    --bg:        oklch(0.758 0.004 80);
+    --fg-soft:   oklch(0.30 0.005 80);
+    --fg-faint:  oklch(0.36 0.005 80);
+    --rule:      oklch(0.62 0.005 80);
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-serif), 'EB Garamond', 'Iowan Old Style', Georgia, serif;
@@ -21,7 +28,13 @@
     --img-h:     420px;   /* înălțime poster (2:3) */
     /* rama-vizor: interiorul ei e cu ~2 px mai mic decât afișul pe fiecare
        latură, ca marginile afișului să intre sub rama neagră */
-    --vf-w:      calc(var(--img-w) * 1.1);
+    --vf-w0:     calc(var(--img-w) * 1.1);   /* rama, varianta de bază */
+    --vf-w:      var(--vf-w0);
+    /* pista sonoră: lățimea benzii și deplasarea afișului (0 = pista în afara
+       ramei; în varianta „pista în vizor”, afișul se dă la stânga cu jumătate
+       de bandă, iar rama se lărgește cât banda) */
+    --band-w:      36px;
+    --poster-shift: 0px;
     --vf-h:      calc(var(--img-h) * 1.058);
     /* pasul galeriei: afișele vecine se văd deasupra și dedesubtul ramei */
     --slot-h:    calc(var(--img-h) + 48px);
@@ -29,7 +42,7 @@
     /* coloana din dreapta — creditul, meniul și site-urile din bara de jos
        aliniate pe aceeași verticală, la 173 px de marginea ramei
        (seria a patra: creditul mutat cu 28 px spre dreapta) */
-    --col-r:     calc(50% + var(--vf-w) / 2 + 173px);
+    --col-r:     calc(50% + var(--vf-w0) / 2 + 173px);
     /* coloana din stânga — lista de filme și textul butonului de limbă.
        Pe 2048 px: x = 335 (seria a patra), adică 684 px la stânga centrului
        (măsurat ca restul paginii); pe ecrane înguste nu coboară sub 64 px. */
@@ -315,7 +328,7 @@
     left: var(--list-x);
     top: 0;
     height: 100vh;
-    width: min(420px, calc(50vw - var(--vf-w) / 2 - var(--list-x) - 56px));
+    width: min(420px, calc(50vw - var(--vf-w0) / 2 - var(--list-x) - 56px));
     overflow: hidden;
     z-index: 40;
     pointer-events: none;
@@ -402,8 +415,8 @@
     background:
         /* lumina din lasă: albă, plină până puțin dincolo de ramă, apoi se stinge */
         radial-gradient(ellipse calc(var(--vf-w) / 2 + 190px) calc(var(--vf-h) / 2 + 170px) at 50% 50%,
-            oklch(1 0.003 85) 0%, oklch(1 0.003 85) 52%,
-            oklch(0.995 0.008 85 / 0.55) 74%, oklch(0.99 0.01 85 / 0) 100%),
+            oklch(1 0.003 85) 0%, oklch(1 0.003 85 / 0.92) 38%,
+            oklch(0.995 0.008 85 / 0.45) 68%, oklch(0.99 0.01 85 / 0) 100%),
         /* restul sălii, foarte puțin mai întunecat spre margini */
         radial-gradient(ellipse 75% 95% at 50% 50%,
             oklch(0.18 0.005 80 / 0) 45%, oklch(0.18 0.005 80 / 0.035) 100%);
@@ -412,11 +425,12 @@
 
 /* ── LAMPA — lumina proiectorului din spatele afișului (seria a cincea) ──
    Fixă, cât geamul ramei (aceeași mască), între galerie și rama neagră.
-   color-dodge = mai multă lumină prin aceeași peliculă: negrul rămâne negru,
-   culorile și albul se aprind, mai tare în centru (pata lămpii), mai puțin
-   spre colțuri; ușor caldă, ca un bec cu incandescență. Pâlpâie la 24 fps
-   (steps), ca lumina tăiată de obturator. Afișele vecine trec pe sub ea
-   doar cât intră în geam. */
+   Luminează tot afișul la fel (nu doar centrul) și nu-i schimbă culorile:
+   un strat opac gri-închis neutru în color-dodge = câștig de lumină
+   multiplicativ (rezultat = culoare / (1 − 0,05) ≈ +5%), același pe R, G, B,
+   deci nuanțele rămân ale afișului, iar negrul rămâne negru. Senzația de
+   „luminat din spate” vine mai ales din fundalul cu o diafragmă mai jos.
+   Pâlpâie la 24 fps (steps), ca lumina tăiată de obturator. */
 .lamp {
     position: fixed;
     top: 50%;
@@ -427,11 +441,7 @@
     z-index: 34;
     pointer-events: none;
     mix-blend-mode: color-dodge;
-    background: radial-gradient(ellipse 62% 56% at 50% 47%,
-        rgba(255, 238, 205, 0.42) 0%,
-        rgba(255, 236, 200, 0.26) 42%,
-        rgba(255, 232, 195, 0.08) 78%,
-        rgba(255, 232, 195, 0) 100%);
+    background: rgb(13, 13, 13);
     -webkit-mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
             mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
     will-change: opacity;
@@ -468,8 +478,8 @@
     --gate-bot: calc(50% + var(--vf-h) / 2);
     position: fixed;
     top: 0;
-    left: calc(50% + var(--vf-w) / 2 + 12px);
-    width: 36px;
+    left: calc(50% + var(--vf-w0) / 2 + 12px);
+    width: var(--band-w);
     height: 100vh;
     overflow: hidden;
     z-index: 34;
@@ -585,8 +595,9 @@
        conturul ferestrei din rama-vizor, cu colțurile ei rotunjite — masca
        e făcută din aceeași poză (vizor-mask.webp) și are mărimea ramei,
        deci se potrivește exact când afișul stă în ramă */
-    -webkit-mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
+    -webkit-mask: url("/assets/ui/vizor-mask.webp") calc(50% - var(--poster-shift)) 50% / var(--vf-w) var(--vf-h) no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp") calc(50% - var(--poster-shift)) 50% / var(--vf-w) var(--vf-h) no-repeat;
+    translate: var(--poster-shift) 0;
 
     /* implicit = în afara ramei: alb-negru, subexpus, transparent.
        Cât intră în ramă, JS-ul (syncList) îl aprinde treptat până la
@@ -611,10 +622,26 @@
     object-fit: cover;
     pointer-events: none;
     mix-blend-mode: screen;
-    filter: blur(9px) contrast(1.9) brightness(0.85) saturate(1.3);
+    /* doar zonele cele mai luminoase, fără saturație adăugată */
+    filter: blur(10px) contrast(2.4) brightness(0.62);
     opacity: 0;
-    -webkit-mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
+    -webkit-mask: url("/assets/ui/vizor-mask.webp") calc(50% - var(--poster-shift)) 50% / var(--vf-w) var(--vf-h) no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp") calc(50% - var(--poster-shift)) 50% / var(--vf-w) var(--vf-h) no-repeat;
+    translate: var(--poster-shift) 0;
+}
+
+
+/* ── VARIANTA „PISTA ÎN VIZOR” (/?pista=in) ──────────────
+   Pista sonoră intră în geamul ramei, lipită de marginea dreaptă a afișului,
+   ca pe pelicula de 35 mm (fotogramă + pistă optică), și continuă în sus și
+   în jos ca acum. Afișul rămâne la mărimea lui; rama se lărgește cât banda,
+   iar afișul și banda stau împreună în centrul ei. */
+.trackInside {
+    --vf-w:         calc((var(--img-w) + var(--band-w)) * 1.1);
+    --poster-shift: calc(var(--band-w) / -2);
+}
+.trackInside .soundtrack {
+    left: calc(50% + (var(--img-w) - var(--band-w)) / 2);
 }
 
 
