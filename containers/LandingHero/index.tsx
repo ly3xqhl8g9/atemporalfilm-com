@@ -78,8 +78,8 @@ interface UITexts {
 const UI: Record<Lang, UITexts> = {
     ro: {
         nav: {
-            about:    'Despre,',
-            people:   'Echipa.',
+            about:    'Despre',
+            people:   'Echipa',
             services: 'Servicii',
             contact:  'Contact',
             latest:   'Recente',
@@ -93,8 +93,8 @@ const UI: Record<Lang, UITexts> = {
     },
     en: {
         nav: {
-            about:    'About,',
-            people:   'People.',
+            about:    'About',
+            people:   'People',
             services: 'Services',
             contact:  'Contact',
             latest:   'Latest',
@@ -108,8 +108,8 @@ const UI: Record<Lang, UITexts> = {
     },
     fr: {
         nav: {
-            about:    'À propos,',
-            people:   'Équipe.',
+            about:    'À propos',
+            people:   'Équipe',
             services: 'Services',
             contact:  'Contact',
             latest:   'Récents',
@@ -436,8 +436,6 @@ export default function LandingHero() {
     const projDescription = pickLang(proj, lang, 'description');
     const projAwards      = pickLang(proj, lang, 'awards');
     const projPeople      = pickLang(proj, lang, 'people');
-    // titlul secundar (mono uppercase) — întotdeauna RO, dacă nu suntem deja pe RO; altfel EN
-    const projTitleSub    = lang === 'ro' ? proj.title : proj.titleRo;
 
     const fadeStyle: React.CSSProperties = {
         opacity: textVisible ? 1 : 0,
@@ -465,51 +463,14 @@ export default function LandingHero() {
             </header>
 
 
-            {/* NAV — un rând orizontal sub antet, împărțit în jurul galeriei
-                (stânga: Echipa · Servicii · Recente / dreapta: Despre · Contact · limbă).
-                Așezare din Modul Regie, 30.10.2026. */}
+            {/* NAV — în rândul antetului, în dreapta galeriei: Despre · Echipa · Contact,
+                fără cifre și fără punctuație. Servicii și Recente scoase de pe homepage;
+                butonul de limbă e în bara de jos. Modul Regie, 30.10.2026 (seria a doua). */}
             <nav className={styles.navRow} aria-label="Main navigation">
-                <div className={`${styles.navGroup} ${styles.navGroupLeft}`}>
-                    <Link href="/about" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.people}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>02</span>
-                    </Link>
-                    <Link href="/work" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.services}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>03</span>
-                    </Link>
-                    <Link href="/news" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.latest}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>05</span>
-                    </Link>
-                </div>
-
                 <div className={`${styles.navGroup} ${styles.navGroupRight}`}>
-                    <Link href="/about" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.about}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>01</span>
-                    </Link>
-                    <Link href="/contact" className={styles.navItem}>
-                        <span className={styles.navText}>{t.nav.contact}</span>
-                        <span className={styles.navDash} aria-hidden="true" />
-                        <span className={styles.navNum}>04</span>
-                    </Link>
-
-                    {/* LANG TOGGLE — afișează limba următoare; click ciclează RO → EN → FR → RO */}
-                    <button
-                        type="button"
-                        className={styles.langBtn}
-                        onClick={() => setLang(LANG_NEXT[lang])}
-                        aria-label={`Switch to ${LANG_LABEL[LANG_NEXT[lang]]}`}
-                        title={`Switch to ${LANG_LABEL[LANG_NEXT[lang]]}`}
-                    >
-                        {LANG_LABEL[LANG_NEXT[lang]]}
-                        <span className={styles.langBtnArrow} aria-hidden="true">⇆</span>
-                    </button>
+                    <Link href="/about" className={styles.navItem}>{t.nav.about}</Link>
+                    <Link href="/about" className={styles.navItem}>{t.nav.people}</Link>
+                    <Link href="/contact" className={styles.navItem}>{t.nav.contact}</Link>
                 </div>
             </nav>
 
@@ -542,12 +503,10 @@ export default function LandingHero() {
             </aside>
 
 
-            {/* VIZOR DE CAMERĂ — patru colțuri fixe care încadrează slot-ul activ */}
+            {/* VIZOR — rama de geam mat (din poza lui Ștefan, 30.10.2026), fixă peste
+                galerie; afișul activ stă în interiorul ei, la fel REC și contorul. */}
             <div className={styles.viewfinder} aria-hidden="true">
-                <div className={`${styles.vfCorner} ${styles.vfTl}`} />
-                <div className={`${styles.vfCorner} ${styles.vfTr}`} />
-                <div className={`${styles.vfCorner} ${styles.vfBl}`} />
-                <div className={`${styles.vfCorner} ${styles.vfBr}`} />
+                <div className={styles.vfGlass} />
                 <div className={`${styles.vfTick} ${styles.vfRec}`}>{t.rec}</div>
                 <div className={`${styles.vfTick} ${styles.vfFrame}`}>
                     {String(active + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}
@@ -555,11 +514,9 @@ export default function LandingHero() {
             </div>
 
 
-            {/* TITLU PROIECT — apare deasupra galeriei (fade când scrolezi) */}
-            <div className={styles.activeTitle} style={fadeStyle}>
-                <span className={styles.activeTitleEn}>{projTitle}</span>
-                <span className={styles.activeTitleRo}>{projTitleSub}</span>
-            </div>
+            {/* Titlul proiectului nu mai apare sus (cerut în Modul Regie, 30.10);
+                rămâne doar pentru cititoarele de ecran. */}
+            <h1 className={styles.srOnly} aria-live="polite">{projTitle}</h1>
 
 
             {/* GALERIE CENTRALĂ — singura zonă scrolabilă */}
@@ -605,7 +562,10 @@ export default function LandingHero() {
 
 
             {/* FOOTER de cofinanțare — dezvăluit când scrolezi pagina */}
-            <Cofinance />
+            <Cofinance
+                langLabel={LANG_LABEL[LANG_NEXT[lang]]}
+                onToggleLang={() => setLang(LANG_NEXT[lang])}
+            />
 
 
             {/* DETAIL OVERLAY — apare când dai click pe afișul activ */}
