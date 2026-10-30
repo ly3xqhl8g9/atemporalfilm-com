@@ -364,17 +364,39 @@ const PROJECTS: Project[] = [
 
 
 /* ============================================================
+   Galeria fără capăt (Modul Regie, 30.10.2026, seria a patra)
+   „Să înceapă de la un film la întâmplare, să fie filme sus și jos și
+   să se repete după ce se termină.” Galeria și lista conțin filmele de
+   COPIES ori, una după alta. Pagina pornește în copia din mijloc, la un
+   film ales la întâmplare; când derularea se oprește într-o copie de
+   margine, sărim (invizibil, aceeași imagine) în copia din mijloc. Astfel
+   există mereu un film deasupra și unul dedesubt.
+   Un „slot” = o poziție din galerie (0 … N·COPIES − 1); filmul = slot mod N.
+   ============================================================ */
+
+const N      = PROJECTS.length;
+const COPIES = 3;
+const SLOTS  = Array.from({ length: N * COPIES }, (_, i) => i);
+const HOME   = N;          // primul slot din copia din mijloc
+
+const filmOf   = (slot: number) => ((slot % N) + N) % N;
+const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
+const IDLE_MS  = 160;      // derularea s-a oprit dacă nu mai vine niciun eveniment
+
+
+/* ============================================================
    <LandingHero />
    ============================================================ */
 
 export default function LandingHero() {
-    const [active, setActive]               = useState(0);
+    const [active, setActive]               = useState(HOME);   // slotul din ramă
+    const [ready, setReady]                 = useState(false);  // așezat pe filmul de start
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
-    const lastActiveRef = useRef(0);
+    const lastActiveRef = useRef(HOME);
     const listTrackRef  = useRef<HTMLOListElement | null>(null);
     const listItemRefs  = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -387,7 +409,7 @@ export default function LandingHero() {
         if (!gallery) return;
         const galleryRect = gallery.getBoundingClientRect();
         const galleryMid  = galleryRect.top + galleryRect.height / 2;
-        let bestIdx  = 0;
+        let bestIdx  = lastActiveRef.current;
         let bestDist = Infinity;
         slotRefs.current.forEach((el, i) => {
             if (!el) return;
@@ -400,11 +422,16 @@ export default function LandingHero() {
             }
         });
         if (bestIdx !== lastActiveRef.current) {
+            const sameFilm = filmOf(bestIdx) === filmOf(lastActiveRef.current);
             lastActiveRef.current = bestIdx;
+            if (sameFilm) {
+                setActive(bestIdx);
+                return;
+            }
             // fade text out → schimbă index → fade in
             setTextVisible(false);
             window.setTimeout(() => {
-                setActive(bestIdx);
+                setActive(lastActiveRef.current);
                 setTextVisible(true);
             }, 220);
         }
@@ -426,7 +453,7 @@ export default function LandingHero() {
         const track   = listTrackRef.current;
         const items   = listItemRefs.current;
         if (!gallery || !track || items.length === 0) return;
-        const last = PROJECTS.length - 1;
+        const last = SLOTS.length - 1;
         const f    = Math.min(last, Math.max(0, gallery.scrollTop / slotPitch()));
         const i0   = Math.floor(f);
         const i1   = Math.min(last, i0 + 1);
@@ -441,16 +468,49 @@ export default function LandingHero() {
         });
     }, [slotPitch]);
 
-    const goTo = useCallback((i: number) => {
-        galleryRef.current?.scrollTo({ top: i * slotPitch(), behavior: 'smooth' });
+    const goTo = useCallback((slot: number) => {
+        galleryRef.current?.scrollTo({ top: slot * slotPitch(), behavior: 'smooth' });
     }, [slotPitch]);
+
+    /** mută galeria fără animație (scroll-behavior: smooth e oprit o clipă) */
+    const jumpTo = useCallback((slot: number) => {
+        const gallery = galleryRef.current;
+        if (!gallery) return;
+        gallery.style.scrollBehavior = 'auto';
+        gallery.scrollTop = slot * slotPitch();
+        gallery.style.scrollBehavior = '';
+        lastActiveRef.current = slot;
+        setActive(slot);
+        syncList();
+    }, [slotPitch, syncList]);
+
+    /** derularea s-a oprit într-o copie de margine → aceeași poziție în copia din mijloc */
+    const recenter = useCallback(() => {
+        const gallery = galleryRef.current;
+        const slot    = lastActiveRef.current;
+        if (!gallery || isHome(slot)) return;
+        const target = HOME + filmOf(slot);
+        // fără tranziții cât timp afișul activ trece pe alt element
+        gallery.classList.add(styles.jumping);
+        jumpTo(target);
+        window.setTimeout(() => {
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                gallery.classList.remove(styles.jumping);
+            }));
+        }, 60);
+    }, [jumpTo]);
 
 
     useEffect(() => {
         const gallery = galleryRef.current;
         if (!gallery) return;
 
+        // pornim de la un film ales la întâmplare, în copia din mijloc
+        jumpTo(HOME + Math.floor(Math.random() * N));
+        const readyId = requestAnimationFrame(() => setReady(true));
+
         let ticking = false;
+        let idle    = 0;
         const onScroll = () => {
             if (!ticking) {
                 requestAnimationFrame(() => {
@@ -460,24 +520,27 @@ export default function LandingHero() {
                 });
                 ticking = true;
             }
+            window.clearTimeout(idle);
+            idle = window.setTimeout(recenter, IDLE_MS);
         };
         gallery.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', onScroll);
-        updateActive();
-        syncList();
         // fonturile schimbă înălțimea rândurilor → recalculăm după ce se încarcă
         document.fonts?.ready.then(syncList).catch(() => {});
         return () => {
+            cancelAnimationFrame(readyId);
+            window.clearTimeout(idle);
             gallery.removeEventListener('scroll', onScroll);
             window.removeEventListener('resize', onScroll);
         };
-    }, [updateActive, syncList]);
+    }, [updateActive, syncList, jumpTo, recenter]);
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
 
 
-    const proj            = PROJECTS[active];
+    const film            = filmOf(active);
+    const proj            = PROJECTS[film];
     const projTitle       = pickTitle(proj, lang);
     const projWork        = pickWork(proj, lang);
     const projBy          = proj.by || BY_DEFAULT;
@@ -492,7 +555,7 @@ export default function LandingHero() {
      *                      RENDER
      * -------------------------------------------------- */
     return (
-        <div className={styles.page}>
+        <div className={`${styles.page} ${ready ? '' : styles.notReady}`}>
 
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />
@@ -529,23 +592,31 @@ export default function LandingHero() {
                 descrierea, anul, premiile și „unde am fost” scoase de pe homepage.) */}
             <nav className={styles.filmList} aria-label={t.films}>
                 <ol className={styles.filmListTrack} ref={listTrackRef}>
-                    {PROJECTS.map((p, i) => (
-                        <li
-                            key={p.image}
-                            ref={(el) => { listItemRefs.current[i] = el; }}
-                            className={styles.filmListItem}
-                            style={{ opacity: i === 0 ? 1 : Math.max(0.16, 1 - 0.6 * i) }}
-                        >
-                            <button
-                                type="button"
-                                className={styles.filmListBtn}
-                                onClick={() => goTo(i)}
-                                aria-current={i === active ? 'true' : undefined}
+                    {SLOTS.map((i) => {
+                        const p = PROJECTS[filmOf(i)];
+                        // copiile de margine există doar pentru ochi — cititoarele de ecran
+                        // și tastatura văd lista o singură dată
+                        const home = isHome(i);
+                        return (
+                            <li
+                                key={i}
+                                ref={(el) => { listItemRefs.current[i] = el; }}
+                                className={styles.filmListItem}
+                                style={{ opacity: Math.max(0.16, 1 - 0.6 * Math.abs(i - HOME)) }}
+                                aria-hidden={home ? undefined : true}
                             >
-                                {pickTitle(p, lang)}
-                            </button>
-                        </li>
-                    ))}
+                                <button
+                                    type="button"
+                                    className={styles.filmListBtn}
+                                    onClick={() => goTo(i)}
+                                    tabIndex={home ? undefined : -1}
+                                    aria-current={filmOf(i) === film && home ? 'true' : undefined}
+                                >
+                                    {pickTitle(p, lang)}
+                                </button>
+                            </li>
+                        );
+                    })}
                 </ol>
             </nav>
 
@@ -563,7 +634,7 @@ export default function LandingHero() {
                 <div className={styles.vfGlass} />
                 {/* REC a urcat în antet, lângă timecode (30.10, seria a treia) */}
                 <div className={`${styles.vfTick} ${styles.vfFrame}`}>
-                    {String(active + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}
+                    {String(film + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
                 </div>
             </div>
 
@@ -576,7 +647,8 @@ export default function LandingHero() {
             {/* GALERIE CENTRALĂ — singura zonă scrolabilă */}
             <div className={styles.gallery} ref={galleryRef}>
                 <div className={styles.galleryPad} />
-                {PROJECTS.map((p, i) => {
+                {SLOTS.map((i) => {
+                    const p        = PROJECTS[filmOf(i)];
                     const isActive = i === active;
                     const slotClass = [
                         styles.slot,
@@ -585,20 +657,20 @@ export default function LandingHero() {
                     ].filter(Boolean).join(' ');
                     return (
                         <div
-                            key={p.image}
+                            key={i}
                             className={slotClass}
                             ref={(el) => { slotRefs.current[i] = el; }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={p.image}
-                                alt={p.title}
-                                loading={i < 3 ? 'eager' : 'lazy'}
+                                alt={isHome(i) ? p.title : ''}
+                                loading="lazy"
                                 draggable={false}
                                 className={styles.slotImg}
                                 style={{ cursor: isActive ? 'zoom-in' : 'default' }}
                                 onClick={() => {
-                                    if (isActive) setExpandedIdx(i);
+                                    if (isActive) setExpandedIdx(filmOf(i));
                                 }}
                             />
                         </div>

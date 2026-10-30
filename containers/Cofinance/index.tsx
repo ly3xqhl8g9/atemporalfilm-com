@@ -11,9 +11,9 @@ import styles from '@/containers/LandingHero/landing.module.css';
    30.10.2026 (Modul Regie, seria a treia): bara e fixă (mereu vizibilă,
    nu mai apare la scroll), fără linii de separare. Ceasurile au urcat în
    antet; „Aproape de tine” a fost scos. Așezare (la 2048 px):
-     • stânga — butonul de limbă
+     • butonul de limbă — textul lui aliniat cu lista de filme (seria a patra)
      • UE + Regio — la ~19,6% din lățime
-     • ADR Nord-Est + cele patru site-uri — în dreptul coloanei din dreapta
+     • cele patru site-uri, apoi ADR Nord-Est — în coloana din dreapta (seria a patra)
    ============================================================ */
 
 interface CofinanceProps {
@@ -50,15 +50,17 @@ export default function Cofinance({ langLabel, onToggleLang }: CofinanceProps) {
                 <div className={`${styles.cfLogo} ${styles.cfLogoRegio}`}>Regio</div>
             </div>
 
+            {/* dreapta: site-urile aliniate cu creditul și meniul (--col-r),
+                ADR Nord-Est după ele (Modul Regie, seria a patra) */}
             <div className={styles.cofinanceRight}>
-                <div className={`${styles.cfLogo} ${styles.cfLogoAdr}`}>
-                    ADR<br /><span>NORD-EST</span>
-                </div>
                 <div className={styles.cofinanceLinks}>
                     <a href="https://mfe.gov.ro" target="_blank" rel="noreferrer">www.mfe.gov.ro</a>
                     <a href="https://regionordest.ro" target="_blank" rel="noreferrer">www.regionordest.ro</a>
                     <a href="https://www.facebook.com/RegioNordEst.ro" target="_blank" rel="noreferrer">www.facebook.com/RegioNordEst.ro</a>
                     <a href="https://regionordest.ro" target="_blank" rel="noreferrer">RegioNordEst.ro</a>
+                </div>
+                <div className={`${styles.cfLogo} ${styles.cfLogoAdr}`}>
+                    ADR<br /><span>NORD-EST</span>
                 </div>
             </div>
         </footer>

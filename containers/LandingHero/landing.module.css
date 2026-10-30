@@ -26,9 +26,14 @@
     /* pasul galeriei: afișele vecine se văd deasupra și dedesubtul ramei */
     --slot-h:    calc(var(--img-h) + 48px);
     --gallery-w: 320px;   /* galeria centrală */
-    /* coloana din dreapta (creditul + ADR/site-urile din bara de jos):
-       la 145 px de marginea ramei — pe 2048 px pornește la x = 1323 */
-    --col-r:     calc(50% + var(--vf-w) / 2 + 145px);
+    /* coloana din dreapta — creditul, meniul și site-urile din bara de jos
+       aliniate pe aceeași verticală, la 173 px de marginea ramei
+       (seria a patra: creditul mutat cu 28 px spre dreapta) */
+    --col-r:     calc(50% + var(--vf-w) / 2 + 173px);
+    /* coloana din stânga — lista de filme și textul butonului de limbă.
+       Pe 2048 px: x = 335 (seria a patra), adică 684 px la stânga centrului
+       (măsurat ca restul paginii); pe ecrane înguste nu coboară sub 64 px. */
+    --list-x:    max(64px, calc(50vw - 684px));
 }
 
 .page * { box-sizing: border-box; }
@@ -103,7 +108,9 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 38px 64px 0;
+    /* logo-ul: coborât 13 px și mutat 33 px spre dreapta (seria a patra),
+       centrat vertical pe rândul timecode-urilor */
+    padding: 51px 64px 0 97px;
     z-index: 50;
     pointer-events: none;
 }
@@ -122,10 +129,10 @@
 .logoWord1 { font-size: 38px; transform: rotate(-2deg); }
 .logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
 
-/* ── CEASURI ÎN ANTET — urcate din bara de jos (30.10, seria a treia) ──
-   EDT · EET · CST, apoi timecode-ul la 24 fps pe ora României și REC.
-   Pe 2048×864: încep la x = 262, y = 72. Sub 1600 px timecode-ul și REC
-   trec pe al doilea rând, ca să nu intre peste galerie. */
+/* ── TIMECODE ÎN ANTET (30.10, seriile a treia și a patra) ──
+   Trei timecode-uri la 24 fps: New York · Shanghai · București, apoi REC.
+   Pe 2048×864: încep la x = 262, y = 72. Pe ecrane mai înguste timecode-ul
+   București și REC trec pe al doilea rând, ca să nu intre peste galerie. */
 .hdClocks {
     position: absolute;
     left: 262px;
@@ -152,6 +159,7 @@
     gap: 14px;
 }
 .hdTimecode { color: var(--fg); min-width: 15.5ch; }
+.hdClockGroup .hdTimecode { color: var(--fg-soft); }
 .hdRec {
     display: inline-flex;
     align-items: center;
@@ -169,6 +177,7 @@
     animation: recBlink 1.6s ease-in-out infinite;
 }
 @media (max-width: 1399px) {
+    .siteHeader { padding-left: 64px; }
     .hdClocks { left: 236px; letter-spacing: 0.04em; max-width: calc(50vw - var(--img-w) / 2 - 236px - 6px); }
     .hdClockGroup { column-gap: 14px; }
 }
@@ -198,16 +207,18 @@
     pointer-events: auto;
 }
 .navGroupLeft  { grid-column: 1; justify-content: flex-end; }
-.navGroupRight { grid-column: 3; justify-content: flex-start; padding-left: clamp(0px, 2.2vw, 44px); }
+/* aliniat cu creditul și cu site-urile din bara de jos (seria a patra) */
+.navGroupRight { position: absolute; top: 0; left: var(--col-r); justify-content: flex-start; }
 
 .navItem {
     display: inline-flex;
     align-items: baseline;
     gap: 14px;
-    font-family: var(--font-serif), 'EB Garamond', serif;
-    font-style: italic;
+    /* fontul titlurilor de film (seria a patra) */
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: 17px;
-    letter-spacing: 0.005em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--fg);
     text-decoration: none;
     transition: opacity 0.2s ease;
@@ -282,16 +293,17 @@
 }
 
 /* ── LISTA DE FILME (stânga) ─────────────────────────────
-   Titlul din dreptul ramei stă la 50% − 154 px (unde era „descrierea
-   proiectului”); lista întreagă alunecă odată cu galeria (transform din JS).
+   Titlul din dreptul ramei stă la mijlocul înălțimii, aliniat cu centrul
+   afișului, la x = --list-x (seria a patra); lista alunecă odată cu galeria
+   (transform din JS) și nu are capăt — filmele se repetă în ambele sensuri.
    Sus și jos se stinge ușor, ca să nu intre sub logo sau sub bara de jos. */
 .filmList {
-    --list-anchor: calc(50vh - 154px);
+    --list-anchor: calc(50vh - 11px);
     position: fixed;
-    left: 64px;
+    left: var(--list-x);
     top: 0;
     height: 100vh;
-    width: min(420px, calc(50vw - var(--vf-w) / 2 - 64px - 56px));
+    width: min(420px, calc(50vw - var(--vf-w) / 2 - var(--list-x) - 56px));
     overflow: hidden;
     z-index: 40;
     pointer-events: none;
@@ -333,8 +345,8 @@
 .filmListBtn:focus-visible { outline: 0.5px solid var(--fg); outline-offset: 4px; }
 
 .sideRight {
-    /* creditul: mai aproape de ramă, aproape de centrul vertical
-       (pe 2048×864: x = 1323, y = 406) */
+    /* creditul: în coloana din dreapta, aproape de centrul vertical
+       (pe 2048×864: x ≈ 1346, y = 406) */
     left: var(--col-r);
     top: calc(50% - 26px);
     width: 240px;
@@ -406,12 +418,25 @@
     scroll-behavior: smooth;
     scrollbar-width: none;
     z-index: 30;
+    transition: opacity 0.6s ease;
 
     /* fade top + bottom */
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 8%, black 92%, transparent 100%);
             mask-image: linear-gradient(to bottom, transparent 0, black 8%, black 92%, transparent 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }
+
+/* până când galeria e așezată pe filmul ales la întâmplare, ea, lista și
+   creditul stau ascunse — altfel s-ar vedea o clipă primul film */
+.notReady .gallery,
+.notReady .filmList,
+.notReady .sideRight,
+.notReady .vfFrame { opacity: 0 !important; }
+.filmList, .vfFrame { transition: opacity 0.6s ease; }
+
+/* săritura invizibilă dintre copiile listei (galeria fără capăt):
+   fără tranziții, ca afișul să nu „clipească” */
+.jumping .slotImg { transition: none !important; }
 
 .galleryPad {
     flex-shrink: 0;
@@ -440,6 +465,13 @@
         transform 0.7s  cubic-bezier(.2, .7, .2, 1),
         filter    0.55s ease;
 
+    /* forma geamului vizorului (seria a patra): afișul e decupat după
+       conturul ferestrei din rama-vizor, cu colțurile ei rotunjite — masca
+       e făcută din aceeași poză (vizor-mask.webp) și are mărimea ramei,
+       deci se potrivește exact când afișul stă în ramă */
+    -webkit-mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat;
+
     /* implicit = afișele din afara ramei: alb-negru, subexpuse, transparente */
     filter: grayscale(1) contrast(1.15) brightness(0.36);
     opacity: 0.45;
@@ -459,10 +491,10 @@
 }
 
 
-/* ── BARA DE JOS — fixă, fără linii (30.10, seria a treia) ──
-   Mereu vizibilă, pe fundalul paginii. Elementele sunt așezate pe orizontală
-   (pe 2048 px): limba la 23 px · UE + Regio la 401 px · ADR la 1284 px și
-   site-urile de la 1353 px (în dreptul coloanei din dreapta, --col-r). */
+/* ── BARA DE JOS — fixă, fără linii (30.10, seriile a treia și a patra) ──
+   Mereu vizibilă, pe fundalul paginii. Pe 2048 px: butonul de limbă la 321 px
+   (textul lui sub lista de filme) · UE + Regio la 401 px · site-urile de la
+   ~1346 px (coloana din dreapta, --col-r), apoi ADR Nord-Est. */
 .cofinance {
     position: fixed;
     bottom: 0;
@@ -482,9 +514,9 @@
     align-items: center;
 }
 
-.cofinanceLeft  { left: 23px; }
+.cofinanceLeft  { left: calc(var(--list-x) - 14px); }
 .cofinanceLogos { left: 19.6vw; gap: 20px; }
-.cofinanceRight { left: calc(var(--col-r) - 39px); gap: 24px; }
+.cofinanceRight { left: var(--col-r); gap: 26px; }
 
 .cfLogo {
     font-family: var(--font-mono), monospace;
@@ -527,9 +559,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    font-family: var(--font-serif), serif;
-    font-size: 9px;
-    line-height: 1.45;
+    font-family: var(--font-mono), monospace;   /* seria a patra */
+    font-size: 8px;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
     color: var(--fg-soft);
 }
 .cofinanceLinks a { text-decoration: underline; opacity: 0.85; }

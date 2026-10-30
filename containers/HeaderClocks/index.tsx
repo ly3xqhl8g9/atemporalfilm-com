@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import styles from '@/containers/LandingHero/landing.module.css';
 
@@ -8,22 +8,27 @@ import styles from '@/containers/LandingHero/landing.module.css';
 
 /* ============================================================
    <HeaderClocks />
-   În antet, în dreapta logo-ului (Modul Regie, 30.10.2026, seria a treia):
-     • ceasurile New York · București · Shanghai — „EET 3:31 PM”
-       (abrevierea trece singură între ora de vară și cea de iarnă)
-     • timecode la 24 fps pe ora României — „EET 15:54:21:11”
-     • REC cu bulina roșie, cât înălțimea literelor
+   În antet, în dreapta logo-ului. Trei timecode-uri la 24 fps
+   (Modul Regie, 30.10.2026, seria a patra — ceasurile obișnuite au devenit
+   timecode, iar ceasul EET a fost scos, fiind dublat de timecode-ul EET):
+     • New York  — „EDT 09:54:21:11”
+     • Shanghai  — „CST 21:54:21:11”
+     • București — „EET 15:54:21:11”, urmat de REC
+   Abrevierea trece singură între ora de vară și cea de iarnă.
    ============================================================ */
 
-const CLOCKS: { city: string; tz: string; abbr: Record<string, string> }[] = [
-    { city: 'New York',  tz: 'America/New_York', abbr: { '-5': 'EST', '-4': 'EDT' } },
-    { city: 'București', tz: 'Europe/Bucharest', abbr: { '2': 'EET', '3': 'EEST' } },
-    { city: 'Shanghai',  tz: 'Asia/Shanghai',    abbr: { '8': 'CST' } },
-];
+interface Zone { city: string; tz: string; abbr: Record<string, string> }
 
-const TC_TZ   = 'Europe/Bucharest';
-const TC_ABBR = CLOCKS[1].abbr;
-const FPS     = 24;
+const NEW_YORK:  Zone = { city: 'New York',  tz: 'America/New_York', abbr: { '-5': 'EST', '-4': 'EDT' } };
+const BUCHAREST: Zone = { city: 'București', tz: 'Europe/Bucharest', abbr: { '2': 'EET', '3': 'EEST' } };
+const SHANGHAI:  Zone = { city: 'Shanghai',  tz: 'Asia/Shanghai',    abbr: { '8': 'CST' } };
+
+/** primul grup (fără REC) și timecode-ul de acasă (cu REC) — ordinea din cue-urile seriei a patra */
+const ZONES_FIRST: Zone[] = [NEW_YORK, SHANGHAI];
+const ZONE_HOME:   Zone   = BUCHAREST;
+const ALL_ZONES:   Zone[] = [...ZONES_FIRST, ZONE_HOME];
+
+const FPS = 24;
 
 function utcOffsetHours(tz: string, now: Date): number {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -36,46 +41,44 @@ function utcOffsetHours(tz: string, now: Date): number {
     return Math.round((asUtc - now.getTime()) / 3_600_000);
 }
 
-function abbrFor(tz: string, map: Record<string, string>, now: Date): string {
-    const off = utcOffsetHours(tz, now);
-    return map[String(off)] ?? `UTC${off >= 0 ? '+' : ''}${off}`;
+function abbrFor(z: Zone, now: Date): string {
+    const off = utcOffsetHours(z.tz, now);
+    return z.abbr[String(off)] ?? `UTC${off >= 0 ? '+' : ''}${off}`;
 }
 
-const tcFormat = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TC_TZ, hourCycle: 'h23',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-});
+const hmsFormat: Record<string, Intl.DateTimeFormat> = {};
+function hms(z: Zone, now: Date): string {
+    hmsFormat[z.tz] ??= new Intl.DateTimeFormat('en-GB', {
+        timeZone: z.tz, hourCycle: 'h23',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    return hmsFormat[z.tz].format(now);
+}
 
 /** „EET 15:54:21:11” — ore:minute:secunde:cadre, 24 de cadre pe secundă. */
-function timecode(now: Date): string {
-    const hms   = tcFormat.format(now);                        // 15:54:21
+function timecode(z: Zone, now: Date): string {
     const frame = Math.floor((now.getMilliseconds() / 1000) * FPS);
-    return `${abbrFor(TC_TZ, TC_ABBR, now)} ${hms}:${String(frame).padStart(2, '0')}`;
+    return `${abbrFor(z, now)} ${hms(z, now)}:${String(frame).padStart(2, '0')}`;
 }
 
 
 export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }) {
-    // pornește gol (server) și se completează în browser → fără nepotriviri la hidratare
-    const [now, setNow] = useState<Date | null>(null);
-    const tcRef = useRef<HTMLSpanElement | null>(null);
+    // un singur rAF pentru toate trei; textul e scris direct în elemente
+    // la fiecare cadru nou (fără re-render React, fără nepotriviri la hidratare)
+    const tcRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
-    // ceasurile obișnuite: o dată la 10 s ajunge
-    useEffect(() => {
-        setNow(new Date());
-        const id = window.setInterval(() => setNow(new Date()), 10_000);
-        return () => window.clearInterval(id);
-    }, []);
-
-    // timecode-ul: scris direct în element la fiecare cadru nou (fără re-render React)
     useEffect(() => {
         let raf = 0;
         let lastFrame = -1;
         const tick = () => {
             const d = new Date();
             const f = Math.floor(d.getTime() / (1000 / FPS));
-            if (f !== lastFrame && tcRef.current) {
+            if (f !== lastFrame) {
                 lastFrame = f;
-                tcRef.current.textContent = timecode(d);
+                ALL_ZONES.forEach((z, i) => {
+                    const el = tcRefs.current[i];
+                    if (el) el.textContent = timecode(z, d);
+                });
             }
             raf = requestAnimationFrame(tick);
         };
@@ -83,32 +86,24 @@ export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }
         return () => cancelAnimationFrame(raf);
     }, []);
 
+    const tc = (z: Zone, i: number) => (
+        <span
+            key={z.tz}
+            ref={(el) => { tcRefs.current[i] = el; }}
+            className={`${styles.hdClock} ${styles.hdTimecode}`}
+            title={`Timecode 24 fps · ${z.city}`}
+        >
+            {' '}
+        </span>
+    );
+
     return (
         <div className={styles.hdClocks}>
             <span className={styles.hdClockGroup}>
-            {CLOCKS.map((c) => {
-                let label = ' ';
-                if (now) {
-                    const time = new Intl.DateTimeFormat('en-US', {
-                        timeZone: c.tz, hour: 'numeric', minute: '2-digit', hour12: true,
-                    }).format(now);
-                    label = `${abbrFor(c.tz, c.abbr, now)} ${time}`;
-                }
-                return (
-                    <span key={c.tz} className={styles.hdClock} title={c.city}>
-                        {label}
-                    </span>
-                );
-            })}
+                {ZONES_FIRST.map((z, i) => tc(z, i))}
             </span>
             <span className={styles.hdTimecodeGroup}>
-                <span
-                    ref={tcRef}
-                    className={`${styles.hdClock} ${styles.hdTimecode}`}
-                    title="Timecode 24 fps · București"
-                >
-                    {' '}
-                </span>
+                {tc(ZONE_HOME, ZONES_FIRST.length)}
                 <span className={styles.hdRec}>{recLabel}</span>
             </span>
         </div>
