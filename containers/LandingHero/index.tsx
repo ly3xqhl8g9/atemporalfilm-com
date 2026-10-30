@@ -479,7 +479,8 @@ export default function LandingHero() {
            claritate — și se stinge la fel când iese. --e: 0 = afară, 1 = în ramă. */
         const exp = exposureRef.current;
         slotRefs.current.forEach((el, i) => {
-            const img = el?.firstElementChild as HTMLElement | null;
+            const img  = el?.children[0] as HTMLElement | undefined;
+            const halo = el?.children[1] as HTMLElement | undefined;
             if (!img) return;
             const x = Math.max(0, 1 - Math.abs(i - f));
             const e = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
@@ -492,6 +493,11 @@ export default function LandingHero() {
                 `contrast(${(1.15 - 0.10 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
             img.style.opacity   = (0.72 + 0.28 * e).toFixed(3);
             img.style.transform = `scale(${(0.96 + 0.04 * e).toFixed(4)})`;
+            // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
+            if (halo) {
+                halo.style.opacity   = (0.4 * e).toFixed(3);
+                halo.style.transform = img.style.transform;
+            }
         });
 
         /* PISTA SONORĂ — banda stereo din dreapta ramei curge odată cu pelicula.
@@ -680,6 +686,12 @@ export default function LandingHero() {
             </div>
 
 
+            {/* LAMPA — lumina proiectorului, fixă în spatele ramei: afișul trece prin
+                fața ei și se luminează prin transparență, ca pelicula în lasă;
+                pâlpâie la 24 fps, ca lumina tăiată de obturator (30.10, seria a cincea) */}
+            <div className={styles.lamp} aria-hidden="true" />
+
+
             {/* PISTA SONORĂ — bandă neagră cu forma de undă stereo, în dreapta ramei,
                 ca pista optică de lângă fotogramă pe pelicula de 35 mm (30.10, seria a cincea).
                 Curge odată cu galeria; în dreptul ramei e luminată, în rest subexpusă. */}
@@ -724,6 +736,16 @@ export default function LandingHero() {
                                 onClick={() => {
                                     if (isActive) setExpandedIdx(filmOf(i));
                                 }}
+                            />
+                            {/* halația — copie estompată a afișului, aprinsă doar în ramă */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={p.image}
+                                alt=""
+                                aria-hidden="true"
+                                loading="lazy"
+                                draggable={false}
+                                className={styles.slotHalo}
                             />
                         </div>
                     );
