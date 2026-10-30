@@ -8,13 +8,13 @@
     position: relative;
     /* bara de jos e fixă (30.10, seria a treia) → pagina nu mai are nevoie de scroll */
     min-height: 100vh;
-    /* FUNDALUL — o diafragmă mai jos (seria a cincea): jumătate din lumina de
-       înainte (luminanța 0,87 → 0,435; oklch L 0,955 → 0,758), ca afișul din
-       lasă să iasă în față. Textele secundare coboară și ele, ca să se citească. */
-    --bg:        oklch(0.758 0.004 80);
-    --fg-soft:   oklch(0.30 0.005 80);
-    --fg-faint:  oklch(0.36 0.005 80);
-    --rule:      oklch(0.62 0.005 80);
+    /* FUNDALUL — o jumătate de diafragmă sub restul site-ului (seria a cincea:
+       întâi −1, apoi înapoi +½): luminanța 0,87 → 0,615 (×1/√2), oklch L
+       0,955 → 0,85. Textele secundare puțin mai închise, ca să se citească. */
+    --bg:        oklch(0.85 0.004 80);
+    --fg-soft:   oklch(0.34 0.005 80);
+    --fg-faint:  oklch(0.46 0.005 80);
+    --rule:      oklch(0.70 0.005 80);
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-serif), 'EB Garamond', 'Iowan Old Style', Georgia, serif;
@@ -403,23 +403,39 @@
 
 
 /* ── LASA — lumina din spatele ramei (seria a cincea) ──────
-   Ca la lasa unui proiector: în spatele ferestrei e o sursă de lumină.
-   Fundalul se luminează spre centru, iar afișul care intră în ramă se
-   aprinde treptat (expunerea fiecărui afiș e calculată din JS, după
-   distanța lui față de ramă). Lumina e caldă, ca o lampă cu incandescență. */
+   Lumina e doar în geamul ramei (aceeași mască), nu și pe lângă: albă,
+   sub galerie. Se vede în spațiul dintre afișe când trec prin ramă și
+   pâlpâie odată cu lampa, la 24 fps. Afișul care intră în ramă se aprinde
+   treptat (expunerea fiecărui afiș e calculată din JS, după distanța lui
+   față de ramă). */
 .gateLight {
     position: fixed;
-    inset: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--vf-w);
+    height: var(--vf-h);
     z-index: 2;
     pointer-events: none;
-    background:
-        /* lumina din lasă: albă, plină până puțin dincolo de ramă, apoi se stinge */
-        radial-gradient(ellipse calc(var(--vf-w) / 2 + 190px) calc(var(--vf-h) / 2 + 170px) at 50% 50%,
-            oklch(1 0.003 85) 0%, oklch(1 0.003 85 / 0.92) 38%,
-            oklch(0.995 0.008 85 / 0.45) 68%, oklch(0.99 0.01 85 / 0) 100%),
-        /* restul sălii, foarte puțin mai întunecat spre margini */
-        radial-gradient(ellipse 75% 95% at 50% 50%,
-            oklch(0.18 0.005 80 / 0) 45%, oklch(0.18 0.005 80 / 0.035) 100%);
+    background: oklch(1 0 0);
+    -webkit-mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
+    /* aceeași trepidație ca lampa, dar mai mică (albul pe fundal ar pâlpâi prea tare) */
+    animation: shutterGate 0.5s steps(1, end) infinite;
+}
+@keyframes shutterGate {
+    0%      { opacity: 1;    }
+    8.333%  { opacity: 0.93; }
+    16.667% { opacity: 0.98; }
+    25%     { opacity: 0.92; }
+    33.333% { opacity: 1;    }
+    41.667% { opacity: 0.95; }
+    50%     { opacity: 0.91; }
+    58.333% { opacity: 0.99; }
+    66.667% { opacity: 0.94; }
+    75%     { opacity: 1;    }
+    83.333% { opacity: 0.92; }
+    91.667% { opacity: 0.97; }
 }
 
 
@@ -427,10 +443,10 @@
    Fixă, cât geamul ramei (aceeași mască), între galerie și rama neagră.
    Luminează tot afișul la fel (nu doar centrul) și nu-i schimbă culorile:
    un strat opac gri-închis neutru în color-dodge = câștig de lumină
-   multiplicativ (rezultat = culoare / (1 − 0,05) ≈ +5%), același pe R, G, B,
-   deci nuanțele rămân ale afișului, iar negrul rămâne negru. Senzația de
-   „luminat din spate” vine mai ales din fundalul cu o diafragmă mai jos.
-   Pâlpâie la 24 fps (steps), ca lumina tăiată de obturator. */
+   multiplicativ (rezultat = culoare / (1 − 0,078) ≈ +8,5%), același pe R, G, B,
+   deci nuanțele rămân ale afișului, iar negrul rămâne negru.
+   Trepidația obturatorului: la 24 fps (steps) lumina variază între ~+6% și
+   ~+8,5% — vizibilă, dar cam de două ori mai mică decât în prima variantă. */
 .lamp {
     position: fixed;
     top: 50%;
@@ -441,7 +457,7 @@
     z-index: 34;
     pointer-events: none;
     mix-blend-mode: color-dodge;
-    background: rgb(13, 13, 13);
+    background: rgb(20, 20, 20);
     -webkit-mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
             mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
     will-change: opacity;
@@ -449,20 +465,20 @@
 }
 @keyframes shutter24 {
     0%      { opacity: 1;    }
-    8.333%  { opacity: 0.90; }
-    16.667% { opacity: 0.97; }
-    25%     { opacity: 0.88; }
+    8.333%  { opacity: 0.78; }
+    16.667% { opacity: 0.94; }
+    25%     { opacity: 0.74; }
     33.333% { opacity: 1;    }
-    41.667% { opacity: 0.93; }
-    50%     { opacity: 0.86; }
-    58.333% { opacity: 0.98; }
-    66.667% { opacity: 0.91; }
+    41.667% { opacity: 0.84; }
+    50%     { opacity: 0.72; }
+    58.333% { opacity: 0.96; }
+    66.667% { opacity: 0.80; }
     75%     { opacity: 1;    }
-    83.333% { opacity: 0.89; }
-    91.667% { opacity: 0.95; }
+    83.333% { opacity: 0.76; }
+    91.667% { opacity: 0.90; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .lamp { animation: none; opacity: 0.95; }
+    .lamp, .gateLight { animation: none; }
 }
 .notReady .lamp { opacity: 0 !important; }
 
