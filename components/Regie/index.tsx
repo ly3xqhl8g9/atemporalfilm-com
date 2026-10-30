@@ -469,6 +469,8 @@ export default function Regie() {
     const select = (el: HTMLElement | null) => {
         selectedRef.current = el;
         selectedPinRef.current = null;
+        // mesajul „ține tot layout-ul” e doar pentru elementul care l-a produs
+        setStatus((s) => (s === LAYOUT_MSG ? '' : s));
         bump();
     };
 
@@ -626,7 +628,14 @@ export default function Regie() {
                 return;
             }
             const current = selectedRef.current;
-            const el = current && current.contains(target) ? current : target;
+            // Un click în interiorul selecției o păstrează (ca s-o poți trage),
+            // DAR nu și când selecția e un container care ține tot layout-ul
+            // (pagina, fundalul): acela nu se poate trage, deci click-ul trece
+            // la elementul apăsat. Altfel, după ce ai ales fundalul o dată,
+            // niciun alt element din pagină nu mai putea fi selectat.
+            const el = current && current !== target && current.contains(target) && !holdsLayout(current)
+                ? current
+                : target;
             if (el !== current) select(el);
             if (holdsLayout(el)) {
                 // îl putem alege (notă, culoare), dar nu-l tragem
