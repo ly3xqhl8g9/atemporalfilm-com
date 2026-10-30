@@ -647,7 +647,9 @@
 }
 
 
-/* ── VARIANTA „PISTA ÎN VIZOR” (/?pista=in) ──────────────
+/* ── VARIANTA „PISTA ÎN VIZOR” — implicită (din 30.10 seara) ──
+   Varianta cu pista în afara ramei: /?pista=afara (fără clasa .trackInside).
+
    Pista sonoră intră în geamul ramei, lipită de marginea dreaptă a afișului,
    ca pe pelicula de 35 mm (fotogramă + pistă optică), și continuă în sus și
    în jos ca acum. Afișul rămâne la mărimea lui; rama se lărgește cât banda,

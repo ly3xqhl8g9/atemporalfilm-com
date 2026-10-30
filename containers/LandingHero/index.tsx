@@ -396,8 +396,9 @@ export default function LandingHero() {
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
-    // varianta de comparat: pista sonoră în interiorul vizorului (/?pista=in)
-    const [trackInside, setTrackInside]     = useState(false);
+    // pista sonoră: în vizor, lipită de afiș (implicit, din 30.10 seara);
+    // varianta cu pista în afara ramei rămâne la /?pista=afara
+    const [trackInside, setTrackInside]     = useState(true);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -585,7 +586,8 @@ export default function LandingHero() {
     }, [updateActive, syncList, jumpTo, recenter]);
 
     useEffect(() => {
-        setTrackInside(new URLSearchParams(window.location.search).get('pista') === 'in');
+        const v = new URLSearchParams(window.location.search).get('pista');
+        setTrackInside(v !== 'afara' && v !== 'out');
     }, []);
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
