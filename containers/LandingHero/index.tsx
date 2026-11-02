@@ -521,6 +521,24 @@ const PEOPLE: Project[] = [
         metaFr:      'Sound designer, monteur',
         image:       '/assets/entities/people/stefan-azaharioaie.webp',
     },
+    {
+        // 03.11.2026: Fram, pisica studioului (poza trimisă în chat, decupată la 2:3)
+        title:       'Fram',
+        titleRo:     'Fram',
+        year:        '',
+        director:    '',
+        production:  'Atemporal Film',
+        description: '',
+        awards:      '',
+        people:      '',
+        work:        'Liniște pe platou',
+        workEn:      'Quiet on set',
+        workFr:      'Silence sur le plateau',
+        meta:        'Studio cat, Atemporal Film',
+        metaRo:      'Pisica studioului, Atemporal Film',
+        metaFr:      'Chat du studio, Atemporal Film',
+        image:       '/assets/entities/people/fram.webp',
+    },
 ];
 
 type Kind = 'work' | 'people';
@@ -545,10 +563,15 @@ function pickMeta(p: Project, lang: Lang): string | undefined {
    ============================================================ */
 
 /* Câte copii: cel puțin 3 și cel puțin ~30 de cadre în total, ca pelicula să
-   nu se termine nici când lista e scurtă (PEOPLE are 2 oameni → 17 copii).
-   Numărul de copii e impar, deci există mereu o copie „din mijloc”. */
+   nu se termine nici când lista e scurtă (PEOPLE are 3 → 11 copii).
+   Numărul de copii e impar, deci există mereu o copie „din mijloc”.
+   once (PEOPLE, 03.11.2026, nota Regie de la 00:11): „dacă sunt mai puțini,
+   nu mai repeta numele” — pelicula tot nu are capăt, dar lista din stânga
+   arată fiecare nume o singură dată, nemișcată, centrată pe ramă; numele din
+   ramă crește (ca titlul filmului), iar trecerea de la ultimul la primul
+   urmează roata (Fram → Diana e un pas, nu doi). */
 const MIN_SLOTS = 30;
-function makeReel(items: Project[]) {
+function makeReel(items: Project[], once = false) {
     const N      = items.length;
     const half   = Math.max(1, Math.ceil((MIN_SLOTS / N - 1) / 2));
     const COPIES = 2 * half + 1;
@@ -556,11 +579,11 @@ function makeReel(items: Project[]) {
     const HOME   = N * half;   // primul slot din copia din mijloc
     const filmOf = (slot: number) => ((slot % N) + N) % N;
     const isHome = (slot: number) => slot >= HOME && slot < HOME + N;
-    return { items, N, SLOTS, HOME, filmOf, isHome };
+    return { items, N, SLOTS, HOME, filmOf, isHome, once };
 }
 const REELS: Record<Kind, ReturnType<typeof makeReel>> = {
     work:   makeReel(ITEMS.work),
-    people: makeReel(ITEMS.people),
+    people: makeReel(ITEMS.people, true),
 };
 const IDLE_MS  = 140;      // derularea s-a oprit dacă nu mai vine niciun eveniment
 /** derularea continuă (02.11.2026, 15:34): cât timp rotița se mișcă, galeria
@@ -725,8 +748,17 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const h   = Array.from(items, (el) => el?.offsetHeight ?? 0);
         const sc  = new Array<number>(n);
         const g   = new Array<number>(n);
+        // distanța (cu semn) dintre titlul i și poziția derulării; în lista
+        // „o singură dată” (PEOPLE), pe drumul cel mai scurt al roții
+        const N   = reel.N;
+        const fm  = ((f % N) + N) % N;
+        const dOf = (i: number) => {
+            if (!reel.once) return i - f;
+            const d = i - fm;
+            return d - N * Math.round(d / N);
+        };
         for (let i = 0; i < n; i++) {
-            const ad = Math.abs(i - f);
+            const ad = Math.abs(dOf(i));
             if (ad < 1) {
                 const x = 1 - ad;
                 g[i]  = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
@@ -739,19 +771,27 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         // centrele titlurilor, de la i0 în ambele sensuri; pasul = media
         // înălțimilor (cu tot cu spațiul dintre ele) celor doi vecini, micșorate
         const c  = new Array<number>(n);
-        const i0 = Math.min(n - 1, Math.floor(f));
         const pitch = (i: number) => ((h[i] + LIST_GAP) * sc[i] + (h[i + 1] + LIST_GAP) * sc[i + 1]) / 2;
-        c[i0] = 0;
-        for (let i = i0 + 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
-        for (let i = i0 - 1; i >= 0; i--) c[i] = c[i + 1] - pitch(i);
-        const off = i0 + 1 < n ? c[i0] + (c[i0 + 1] - c[i0]) * (f - i0) : c[i0];
+        let off: number;
+        if (reel.once) {
+            // lista nu curge: numele stau în ordine, iar mijlocul lor e pe centrul ramei
+            c[0] = 0;
+            for (let i = 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
+            off = (c[0] - h[0] * sc[0] / 2 + c[n - 1] + h[n - 1] * sc[n - 1] / 2) / 2;
+        } else {
+            const i0 = Math.min(n - 1, Math.floor(f));
+            c[i0] = 0;
+            for (let i = i0 + 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
+            for (let i = i0 - 1; i >= 0; i--) c[i] = c[i + 1] - pitch(i);
+            off = i0 + 1 < n ? c[i0] + (c[i0 + 1] - c[i0]) * (f - i0) : c[i0];
+        }
         // centrul titlului din ramă = centrul unui titlu pe un rând (ca înainte)
         const cy = (h.find((v) => v > 0) ?? 17) / 2;
         track.style.transform = '';
         for (let i = 0; i < n; i++) {
             const el = items[i];
             if (!el) continue;
-            const ad = Math.abs(i - f);
+            const ad = Math.abs(dOf(i));
             const o  = ad < 1
                 ? LIST_O1 + (1 - LIST_O1) * g[i]
                 : LIST_O1 * Math.pow(Math.max(0, 1 - (ad - 1) / LIST_FADE), 1.4);
@@ -1015,6 +1055,16 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
 
     const { SLOTS, filmOf, isHome, items } = reel;
+    /** lista „o singură dată”: click pe un nume → cel mai apropiat cadru cu omul respectiv */
+    const slotForItem = (i: number) => {
+        const a    = lastActiveRef.current;
+        const base = a - filmOf(a);
+        let best   = base + i;
+        for (const s of [base + i - reel.N, base + i + reel.N]) {
+            if (Math.abs(s - a) < Math.abs(best - a)) best = s;
+        }
+        return Math.min(SLOTS.length - 1, Math.max(0, best));
+    };
     const isPeople        = kind === 'people';
     const film            = filmOf(active);
     const proj            = items[film];
@@ -1087,23 +1137,23 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 descrierea, anul, premiile și „unde am fost” scoase de pe homepage.) */}
             <nav className={styles.filmList} aria-label={isPeople ? t.nav.people : t.films}>
                 <ol className={styles.filmListTrack} ref={listTrackRef}>
-                    {SLOTS.map((i) => {
+                    {(reel.once ? items.map((_, k) => k) : SLOTS).map((i) => {
                         const p = items[filmOf(i)];
                         // copiile de margine există doar pentru ochi — cititoarele de ecran
                         // și tastatura văd lista o singură dată
-                        const home = isHome(i);
+                        const home = reel.once || isHome(i);
                         return (
                             <li
                                 key={i}
                                 ref={(el) => { listItemRefs.current[i] = el; }}
                                 className={styles.filmListItem}
-                                style={{ opacity: i === HOME ? 1 : 0 }}   // până la prima așezare (syncList)
+                                style={{ opacity: i === (reel.once ? 0 : HOME) ? 1 : 0 }}   // până la prima așezare (syncList)
                                 aria-hidden={home ? undefined : true}
                             >
                                 <button
                                     type="button"
                                     className={styles.filmListBtn}
-                                    onClick={() => goTo(i)}
+                                    onClick={() => goTo(reel.once ? slotForItem(i) : i)}
                                     tabIndex={home ? undefined : -1}
                                     aria-current={filmOf(i) === film && home ? 'true' : undefined}
                                 >

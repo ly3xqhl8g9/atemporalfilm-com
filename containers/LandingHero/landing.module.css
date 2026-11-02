@@ -225,15 +225,16 @@
    la x = 357, Madrid (CET) + REC mutat spre dreapta, la x = 602. Bangkok a
    trecut sus în dreapta, lângă Los Angeles. Pe ecranele înguste rândul se
    rupe (Madrid trece dedesubt). */
+/* 03.11.2026, 00:11 (Modul Regie, pe 1728×978): Madrid mutat sub București
+   pe orice ecran — două rânduri, la y = 62 și 79 (3 px între ele). */
 .hdClocks {
     position: absolute;
     left: calc(var(--logo-x) + 165px);
     top: 62px;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 103px;
-    row-gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 3px;
     /* nu intră peste afișele din galerie */
     max-width: calc(50vw + var(--reel-x) - var(--strip-w) / 2 - var(--logo-x) - 165px - 12px);
     font-family: var(--font-mono), monospace;
@@ -439,8 +440,9 @@
    la x = 405, după timecode-urile din antet); pe ecranele foarte înguste
    se opresc la 12 px de peliculă */
 .navPeople {
-    /* 02.11, 23:37: +53 px, singur (GEAR a trecut în dreapta) — pe 1382: x = 458 */
-    left: min(calc(var(--logo-x) + 394px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 80px));
+    /* 02.11, 23:37: +53 px, singur (GEAR a trecut în dreapta) — pe 1382: x = 458;
+       03.11, 00:11: încă +84 px, după ce Madrid a trecut sub București (pe 1728: x = 542) */
+    left: min(calc(var(--logo-x) + 478px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 80px));
     column-gap: 16px;
 }
 /* pagina deschisă: subliniată */
