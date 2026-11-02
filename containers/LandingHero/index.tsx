@@ -59,6 +59,11 @@ interface Project {
     workEn?: string;
     workFr?: string;
     by?:     string;
+    // Pagina PEOPLE (02.11.2026): al doilea rând al creditului, scris întreg
+    // (fără „by”) — funcția omului în echipă
+    meta?:   string;
+    metaRo?: string;
+    metaFr?: string;
 
     image: string;   // /assets/entities/...
 }
@@ -477,6 +482,56 @@ const PROJECTS: Project[] = [
 ];
 
 
+/* ============================================================
+   PEOPLE (02.11.2026, 23:57): aceeași pagină ca WORK — pelicula, rama,
+   lista, creditul — dar în locul afișelor sunt oamenii. Pozele: 2:3,
+   decupate din cele trimise de Ștefan (public/assets/entities/people/).
+   title = numele; work = ce face; meta = funcția (rândul al doilea).
+   ============================================================ */
+const PEOPLE: Project[] = [
+    {
+        title:       'Diana Smeu',
+        titleRo:     'Diana Smeu',
+        year:        '',
+        director:    '',
+        production:  'Atemporal Film',
+        description: '',
+        awards:      '',
+        people:      '',
+        work:        'Distribuție, festivaluri, producție',
+        workEn:      'Distribution, festivals, producing',
+        workFr:      'Distribution, festivals, production',
+        meta:        'COO, Atemporal Film',
+        image:       '/assets/entities/people/diana-smeu.webp',
+    },
+    {
+        title:       'Stefan Azaharioaie',
+        titleRo:     'Ștefan Azaharioaie',
+        year:        '',
+        director:    '',
+        production:  'Atemporal Film',
+        description: '',
+        awards:      '',
+        people:      '',
+        work:        'Sunet de platou, sound design, montaj',
+        workEn:      'Production sound, sound design, editing',
+        workFr:      'Son direct, sound design, montage',
+        meta:        'Sound designer, editor',
+        metaRo:      'Sound designer, montaj',
+        metaFr:      'Sound designer, monteur',
+        image:       '/assets/entities/people/stefan-azaharioaie.webp',
+    },
+];
+
+type Kind = 'work' | 'people';
+const ITEMS: Record<Kind, Project[]> = { work: PROJECTS, people: PEOPLE };
+
+function pickMeta(p: Project, lang: Lang): string | undefined {
+    const v = lang === 'ro' ? p.metaRo : lang === 'fr' ? p.metaFr : undefined;
+    return v || p.meta;
+}
+
+
 
 /* ============================================================
    Galeria fără capăt (Modul Regie, 30.10.2026, seria a patra)
@@ -489,13 +544,24 @@ const PROJECTS: Project[] = [
    Un „slot” = o poziție din galerie (0 … N·COPIES − 1); filmul = slot mod N.
    ============================================================ */
 
-const N      = PROJECTS.length;
-const COPIES = 3;
-const SLOTS  = Array.from({ length: N * COPIES }, (_, i) => i);
-const HOME   = N;          // primul slot din copia din mijloc
-
-const filmOf   = (slot: number) => ((slot % N) + N) % N;
-const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
+/* Câte copii: cel puțin 3 și cel puțin ~30 de cadre în total, ca pelicula să
+   nu se termine nici când lista e scurtă (PEOPLE are 2 oameni → 17 copii).
+   Numărul de copii e impar, deci există mereu o copie „din mijloc”. */
+const MIN_SLOTS = 30;
+function makeReel(items: Project[]) {
+    const N      = items.length;
+    const half   = Math.max(1, Math.ceil((MIN_SLOTS / N - 1) / 2));
+    const COPIES = 2 * half + 1;
+    const SLOTS  = Array.from({ length: N * COPIES }, (_, i) => i);
+    const HOME   = N * half;   // primul slot din copia din mijloc
+    const filmOf = (slot: number) => ((slot % N) + N) % N;
+    const isHome = (slot: number) => slot >= HOME && slot < HOME + N;
+    return { items, N, SLOTS, HOME, filmOf, isHome };
+}
+const REELS: Record<Kind, ReturnType<typeof makeReel>> = {
+    work:   makeReel(ITEMS.work),
+    people: makeReel(ITEMS.people),
+};
 const IDLE_MS  = 140;      // derularea s-a oprit dacă nu mai vine niciun eveniment
 /** derularea continuă (02.11.2026, 15:34): cât timp rotița se mișcă, galeria
     curge liber; când se oprește, se așază pe cadrul următor în direcția în care
@@ -549,7 +615,9 @@ const BAND_TILE = 2049;   // 02.11, 15:00: 2732 × 0,75 (tot ansamblul micșorat
 const EXPO_OUT = 0.15;
 const EXPO_IN  = 0.30;
 
-export default function LandingHero() {
+export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
+    const reel = REELS[kind];
+    const { HOME } = reel;
     const [active, setActive]               = useState(HOME);   // slotul din ramă
     const [ready, setReady]                 = useState(false);  // așezat pe filmul de start
     const [textVisible, setTextVisible]     = useState(true);
@@ -614,7 +682,7 @@ export default function LandingHero() {
             }
         });
         if (bestIdx !== lastActiveRef.current) {
-            const sameFilm = filmOf(bestIdx) === filmOf(lastActiveRef.current);
+            const sameFilm = reel.filmOf(bestIdx) === reel.filmOf(lastActiveRef.current);
             lastActiveRef.current = bestIdx;
             if (sameFilm) {
                 setActive(bestIdx);
@@ -627,7 +695,7 @@ export default function LandingHero() {
                 setTextVisible(true);
             }, 220);
         }
-    }, []);
+    }, [reel]);
 
 
     /* Lista de filme din stânga urmează galeria continuu: poziția în galerie
@@ -645,7 +713,7 @@ export default function LandingHero() {
         const track   = listTrackRef.current;
         const items   = listItemRefs.current;
         if (!gallery || !track || items.length === 0) return;
-        const last = SLOTS.length - 1;
+        const last = reel.SLOTS.length - 1;
         const f    = Math.min(last, Math.max(0, (gallery.scrollTop - originRef.current) / slotPitch()));
         /* PERSPECTIVA LISTEI (02.11.2026, 23:05, cerut de Ștefan): titlul din
            ramă e cel mai mare; cu cât un titlu e mai departe de el, cu atât e mai
@@ -733,7 +801,7 @@ export default function LandingHero() {
             const y = ((bandYRef.current % BAND_TILE) + BAND_TILE) % BAND_TILE;
             band.style.transform = `translate3d(0, ${-y}px, 0)`;
         }
-    }, [slotPitch]);
+    }, [slotPitch, reel]);
 
     /** poziția de derulare la care cadrul `slot` stă exact în centrul ramei —
         măsurată pe ecran, deci aceeași în Safari și în Chrome */
@@ -800,11 +868,11 @@ export default function LandingHero() {
 
     /** derularea s-a oprit într-o copie de margine → aceeași poziție în copia din mijloc */
     const recenter = useCallback(() => {
-        if (isHome(lastActiveRef.current)) restRef.current = lastActiveRef.current;
+        if (reel.isHome(lastActiveRef.current)) restRef.current = lastActiveRef.current;
         const gallery = galleryRef.current;
         const slot    = lastActiveRef.current;
-        if (!gallery || isHome(slot)) return;
-        const target = HOME + filmOf(slot);
+        if (!gallery || reel.isHome(slot)) return;
+        const target = reel.HOME + reel.filmOf(slot);
         // fără tranziții cât timp afișul activ trece pe alt element
         gallery.classList.add(styles.jumping);
         jumpTo(target);
@@ -813,7 +881,7 @@ export default function LandingHero() {
                 gallery.classList.remove(styles.jumping);
             }));
         }, 60);
-    }, [jumpTo]);
+    }, [jumpTo, reel]);
 
     /** galeria e pe cadrul `slot`: actualizăm totul, apoi revenim în copia din mijloc */
     const arrive = useCallback((slot: number) => {
@@ -836,14 +904,14 @@ export default function LandingHero() {
         const gallery = galleryRef.current;
         if (!gallery || animRef.current !== null) return;
         const f    = (gallery.scrollTop - originRef.current) / slotPitch();
-        const last = SLOTS.length - 1;
+        const last = reel.SLOTS.length - 1;
         let target = Math.round(f);
         if (Math.abs(f - target) > 0.001 && Math.abs(f - restRef.current) > NUDGE && dirRef.current !== 0) {
             target = dirRef.current > 0 ? Math.ceil(f - NUDGE) : Math.floor(f + NUDGE);
         }
         target = Math.min(last, Math.max(0, target));
         glideTo(target, () => arrive(target));
-    }, [slotPitch, glideTo, arrive]);
+    }, [slotPitch, glideTo, arrive, reel]);
 
     /** click pe un titlu din listă → galeria curge până la filmul respectiv */
     const goTo = useCallback((slot: number) => {
@@ -856,7 +924,7 @@ export default function LandingHero() {
         if (!gallery) return;
 
         // pornim de la un film ales la întâmplare, în copia din mijloc
-        jumpTo(HOME + Math.floor(Math.random() * N));
+        jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
         const readyId = requestAnimationFrame(() => setReady(true));
 
         let ticking = false;
@@ -912,7 +980,7 @@ export default function LandingHero() {
             window.removeEventListener('pointerup', onLift);
             window.removeEventListener('resize', onScroll);
         };
-    }, [updateActive, syncList, jumpTo, settle, stopGlide]);
+    }, [updateActive, syncList, jumpTo, settle, stopGlide, reel]);
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
@@ -933,7 +1001,7 @@ export default function LandingHero() {
             const from = animRef.current !== null && keyTargetRef.current !== null
                 ? keyTargetRef.current
                 : lastActiveRef.current;
-            const last   = SLOTS.length - 1;
+            const last   = reel.SLOTS.length - 1;
             const target = Math.min(last, Math.max(0, from + (e.key === 'ArrowDown' ? 1 : -1)));
             keyTargetRef.current = target;
             glideTo(target, () => {
@@ -943,14 +1011,17 @@ export default function LandingHero() {
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [expandedIdx, glideTo, arrive]);
+    }, [expandedIdx, glideTo, arrive, reel]);
 
 
+    const { SLOTS, filmOf, isHome, items } = reel;
+    const isPeople        = kind === 'people';
     const film            = filmOf(active);
-    const proj            = PROJECTS[film];
+    const proj            = items[film];
     const projTitle       = pickTitle(proj, lang);
     const projWork        = pickWork(proj, lang);
     const projBy          = proj.by || BY_DEFAULT;
+    const projMeta        = pickMeta(proj, lang);
 
     const fadeStyle: React.CSSProperties = {
         opacity: textVisible ? 1 : 0,
@@ -996,10 +1067,13 @@ export default function LandingHero() {
                 apare înaintea lui ABOUT, CONTACT stă mai departe; PEOPLE și GEAR
                 au trecut în stânga, pe același rând, după timecode-urile din antet. Pagina deschisă e subliniată. */}
             <nav className={styles.navRow} aria-label="Main navigation">
+                {/* 02.11, 23:37 (Modul Regie): PEOPLE rămâne singur în stânga, 53 px
+                    mai la dreapta; GEAR trece în dreapta, înaintea lui CONTACT;
+                    CONTACT 114 px mai la dreapta. PEOPLE duce la /people. */}
                 <span className={`${styles.navItemAt} ${styles.navPeople}`}>
-                    <NavLink href="/about" match="/people">{t.nav.people}</NavLink>
-                    <NavLink href="/gear">{t.nav.gear}</NavLink>
+                    <NavLink href="/people">{t.nav.people}</NavLink>
                 </span>
+                <span className={`${styles.navItemAt} ${styles.navGear}`}><NavLink href="/gear">{t.nav.gear}</NavLink></span>
                 <span className={`${styles.navItemAt} ${styles.navWork}`}><NavLink href="/">{t.nav.work}</NavLink></span>
                 <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
                 <span className={`${styles.navItemAt} ${styles.navContact}`}><NavLink href="/contact">{t.nav.contact}</NavLink></span>
@@ -1011,10 +1085,10 @@ export default function LandingHero() {
                 cele de dinainte deasupra, cele următoare dedesubt. Click → galeria
                 merge la filmul respectiv. (Modul Regie, 30.10.2026, seria a treia:
                 descrierea, anul, premiile și „unde am fost” scoase de pe homepage.) */}
-            <nav className={styles.filmList} aria-label={t.films}>
+            <nav className={styles.filmList} aria-label={isPeople ? t.nav.people : t.films}>
                 <ol className={styles.filmListTrack} ref={listTrackRef}>
                     {SLOTS.map((i) => {
-                        const p = PROJECTS[filmOf(i)];
+                        const p = items[filmOf(i)];
                         // copiile de margine există doar pentru ochi — cititoarele de ecran
                         // și tastatura văd lista o singură dată
                         const home = isHome(i);
@@ -1047,7 +1121,7 @@ export default function LandingHero() {
                 <div className={styles.sideEyebrow}>{projWork}</div>
                 {/* anul filmului, pe rândul creditului, în dreapta (02.11, 23:03) */}
                 {pickYear(proj) && <div className={styles.sideYear}>{pickYear(proj)}</div>}
-                <div className={styles.sideMeta}>{t.by} {projBy}</div>
+                <div className={styles.sideMeta}>{projMeta ?? `${t.by} ${projBy}`}</div>
             </aside>
 
             {/* timecode-urile lumii, în coloana din dreapta: sub meniu și sub credit,
@@ -1123,8 +1197,9 @@ export default function LandingHero() {
             <div className={styles.gallery} ref={galleryRef}>
                 <div className={styles.galleryPad} />
                 {SLOTS.map((i) => {
-                    const p        = PROJECTS[filmOf(i)];
-                    const isActive = i === active;
+                    const p        = items[filmOf(i)];
+                    // PEOPLE: click pe poză nu deschide nimic (deocamdată nu există fișa omului)
+                    const isActive = i === active && !isPeople;
                     // expunerea (culoare, lumină, mărime) o dă syncList, după distanța față de ramă
                     return (
                         <div
@@ -1173,7 +1248,7 @@ export default function LandingHero() {
             {/* DETAIL OVERLAY — apare când dai click pe afișul activ */}
             {expandedIdx !== null && (
                 <FilmDetail
-                    film={PROJECTS[expandedIdx]}
+                    film={items[expandedIdx]}
                     lang={lang}
                     onClose={() => setExpandedIdx(null)}
                 />

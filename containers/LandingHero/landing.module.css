@@ -432,13 +432,15 @@
 }
 .navItemAt .navItem { font-size: 15.4px; }
 .navAbout   { left: calc(var(--col-r) - 42px); }
-.navContact { left: calc(var(--col-r) + 66px); }
+.navContact { left: calc(var(--col-r) + 180px); }   /* 02.11, 23:37: +114 px (pe 1382: x = 1266) */
+.navGear    { left: calc(var(--col-r) + 127px); }   /* 02.11, 23:37: din stânga, înaintea lui CONTACT (pe 1382: x = 1213) */
 .navWork    { right: calc(100% - var(--col-r) + 58px); }
 /* PEOPLE · GEAR — în stânga, pe rândul meniului (02.11, 23:03: pe 1382×867
    la x = 405, după timecode-urile din antet); pe ecranele foarte înguste
    se opresc la 12 px de peliculă */
 .navPeople {
-    left: min(calc(var(--logo-x) + 341px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 133px));
+    /* 02.11, 23:37: +53 px, singur (GEAR a trecut în dreapta) — pe 1382: x = 458 */
+    left: min(calc(var(--logo-x) + 394px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 80px));
     column-gap: 16px;
 }
 /* pagina deschisă: subliniată */

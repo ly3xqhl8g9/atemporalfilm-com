@@ -43,7 +43,7 @@ export default function AppWrapper({
     // Pe homepage (`/`) ascundem meniul/limba din AppWrapper —
     // homepage-ul are propriul header (în <LandingHero />).
     const pathname = usePathname();
-    const isHome = pathname === '/';
+    const isHome = pathname === '/' || pathname === '/people';   // /people folosește același layout (02.11)
 
 
     return (
