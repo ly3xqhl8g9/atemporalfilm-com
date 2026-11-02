@@ -10,7 +10,7 @@ import styles from './landing.module.css';
    GEAR din meniu (03.11.2026): nu mai e o pagină. Click → o căsuță
    sub meniu, în coloana din dreapta: „Adaugă-ți mailul aici ca să
    primești lista de echipament.” După trimitere, /api/gear păstrează
-   adresa și răspunde cu Excel-ul, care se descarcă imediat.
+   adresa și răspunde cu PDF-ul cu echipamentul, care se descarcă imediat.
    ============================================================ */
 
 
@@ -55,7 +55,7 @@ const TEXT: Record<Lang, {
     },
 };
 
-const DOWNLOAD_NAME = 'Atemporal-Film-Gear-List.xlsx';
+const DOWNLOAD_NAME = 'Atemporal-Film-Equipment.pdf';
 const STORE_KEY     = 'af-gear-email';     // adresa rămâne completată la a doua cerere
 const EMAIL_RE      = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 

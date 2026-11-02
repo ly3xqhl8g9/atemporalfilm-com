@@ -1,10 +1,10 @@
 /* ============================================================
    /api/gear — cererea listei de echipament (03.11.2026).
    GEAR din meniu → căsuța pentru mail → POST { email, lang }.
-   Răspunsul e chiar Excel-ul (se descarcă în browser); adresa se
+   Răspunsul e chiar PDF-ul cu echipamentul (se descarcă în browser); adresa se
    păstrează, câte o linie, în .gear/cereri.jsonl (ignorat de Git).
 
-   Excel-ul stă în private/gear/ — NU în public/, ca să nu poată fi
+   PDF-ul stă în private/gear/ — NU în public/, ca să nu poată fi
    descărcat fără mail. Pentru a-l schimba, înlocuiește fișierul și
    păstrează numele.
 
@@ -23,8 +23,8 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const GEAR_FILE     = path.join(process.cwd(), 'private', 'gear', 'atemporal-film-gear.xlsx');
-const DOWNLOAD_NAME = 'Atemporal-Film-Gear-List.xlsx';
+const GEAR_FILE     = path.join(process.cwd(), 'private', 'gear', 'atemporal-film-gear.pdf');
+const DOWNLOAD_NAME = 'Atemporal-Film-Equipment.pdf';
 const LOG_DIR       = path.join(process.cwd(), '.gear');
 const LOG_FILE      = path.join(LOG_DIR, 'cereri.jsonl');
 const EMAIL_RE      = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     return new NextResponse(new Uint8Array(file), {
         status: 200,
         headers: {
-            'Content-Type':        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type':        'application/pdf',
             'Content-Disposition': `attachment; filename="${DOWNLOAD_NAME}"`,
             'Cache-Control':       'no-store',
         },
