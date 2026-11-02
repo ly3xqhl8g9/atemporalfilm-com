@@ -60,11 +60,14 @@
        vizor.webp și vizor-mask.webp: scripts/vizor-gros.py 295 373 "" (dacă
        schimbi aici mărimile sau afișul, rulează din nou scriptul).
        Varianta și mai fină (12 px, perforația se vede și lateral): /?rama=fina.
-       02.11, 17:40: mult mai subțire — 8 px de jur împrejur (251 × 329), mai
-       îngustă decât pelicula (289): perforația se vede și lângă ramă.
-       scripts/vizor-gros.py 251 329 "" public/assets/ui */
-    --vf-w:      251px;
-    --vf-h:      329px;
+       02.11, 17:40: 8 px de jur împrejur (251 × 329).
+       02.11, 18:15: RAMA DE METAL VOPSIT — geamul e exact afișul + pista
+       (237 × 315, colțuri drepte, fără textura de geam: tot afișul se vede);
+       lateralele de 30 px acoperă perforația (297 > 289), sus și jos 8 px.
+       Suprafața: vopsea „ciocănită” gri-oliv, din poza lui Ștefan.
+       scripts/rama-metal.py 297 331 237 315 public/assets/ui */
+    --vf-w:      297px;
+    --vf-h:      331px;
     /* pasul galeriei = un cadru: afiș + 36 px de peliculă neagră între cadre */
     --slot-h:    calc(var(--img-h) + 36px);
     --gallery-w: var(--strip-w);
@@ -550,7 +553,9 @@
 .vfGlass {
     position: absolute;
     inset: 0;
-    background: url("/assets/ui/vizor.webp?v=5") center / 100% 100% no-repeat;
+    background: url("/assets/ui/vizor.webp?v=7") center / 100% 100% no-repeat;
+    /* rama de metal stă puțin deasupra peliculei: o umbră fină sub ea */
+    filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
 }
 
 /* contorul „15 / 19” din ramă a fost scos (seria a cincea) */
@@ -633,10 +638,11 @@
      maro-chihlimbar translucid, perforația și cadrele vecine primesc puțină
      lumină, tot mai puțină cu cât sunt mai departe (.backlight).
    Tehnic: stratul .lamp e în color-dodge = câștig de lumină multiplicativ
-   (rezultat = culoare / (1 − lampă)); în centru R ×1,35 · G ×1,27 · B ×1,13,
-   la margine ~×1,05. Varianta neutră, de comparat: /?lumina=neutra.
-   Trepidația obturatorului la 24 fps: redusă la ~45% din cea de dinainte
-   (opacitatea lămpii între 0,87 și 1). */
+   (rezultat = culoare / (1 − lampă)). 02.11, 18:15: +1½ diafragmă (×2,83) —
+   în centru R ×3,8 · G ×3,6 · B ×3,2, la margine ~×3,0 (diferența centru –
+   margine rămâne ~⅓ de diafragmă). Varianta neutră: /?lumina=neutra.
+   Trepidația obturatorului la 24 fps: cu lampa mai puternică, opacitatea
+   variază doar între 0,96 și 1, ca pâlpâirea să rămână cât era. */
 .lamp {
     position: fixed;
     top: 50%;
@@ -648,28 +654,28 @@
     pointer-events: none;
     mix-blend-mode: color-dodge;
     background: radial-gradient(ellipse 72% 62% at 50% 50%,
-        rgb(66, 54, 30) 0%,
-        rgb(52, 43, 25) 30%,
-        rgb(34, 28, 17) 62%,
-        rgb(15, 13, 9) 100%);
-    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=5") center / 100% 100% no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp?v=5") center / 100% 100% no-repeat;
+        rgb(188, 184, 175) 0%,
+        rgb(183, 180, 174) 30%,
+        rgb(177, 175, 171) 62%,
+        rgb(170, 169, 168) 100%);
+    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=7") center / 100% 100% no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp?v=7") center / 100% 100% no-repeat;
     will-change: opacity;
     animation: shutter24 0.5s steps(1, end) infinite;
 }
 @keyframes shutter24 {
     0%      { opacity: 1;     }
-    8.333%  { opacity: 0.900; }
-    16.667% { opacity: 0.973; }
-    25%     { opacity: 0.883; }
+    8.333%  { opacity: 0.970; }
+    16.667% { opacity: 0.992; }
+    25%     { opacity: 0.965; }
     33.333% { opacity: 1;     }
-    41.667% { opacity: 0.928; }
-    50%     { opacity: 0.874; }
-    58.333% { opacity: 0.982; }
-    66.667% { opacity: 0.910; }
+    41.667% { opacity: 0.978; }
+    50%     { opacity: 0.962; }
+    58.333% { opacity: 0.995; }
+    66.667% { opacity: 0.973; }
     75%     { opacity: 1;     }
-    83.333% { opacity: 0.892; }
-    91.667% { opacity: 0.955; }
+    83.333% { opacity: 0.968; }
+    91.667% { opacity: 0.986; }
 }
 @media (prefers-reduced-motion: reduce) {
     .lamp { animation: none; }
@@ -698,11 +704,11 @@
         rgba(255, 142, 62, 0) 80%);
     -webkit-mask:
         linear-gradient(#000, #000),
-        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat;
+        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat;
     -webkit-mask-composite: xor;
             mask:
         linear-gradient(#000, #000),
-        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat;
+        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat;
             mask-composite: exclude;
     transition: opacity 0.6s ease;
 }
@@ -712,7 +718,7 @@
    căldura becului (cum era lampa înainte de 02.11, 17:40) */
 .luminaNeutra .lamp {
     background: radial-gradient(ellipse 72% 62% at 50% 50%,
-        rgb(54, 54, 54) 0%, rgb(44, 44, 44) 30%, rgb(29, 29, 29) 62%, rgb(13, 13, 13) 100%);
+        rgb(185, 185, 185) 0%, rgb(181, 181, 181) 30%, rgb(175, 175, 175) 62%, rgb(169, 169, 169) 100%);
 }
 .luminaNeutra .backlight {
     background: radial-gradient(ellipse 58% 50% at 50% 50%,
@@ -824,10 +830,10 @@
        afișele vecine și pista — negrul peliculei devine gri închis, iar sus
        și jos se stinge. Două straturi de mască, adunate: geamul + restul. */
     -webkit-mask:
-        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
             mask:
-        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }

@@ -428,7 +428,7 @@ export default function LandingHero() {
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
     // variantele de comparație ale ramei:
-    //   /                — rama de 8 px (02.11, 17:40; înainte 30 px)
+    //   /                — rama de metal vopsit: laterale 30 px, sus/jos 8 px (02.11, 18:15)
     //   /?rama=fina      — rama de 12 px, în interiorul peliculei
     //   /?rama=paranteze — două paranteze despărțite (02.11, 15:34)
     const [rama, setRama]                   = useState<Rama>('groasa');
