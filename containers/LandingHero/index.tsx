@@ -68,7 +68,7 @@ interface Project {
 type Lang = 'ro' | 'en' | 'fr';
 
 const LANG_LABEL: Record<Lang, string> = { ro: 'RO', en: 'EN', fr: 'FR' };
-const LANG_NEXT:  Record<Lang, Lang>   = { ro: 'en', en: 'fr', fr: 'ro' };
+const LANG_NEXT:  Record<Lang, Lang>   = { en: 'ro', ro: 'fr', fr: 'en' };
 
 interface UITexts {
     nav: {
@@ -170,13 +170,13 @@ const PROJECTS: Project[] = [
         image:       '/assets/entities/posters/on-saint-nicholas-eve.webp',
     },
     {
-        title:       'Tot Ce Rămâne',
+        title:       'All That Remains',
         titleRo:     'Tot ce rămâne',
         year:        'short 2024',
         director:    'Andrei Redinciuc',
         production:  'Libra Film · Asociația Culturală „Șerban Ionescu”',
         description: 'Post-producție sunet pentru un scurtmetraj de ficțiune. Descriere temporară.',
-        awards:      'Warsaw Film Festival 2024 · Tot Live Action Short',
+        awards:      'Warsaw Film Festival 2024 · Best Live Action Short',
         people:      'Ionuț Alin Ionescu (sound)\nAndrei Redinciuc (regie)\ncu Coca Bloos, Cezar Antal, Alexandru Pavel, Angela Ioan',
         image:       '/assets/entities/posters/tot-ce-ramane.webp',
     },
@@ -432,7 +432,7 @@ export default function LandingHero() {
     const [ready, setReady]                 = useState(false);  // așezat pe filmul de start
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
-    const [lang, setLang]                   = useState<Lang>('ro');
+    const [lang, setLang]                   = useState<Lang>('en');
     // variantele de comparație ale ramei:
     //   /                — rama de metal vopsit: laterale 30 px, sus/jos 8 px (02.11, 18:15)
     //   /?rama=fina      — rama de 12 px, în interiorul peliculei
