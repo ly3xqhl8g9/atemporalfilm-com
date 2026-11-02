@@ -24,39 +24,44 @@
 
     /* Format afiș de film (2:3) — modifică aici dacă vrei să ajustezi
        dimensiunea afișelor; toate componentele galeriei se recalculează. */
-    --img-w:     280px;   /* lățime poster */
-    --img-h:     420px;   /* înălțime poster (2:3) */
-    /* rama de bază (afișul × 1,1): din ea se calculează coloanele laterale,
-       ca să nu se miște când rama se lărgește */
-    --vf-w0:     calc(var(--img-w) * 1.1);
+    /* 02.11, 15:00 (Modul Regie, cue-ul 17): tot ansamblul — pelicula, afișele,
+       pista, rama — ×0,75: 280 × 420 → 210 × 315 */
+    --img-w:     210px;   /* lățime poster */
+    --img-h:     315px;   /* înălțime poster (2:3) */
+    /* rama de bază: din ea se calculează coloanele laterale. Fixată la
+       valoarea de dinainte de micșorare (280 × 1,1 = 308 px), ca listele,
+       creditul, meniul și timecode-urile să rămână unde le-a pus Ștefan. */
+    --vf-w0:     308px;
 
     /* PELICULA (Modul Regie, 02.11.2026) — ca pe 35 mm: afișul și pista sonoră
        lipită de el formează „cadrul”; de o parte și de alta, perforația;
        fundalul peliculei e negru. Dimensiunile urmează ideea, nu milimetrii. */
-    --band-w:     36px;                                      /* pista sonoră */
-    --frame-w:    calc(var(--img-w) + var(--band-w));        /* afiș + pistă = 316 px */
+    --band-w:     27px;                                      /* pista sonoră (36 × 0,75) */
+    --frame-w:    calc(var(--img-w) + var(--band-w));        /* afiș + pistă = 237 px */
     --poster-shift: calc(var(--band-w) / -2);                /* afișul + pista, centrate împreună */
     /* perforația (02.11, a doua serie, corectată la 14:40): benzile laterale
        din poza de 35 mm a lui Ștefan — marginea peliculei, găurile, marcajele
        portocalii —, întoarse pe verticală: public/assets/ui/perforatie-st.webp
-       și perforatie-dr.webp (scripts/perforatie.py), câte 10 găuri pe un cadru.
+       și perforatie-dr.webp (scripts/perforatie.py). 02.11, 15:00: mai subțire
+       și cu mai multe găuri — 26 px, 16 găuri pe cadru (înainte 55 px, 10 găuri).
        Poza e o previzualizare Adobe Stock: de licențiat înainte de publicare. */
-    --perf-band:  55px;
+    --perf-band:  26px;
     --strip-side: var(--perf-band);
-    --strip-w:    calc(var(--frame-w) + 2 * var(--strip-side));   /* pelicula: 426 px */
+    --strip-w:    calc(var(--frame-w) + 2 * var(--strip-side));   /* pelicula: 289 px */
     --film-base:  #0e0e0e;   /* negrul peliculei din poză */
 
-    /* rama-vizor (02.11, a doua serie, corectată la 14:40): groasă și plină.
-       Geamul stă pe marginea afișului + pistei (314 × 418, adică 1 px de ramă
-       peste ele pe fiecare latură, colțuri de 4 px) — în geam nu se vede
-       pelicula. Rama e mai lată decât pelicula (446 > 426), deci acoperă
-       perforația; deasupra și dedesubt perforația se vede. vizor.webp și
-       vizor-mask.webp: scripts/vizor-gros.py 446 550 "" (dacă schimbi aici
-       mărimile sau afișul, rulează din nou scriptul). */
-    --vf-w:      446px;
-    --vf-h:      550px;
-    /* pasul galeriei = un cadru: afiș + 48 px de peliculă neagră între cadre */
-    --slot-h:    calc(var(--img-h) + 48px);
+    /* rama-vizor (02.11, 15:00): mult mai subțire — 30 px de jur împrejur
+       (înainte 66). Geamul stă pe marginea afișului + pistei (235 × 313, adică
+       1 px de ramă peste ele pe fiecare latură, colțuri de 3 px) — în geam nu
+       se vede pelicula. Rama e puțin mai lată decât pelicula (295 > 289), deci
+       acoperă perforația; deasupra și dedesubt perforația se vede.
+       vizor.webp și vizor-mask.webp: scripts/vizor-gros.py 295 373 "" (dacă
+       schimbi aici mărimile sau afișul, rulează din nou scriptul).
+       Varianta și mai fină (12 px, perforația se vede și lateral): /?rama=fina. */
+    --vf-w:      295px;
+    --vf-h:      373px;
+    /* pasul galeriei = un cadru: afiș + 36 px de peliculă neagră între cadre */
+    --slot-h:    calc(var(--img-h) + 36px);
     --gallery-w: var(--strip-w);
 
     /* bara de jos: coloana timecode-urilor Americii (02.11) — pe 2048 px la
@@ -171,9 +176,9 @@
 .logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
 
 /* ── TIMECODE ÎN ANTET ──
-   02.11.2026: în antet rămâne doar București (EET) + REC; New York și Shanghai
-   au coborât în bara de jos, cu celelalte fusuri (vezi .worldClocks).
-   Pe 2048×864: EET la x = 352, y = 76; REC la 11 px după el (x = 460). */
+   București (EET) + REC la x = 352, Madrid (CET) + REC la x = 518, iar din
+   02.11, 15:00, Bangkok (ICT) doar cu ▶, fără scris (x ≈ 680); y = 76.
+   Pe ecranele înguste rândul se rupe (Madrid / Bangkok trec dedesubt). */
 .hdClocks {
     position: absolute;
     left: calc(var(--logo-x) + 160px);
@@ -198,6 +203,8 @@
     align-items: center;
     gap: 11px;
 }
+/* Bangkok (02.11, 15:00): doar triunghiul, la 6 px după timecode */
+.hdTimecodeGroupIcon { gap: 6px; }
 .hdTimecode { color: var(--fg); min-width: 15.5ch; }
 .hdRec {
     display: inline-flex;
@@ -223,6 +230,7 @@
     color: var(--fg);
     letter-spacing: 0.12em;
 }
+.hdPlayIcon { gap: 0; }
 .hdPlay::before {
     content: "";
     flex: none;
@@ -248,22 +256,20 @@
     background: currentColor;
 }
 
-/* ── TIMECODE-URILE LUMII — în coloana din dreapta (02.11.2026, a doua serie) ──
-   Urcate din bara de jos (cue-urile 02–08), pe verticala creditului
-   (--col-r − 52 px; pe 2048: x = 1294), fiecare cu starea lui: ▶ PLAYBACK
-   sau ■ STOP, la 11 px după timecode, ca REC în antet. Rândurile, la pas
-   egal de 24 px (cue-urile erau la ±6 px de el, Buenos Aires la +17 px):
-     sub meniu  — de la y = 144: Los Angeles · Mumbai · Shanghai · Bangkok
-     sub credit — de la 122 px sub mijlocul ecranului (pe 864: y = 554):
-                  New York · Buenos Aires */
+/* ── TIMECODE-URILE LUMII — sus, în dreapta (02.11.2026, 15:00) ──
+   Un rând deasupra meniului (pe 2048×864: y = 80): Los Angeles ▶ PLAYBACK
+   (x = 1258, pe verticala meniului) · Mumbai ■ STOP (1454) · Shanghai (1622);
+   sub Shanghai, o coloană la pas de 24 px, fiecare timecode cu starea lui pe
+   rândul de dedesubt: ▶ PLAYBACK · New York · ▶ PLAYBACK · Buenos Aires · ■ STOP.
+   Între grupuri, 20 px. Bangkok a urcat în antet, lângă Madrid. */
 .worldClocks {
     position: fixed;
-    left: calc(var(--col-r) - 52px);
+    top: 80px;
+    left: calc(var(--col-r) - 88px);
     z-index: 40;
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
-    row-gap: 11px;
+    column-gap: 20px;
     font-family: var(--font-mono), monospace;
     font-size: 9.5px;
     line-height: 13px;
@@ -271,9 +277,21 @@
     color: var(--fg);
     white-space: nowrap;
 }
-.wcTop { top: 144px; }
-.wcLow { top: calc(50% + 122px); }
 .wcRow { display: inline-flex; align-items: center; gap: 11px; }
+.wcCol {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 11px;   /* 13 px rândul + 11 = pas de 24 px */
+}
+/* fiecare rând are 13 px, și când starea rămâne doar semn (ecrane înguste) */
+.wcCol > * { height: 13px; }
+/* pe ecranele unde rândul nu încape (1440 px și mai înguste),
+   stările rămân doar semne (▶ / ■), ca Bangkok */
+@media (max-width: 1599px) {
+    .worldClocks .wcLabel { display: none; }
+    .worldClocks .wcRow   { gap: 6px; }
+}
 
 /* ── NAV — un rând orizontal sub antet, împărțit în jurul galeriei ──
    Două grupuri a câte trei, oglindite față de centru: stânga se aliniază
@@ -300,16 +318,19 @@
     pointer-events: auto;
 }
 .navGroupLeft  { grid-column: 1; justify-content: flex-end; }
-/* seria a cincea: meniul mai mic (×0,83), cuvintele mai strânse, mutat
-   62 px spre stânga și ~30 px în jos (pe 2048×864: x ≈ 1284, centrul la y ≈ 98) */
+/* seria a cincea: meniul mai mic (×0,83), cuvintele mai strânse.
+   02.11, 15:00: 22 px mai jos și 26 px spre stânga, sub rândul de timecode-uri,
+   DESPRE pe verticala lui Los Angeles (pe 2048×864: x = 1258, y = 110);
+   CONTACT stă puțin mai departe (24 px), cum l-a pus Ștefan. */
 .navGroupRight {
     position: absolute;
-    top: 30px;
-    left: calc(var(--col-r) - 62px);
+    top: 52px;
+    left: calc(var(--col-r) - 88px);
     justify-content: flex-start;
     column-gap: 8px;
 }
 .navGroupRight .navItem { font-size: 14px; }
+.navGroupRight .navItem:last-child { margin-left: 16px; }
 
 .navItem {
     display: inline-flex;
@@ -475,30 +496,28 @@
 .vfGlass {
     position: absolute;
     inset: 0;
-    background: url("/assets/ui/vizor.webp?v=3") center / 100% 100% no-repeat;
+    background: url("/assets/ui/vizor.webp?v=4") center / 100% 100% no-repeat;
 }
 
 /* contorul „15 / 19” din ramă a fost scos (seria a cincea) */
 
-/* varianta de comparație /?rama=lata (02.11, a doua serie): rama groasă
-   lateral, subțire sus și jos (446 × 446); același geam
-   (scripts/vizor-gros.py 446 446 -A → vizor-A.webp, vizor-mask-A.webp) */
-.ramaLata { --vf-h: 446px; }
-.ramaLata .vfGlass { background-image: url("/assets/ui/vizor-A.webp?v=3"); }
-.ramaLata .lamp {
-    -webkit-mask-image: url("/assets/ui/vizor-mask-A.webp?v=3");
-            mask-image: url("/assets/ui/vizor-mask-A.webp?v=3");
+/* varianta de comparație /?rama=fina (02.11, 15:00): rama de 12 px, în
+   interiorul peliculei — perforația se vede și lângă ramă; același geam
+   (scripts/vizor-gros.py 259 337 -F → vizor-F.webp, vizor-mask-F.webp) */
+.ramaFina { --vf-w: 259px; --vf-h: 337px; }
+.ramaFina .vfGlass { background-image: url("/assets/ui/vizor-F.webp?v=1"); }
+.ramaFina .lamp {
+    -webkit-mask-image: url("/assets/ui/vizor-mask-F.webp?v=1");
+            mask-image: url("/assets/ui/vizor-mask-F.webp?v=1");
 }
-.ramaLata .gallery {
+.ramaFina .gallery {
     -webkit-mask-image:
-        url("/assets/ui/vizor-mask-A.webp?v=3"),
+        url("/assets/ui/vizor-mask-F.webp?v=1"),
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
             mask-image:
-        url("/assets/ui/vizor-mask-A.webp?v=3"),
+        url("/assets/ui/vizor-mask-F.webp?v=1"),
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
-
-
 
 
 /* ── LAMPA — lumina proiectorului din spatele afișului (seria a cincea) ──
@@ -520,8 +539,8 @@
     pointer-events: none;
     mix-blend-mode: color-dodge;
     background: rgb(20, 20, 20);
-    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=3") center / 100% 100% no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp?v=3") center / 100% 100% no-repeat;
+    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=4") center / 100% 100% no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp?v=4") center / 100% 100% no-repeat;
     will-change: opacity;
     animation: shutter24 0.5s steps(1, end) infinite;
 }
@@ -633,10 +652,10 @@
        afișele vecine și pista — negrul peliculei devine gri închis, iar sus
        și jos se stinge. Două straturi de mască, adunate: geamul + restul. */
     -webkit-mask:
-        url("/assets/ui/vizor-mask.webp?v=3") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=4") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
             mask:
-        url("/assets/ui/vizor-mask.webp?v=3") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=4") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }
@@ -701,10 +720,10 @@
     bottom: 0;
     width: var(--perf-band);
     pointer-events: none;
-    background: url("/assets/ui/perforatie-st.webp?v=1") 0 0 / 100% 100% no-repeat;
+    background: url("/assets/ui/perforatie-st.webp?v=2") 0 0 / 100% 100% no-repeat;
 }
 .slot::before { left: 0; }
-.slot::after  { right: 0; background-image: url("/assets/ui/perforatie-dr.webp?v=1"); }
+.slot::after  { right: 0; background-image: url("/assets/ui/perforatie-dr.webp?v=2"); }
 
 
 /* halația: copie a afișului, estompată și cu contrast mare (rămân doar zonele
@@ -722,7 +741,7 @@
     pointer-events: none;
     mix-blend-mode: screen;
     /* doar zonele cele mai luminoase, fără saturație adăugată */
-    filter: blur(10px) contrast(2.4) brightness(0.62);
+    filter: blur(8px) contrast(2.4) brightness(0.62);
     opacity: 0;
     /* doar pe afiș — nu curge pe pelicula neagră din jur */
     clip-path: inset(0);

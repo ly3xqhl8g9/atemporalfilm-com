@@ -1,12 +1,13 @@
 """Rama-vizor groasă, cu geamul pe marginea afișului (Modul Regie, 02.11.2026, a doua serie).
-    python3 scripts/vizor-gros.py LATIME INALTIME SUFIX public/assets/ui/
+    python3 scripts/vizor-gros.py LATIME INALTIME SUFIX public/assets/ui/ [GEAM_L GEAM_I RAZA]
 Scrie vizor{SUFIX}.webp și vizor-mask{SUFIX}.webp, la 3× (Retina), de LATIME × INALTIME px CSS.
 
 Din poza lui Ștefan (scripts/vizor-sursa.webp) păstrăm:
   • conturul exterior al ramei (laturile ușor bombate, colțurile rotunjite),
     întins la LATIME × INALTIME;
   • textura geamului (zgârieturile, vinieta), întinsă pe geamul nou.
-Geamul nou = afișul + pista (280 + 36 = 316 × 420 px CSS), cu 1 px de ramă
+Geamul nou = afișul + pista (02.11, 15:00, ansamblul ×0,75: 210 + 27 = 237 × 315
+px CSS; implicit GEAM_L GEAM_I RAZA = 235 313 3), cu 1 px de ramă
 peste ele pe fiecare latură, colțuri de 4 px (ca fereastra unei lase de
 proiecție): marginile ramei sunt pline, în geam nu se vede pelicula.
 Are nevoie de scipy."""
@@ -18,7 +19,7 @@ from scipy import ndimage as nd
 
 W_CSS, H_CSS, suffix, out = float(sys.argv[1]), float(sys.argv[2]), sys.argv[3], sys.argv[4]
 S = 3                                         # pixeli de imagine pe px CSS
-GW, GH, GR = 316 - 2, 420 - 2, 4              # geamul, px CSS
+GW, GH, GR = (float(x) for x in (sys.argv[5:8] if len(sys.argv) > 7 else (237 - 2, 315 - 2, 3)))   # geamul, px CSS
 VIGNETTE_MAX = 0.4                            # vinieta geamului nu întunecă afișul mai mult de atât
 
 here = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -49,11 +50,18 @@ tex = np.array(Image.fromarray((tex * 255).astype(np.uint8)).resize((gw, gh), Im
 # geamul: dreptunghi cu colțuri de GR px, antialias
 yy, xx = np.mgrid[0:H, 0:W] + 0.5
 cx, cy = W / 2, H / 2
-hx, hy, r = gw / 2, gh / 2, GR * S
-qx = np.maximum(np.abs(xx - cx) - (hx - r), 0)
-qy = np.maximum(np.abs(yy - cy) - (hy - r), 0)
-sd = np.hypot(qx, qy) - r                   # distanța semnată față de marginea geamului
+def rrect_sd(hx, hy, r):
+    qx = np.maximum(np.abs(xx - cx) - (hx - r), 0)
+    qy = np.maximum(np.abs(yy - cy) - (hy - r), 0)
+    return np.hypot(qx, qy) - r             # distanța semnată față de margine
+sd = rrect_sd(gw / 2, gh / 2, GR * S)
 inside = np.clip(0.5 - sd, 0, 1)              # 1 în geam, 0 în ramă
+
+# rama subțire (02.11, 15:00): conturul bombat din poză, întins pe o ramă îngustă,
+# și-ar strânge colțurile până în geam. Rama păstrează deci, de jur împrejur,
+# cel puțin 80% din grosimea ei; bombarea din poză se adaugă peste.
+m = 0.8 * min((W - gw) / 2, (H - gh) / 2)
+outer = np.maximum(outer, np.clip(0.5 - rrect_sd(gw / 2 + m, gh / 2 + m, GR * S + m), 0, 1))
 glass_tex = np.ones((H, W))
 y0, x0 = (H - gh) // 2, (W - gw) // 2
 glass_tex[y0:y0 + gh, x0:x0 + gw] = tex
@@ -67,4 +75,4 @@ m = np.zeros((H, W, 4), np.uint8)
 m[..., :3] = 255
 m[..., 3] = (inside * 255).round().astype(np.uint8)
 Image.fromarray(m, 'RGBA').save(f'{out}/vizor-mask{suffix}.webp', lossless=True, method=6)
-print(f'rama {W / S:.0f}×{H / S:.0f} px CSS, geamul {GW}×{GH}')
+print(f'rama {W / S:.0f}×{H / S:.0f} px CSS, geamul {GW:.0f}×{GH:.0f}')

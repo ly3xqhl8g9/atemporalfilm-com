@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 
 import styles from '@/containers/LandingHero/landing.module.css';
 
@@ -19,6 +19,12 @@ import styles from '@/containers/LandingHero/landing.module.css';
                        Shanghai ▶ PLAYBACK · Bangkok ▶ PLAYBACK
          sub credit  — New York ▶ PLAYBACK · Buenos Aires ■ STOP
        (cue-urile 02–08; ordinea rândurilor e cea din cue-uri).
+
+   Modul Regie, 02.11.2026, 15:00:
+     • Bangkok urcă în antet, după Madrid, doar cu triunghiul ▶ (fără scris).
+     • Restul, sus în dreapta: un rând — Los Angeles ▶ PLAYBACK · Mumbai ■ STOP ·
+       Shanghai —, iar sub Shanghai o coloană, fiecare stare sub timecode-ul ei:
+       ▶ PLAYBACK · New York · ▶ PLAYBACK · Buenos Aires · ■ STOP.
    ============================================================ */
 
 interface Zone { city: string; tz: string; abbr: Record<string, string> }
@@ -35,19 +41,20 @@ const SHANGHAI:     Zone = { city: 'Shanghai',     tz: 'Asia/Shanghai',         
 
 type Transport = 'play' | 'stop';
 
-/** coloana din dreapta: sub meniu și sub credit, în ordinea din cue-uri */
-const RIGHT_TOP: [Zone, Transport][] = [
+/** sus, în dreapta: rândul (timecode + stare alături) și coloana de sub Shanghai
+    (timecode, iar starea pe rândul de dedesubt) */
+const RIGHT_ROW: [Zone, Transport][] = [
     [LOS_ANGELES, 'play'],
     [MUMBAI,      'stop'],
-    [SHANGHAI,    'play'],
-    [BANGKOK,     'play'],
 ];
-const RIGHT_LOW: [Zone, Transport][] = [
+const RIGHT_COL: [Zone, Transport][] = [
+    [SHANGHAI,     'play'],
     [NEW_YORK,     'play'],
     [BUENOS_AIRES, 'stop'],
 ];
-const WORLD: Zone[] = [...RIGHT_TOP, ...RIGHT_LOW].map(([z]) => z);
-const HOME:  Zone[] = [BUCHAREST, MADRID];
+const WORLD: Zone[] = [...RIGHT_ROW, ...RIGHT_COL].map(([z]) => z);
+/** antetul: București și Madrid cu ● REC, Bangkok doar cu ▶ */
+const HOME:  Zone[] = [BUCHAREST, MADRID, BANGKOK];
 
 const FPS = 24;
 
@@ -128,12 +135,18 @@ function useTimecodes(zones: Zone[]) {
 }
 
 
-/** Antetul: București și Madrid, fiecare cu ● REC, imediat după logo. */
+/** Antetul: București și Madrid, fiecare cu ● REC, imediat după logo;
+    apoi Bangkok, doar cu triunghiul ▶. */
 export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }) {
     const tc = useTimecodes(HOME);
     return (
         <div className={styles.hdClocks}>
-            {HOME.map((z) => (
+            {HOME.map((z) => z === BANGKOK ? (
+                <span key={z.tz} className={`${styles.hdTimecodeGroup} ${styles.hdTimecodeGroupIcon}`}>
+                    {tc(z)}
+                    <span className={`${styles.hdPlay} ${styles.hdPlayIcon}`} role="img" aria-label="Playback" />
+                </span>
+            ) : (
                 <span key={z.tz} className={styles.hdTimecodeGroup}>
                     {tc(z)}
                     <span className={styles.hdRec}>{recLabel}</span>
@@ -150,18 +163,25 @@ export function WorldClocks({
     stopLabel = 'STOP',
 }: { playbackLabel?: string; stopLabel?: string }) {
     const tc = useTimecodes(WORLD);
-    const row = ([z, state]: [Zone, Transport]) => (
-        <span key={z.tz} className={styles.wcRow}>
-            {tc(z)}
-            {state === 'play'
-                ? <span className={styles.hdPlay}>{playbackLabel}</span>
-                : <span className={styles.hdStop}>{stopLabel}</span>}
-        </span>
-    );
+    const status = (state: Transport) => state === 'play'
+        ? <span className={styles.hdPlay}><span className={styles.wcLabel}>{playbackLabel}</span></span>
+        : <span className={styles.hdStop}><span className={styles.wcLabel}>{stopLabel}</span></span>;
     return (
-        <>
-            <div className={`${styles.worldClocks} ${styles.wcTop}`}>{RIGHT_TOP.map(row)}</div>
-            <div className={`${styles.worldClocks} ${styles.wcLow}`}>{RIGHT_LOW.map(row)}</div>
-        </>
+        <div className={styles.worldClocks}>
+            {RIGHT_ROW.map(([z, state]) => (
+                <span key={z.tz} className={styles.wcRow}>
+                    {tc(z)}
+                    {status(state)}
+                </span>
+            ))}
+            <span className={styles.wcCol}>
+                {RIGHT_COL.map(([z, state]) => (
+                    <Fragment key={z.tz}>
+                        {tc(z)}
+                        {status(state)}
+                    </Fragment>
+                ))}
+            </span>
+        </div>
     );
 }

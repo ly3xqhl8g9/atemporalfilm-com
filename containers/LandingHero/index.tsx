@@ -384,7 +384,7 @@ const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
 const IDLE_MS  = 160;      // derularea s-a oprit dacă nu mai vine niciun eveniment
 /** înălțimea tile-ului pistei sonore, în px CSS (public/assets/ui/soundtrack.webp,
     „TILE” afișat de scripts/pista-sonora.py) */
-const BAND_TILE = 2732;
+const BAND_TILE = 2049;   // 02.11, 15:00: 2732 × 0,75 (tot ansamblul micșorat)
 
 
 /* ============================================================
@@ -397,11 +397,11 @@ export default function LandingHero() {
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
-    // varianta de comparație (02.11, a doua serie): /?rama=lata — rama îngroșată
-    // doar la stânga și la dreapta (sus și jos subțire, ca înainte)
-    const [ramaLata, setRamaLata]           = useState(false);
+    // varianta de comparație (02.11, 15:00): /?rama=fina — rama de 12 px, în
+    // interiorul peliculei (perforația se vede și lateral)
+    const [ramaFina, setRamaFina]           = useState(false);
     useEffect(() => {
-        setRamaLata(new URLSearchParams(window.location.search).get('rama') === 'lata');
+        setRamaFina(new URLSearchParams(window.location.search).get('rama') === 'fina');
     }, []);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
@@ -606,7 +606,7 @@ export default function LandingHero() {
      *                      RENDER
      * -------------------------------------------------- */
     return (
-        <div className={`${styles.page} ${ready ? '' : styles.notReady} ${ramaLata ? styles.ramaLata : ''}`}>
+        <div className={`${styles.page} ${ready ? '' : styles.notReady} ${ramaFina ? styles.ramaFina : ''}`}>
 
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />
