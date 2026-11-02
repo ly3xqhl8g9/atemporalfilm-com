@@ -41,25 +41,26 @@ const SHANGHAI:     Zone = { city: 'Shanghai',     tz: 'Asia/Shanghai',         
 
 type Transport = 'play' | 'stop';
 
-/** Timecode-urile lumii (Modul Regie, 02.11.2026, 15:34), în trei locuri:
-    sus în dreapta, pe un rând — Los Angeles ▶ PLAYBACK · Buenos Aires ■ STOP;
+/** Timecode-urile lumii (Modul Regie, 02.11.2026, 16:25), în trei locuri:
+    sus în dreapta, pe un rând — Los Angeles ▶ PLAYBACK · Bangkok ▶ PLAYBACK;
     jos în stânga, după UE + Regio, două rânduri — Mumbai ■ STOP / New York ▶ PLAYBACK;
-    jos în dreapta, după site-uri — Shanghai ▶ PLAYBACK.
+    jos în dreapta, după site-uri, două rânduri — Shanghai ▶ PLAYBACK / Buenos Aires ■ STOP.
     Starea stă mereu alături de timecode, pe același rând. */
 const TOP_ROW: [Zone, Transport][] = [
     [LOS_ANGELES,  'play'],
-    [BUENOS_AIRES, 'stop'],
+    [BANGKOK,      'play'],     // 02.11, 16:25: urcat din antet, cu PLAYBACK scris
 ];
 const BOTTOM_LEFT: [Zone, Transport][] = [
     [MUMBAI,   'stop'],
     [NEW_YORK, 'play'],
 ];
 const BOTTOM_RIGHT: [Zone, Transport][] = [
-    [SHANGHAI, 'play'],
+    [SHANGHAI,     'play'],
+    [BUENOS_AIRES, 'stop'],     // 02.11, 16:25: sub Shanghai
 ];
 const WORLD: Zone[] = [...TOP_ROW, ...BOTTOM_LEFT, ...BOTTOM_RIGHT].map(([z]) => z);
-/** antetul: București și Madrid cu ● REC, Bangkok doar cu ▶ */
-const HOME:  Zone[] = [BUCHAREST, MADRID, BANGKOK];
+/** antetul: București și Madrid cu ● REC (Bangkok a trecut sus în dreapta, 02.11, 16:25) */
+const HOME:  Zone[] = [BUCHAREST, MADRID];
 
 const FPS = 24;
 
@@ -140,18 +141,12 @@ function useTimecodes(zones: Zone[]) {
 }
 
 
-/** Antetul: București și Madrid, fiecare cu ● REC, imediat după logo;
-    apoi Bangkok, doar cu triunghiul ▶. */
+/** Antetul: București și Madrid, fiecare cu ● REC, imediat după logo. */
 export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }) {
     const tc = useTimecodes(HOME);
     return (
         <div className={styles.hdClocks}>
-            {HOME.map((z) => z === BANGKOK ? (
-                <span key={z.tz} className={`${styles.hdTimecodeGroup} ${styles.hdTimecodeGroupIcon}`}>
-                    {tc(z)}
-                    <span className={`${styles.hdPlay} ${styles.hdPlayIcon}`} role="img" aria-label="Playback" />
-                </span>
-            ) : (
+            {HOME.map((z) => (
                 <span key={z.tz} className={styles.hdTimecodeGroup}>
                     {tc(z)}
                     <span className={styles.hdRec}>{recLabel}</span>

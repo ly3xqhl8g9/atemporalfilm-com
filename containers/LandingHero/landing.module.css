@@ -8,13 +8,13 @@
     position: relative;
     /* bara de jos e fixă (30.10, seria a treia) → pagina nu mai are nevoie de scroll */
     min-height: 100vh;
-    /* FUNDALUL — o jumătate de diafragmă sub restul site-ului (seria a cincea:
-       întâi −1, apoi înapoi +½): luminanța 0,87 → 0,615 (×1/√2), oklch L
-       0,955 → 0,85. Textele secundare puțin mai închise, ca să se citească. */
-    --bg:        oklch(0.85 0.004 80);
-    --fg-soft:   oklch(0.34 0.005 80);
-    --fg-faint:  oklch(0.46 0.005 80);
-    --rule:      oklch(0.70 0.005 80);
+    /* FUNDALUL — seria a cincea: întâi −1 diafragmă, apoi +½ (oklch L 0,85).
+       02.11, 17:40: încă +½ (luminanța 0,615 → 0,87, ×√2) → L 0,955, adică
+       din nou cât restul site-ului; textele secundare revin la valorile lui. */
+    --bg:        oklch(0.955 0.004 80);
+    --fg-soft:   oklch(0.40 0.005 80);
+    --fg-faint:  oklch(0.58 0.005 80);
+    --rule:      oklch(0.82 0.005 80);
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-serif), 'EB Garamond', 'Iowan Old Style', Georgia, serif;
@@ -59,9 +59,12 @@
        acoperă perforația; deasupra și dedesubt perforația se vede.
        vizor.webp și vizor-mask.webp: scripts/vizor-gros.py 295 373 "" (dacă
        schimbi aici mărimile sau afișul, rulează din nou scriptul).
-       Varianta și mai fină (12 px, perforația se vede și lateral): /?rama=fina. */
-    --vf-w:      295px;
-    --vf-h:      373px;
+       Varianta și mai fină (12 px, perforația se vede și lateral): /?rama=fina.
+       02.11, 17:40: mult mai subțire — 8 px de jur împrejur (251 × 329), mai
+       îngustă decât pelicula (289): perforația se vede și lângă ramă.
+       scripts/vizor-gros.py 251 329 "" public/assets/ui */
+    --vf-w:      251px;
+    --vf-h:      329px;
     /* pasul galeriei = un cadru: afiș + 36 px de peliculă neagră între cadre */
     --slot-h:    calc(var(--img-h) + 36px);
     --gallery-w: var(--strip-w);
@@ -114,9 +117,12 @@
     height: 200%;
     pointer-events: none;
     z-index: 1000;
-    opacity: 0.5;
+    /* 02.11, 17:40: grain-ul mai slab (0,5 → 0,4) și de două ori mai fin —
+       tile-ul SVG e desenat la 600 de unități și afișat pe 300 px, deci un bob
+       are cam ½ px CSS (1 pixel pe Retina), ca la 35 mm, nu ca la 8 mm. */
+    opacity: 0.4;
     mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.62 -0.06'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.58 -0.06'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     background-size: 300px 300px;
     will-change: transform, opacity;
     animation:
@@ -139,18 +145,19 @@
     91.667% { transform: translate3d( 109px, -141px, 0); }
 }
 @keyframes flicker24 {
-    0%      { opacity: 0.50; }
-    8.333%  { opacity: 0.46; }
-    16.667% { opacity: 0.53; }
-    25%     { opacity: 0.48; }
-    33.333% { opacity: 0.51; }
-    41.667% { opacity: 0.45; }
-    50%     { opacity: 0.52; }
-    58.333% { opacity: 0.49; }
-    66.667% { opacity: 0.54; }
-    75%     { opacity: 0.47; }
-    83.333% { opacity: 0.50; }
-    91.667% { opacity: 0.46; }
+    /* 02.11, 17:40: pâlpâirea de la cadru la cadru redusă la o treime */
+    0%      { opacity: 0.400; }
+    8.333%  { opacity: 0.387; }
+    16.667% { opacity: 0.410; }
+    25%     { opacity: 0.393; }
+    33.333% { opacity: 0.403; }
+    41.667% { opacity: 0.383; }
+    50%     { opacity: 0.407; }
+    58.333% { opacity: 0.397; }
+    66.667% { opacity: 0.413; }
+    75%     { opacity: 0.390; }
+    83.333% { opacity: 0.400; }
+    91.667% { opacity: 0.387; }
 }
 
 /* cine a cerut sistemului mai puțină mișcare vede grain-ul static */
@@ -191,20 +198,21 @@
 .logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
 
 /* ── TIMECODE ÎN ANTET ──
-   București (EET) + REC la x = 352, Madrid (CET) + REC la x = 518, iar din
-   02.11, 15:00, Bangkok (ICT) doar cu ▶, fără scris (x ≈ 680); y = 76.
-   Pe ecranele înguste rândul se rupe (Madrid / Bangkok trec dedesubt). */
+   Modul Regie, 02.11.2026, 16:25: rândul urcă la y = 62; București (EET) + REC
+   la x = 357, Madrid (CET) + REC mutat spre dreapta, la x = 602. Bangkok a
+   trecut sus în dreapta, lângă Los Angeles. Pe ecranele înguste rândul se
+   rupe (Madrid trece dedesubt). */
 .hdClocks {
     position: absolute;
-    left: calc(var(--logo-x) + 160px);
-    top: 76px;
+    left: calc(var(--logo-x) + 165px);
+    top: 62px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 24px;
+    column-gap: 103px;
     row-gap: 8px;
     /* nu intră peste afișele din galerie */
-    max-width: calc(50vw - var(--strip-w) / 2 - var(--logo-x) - 160px - 12px);
+    max-width: calc(50vw - var(--strip-w) / 2 - var(--logo-x) - 165px - 12px);
     font-family: var(--font-mono), monospace;
     font-size: 9.5px;
     line-height: 14px;
@@ -271,7 +279,13 @@
     background: currentColor;
 }
 
-/* ── TIMECODE-URILE LUMII (02.11.2026, 15:34) ──
+/* ── TIMECODE-URILE LUMII (02.11.2026, 16:25) ──
+   Sus în dreapta, pe rândul antetului (pe 2048×864: y = 63): Los Angeles
+   ▶ PLAYBACK (x = 1236) · Bangkok ▶ PLAYBACK (x = 1533). Jos în dreapta,
+   după site-uri: Shanghai ▶ PLAYBACK (y = 816) și dedesubt Buenos Aires
+   ■ STOP (y = 836), x = 1507. Jos în stânga: neschimbat.
+   Înainte (15:34): */
+/* ──
    Sus în dreapta, pe rândul de deasupra meniului (pe 2048×864: y = 80):
    Los Angeles ▶ PLAYBACK (x = 1258, pe verticala meniului) · Buenos Aires
    ■ STOP (1454), la 20 px între grupuri. Jos, în bara de cofinanțare:
@@ -280,12 +294,12 @@
    (x = 1507, y = 816). Bangkok e în antet, lângă Madrid. */
 .worldClocks {
     position: fixed;
-    top: 80px;
-    left: calc(var(--col-r) - 88px);
+    top: 63px;
+    left: calc(var(--col-r) - 110px);
     z-index: 40;
     display: flex;
     align-items: flex-start;
-    column-gap: 20px;
+    column-gap: 121px;
     font-family: var(--font-mono), monospace;
     font-size: 9.5px;
     line-height: 13px;
@@ -303,11 +317,14 @@
     row-gap: 7px;
     z-index: 61;              /* peste bara de jos */
 }
-/* jos în dreapta: Shanghai, după site-uri, pe rândul lui Mumbai */
+/* jos în dreapta: Shanghai / Buenos Aires, după site-uri, pe rândurile lui
+   Mumbai / New York (02.11, 16:25) */
 .wcBottomRight {
     top: auto;
-    bottom: 35px;
+    bottom: 15px;
     left: calc(var(--col-r) + 161px);
+    flex-direction: column;
+    row-gap: 7px;
     z-index: 61;
 }
 /* pe ecranele unde rândul nu încape (1440 px și mai înguste),
@@ -315,6 +332,7 @@
 @media (max-width: 1599px) {
     .worldClocks .wcLabel { display: none; }
     .worldClocks .wcRow   { gap: 6px; }
+    .worldClocks          { column-gap: 48px; }
 }
 
 /* ── NAV — un rând orizontal sub antet, împărțit în jurul galeriei ──
@@ -345,16 +363,17 @@
 /* seria a cincea: meniul mai mic (×0,83), cuvintele mai strânse.
    02.11, 15:00: 22 px mai jos și 26 px spre stânga, sub rândul de timecode-uri,
    DESPRE pe verticala lui Los Angeles (pe 2048×864: x = 1258, y = 110);
-   CONTACT stă puțin mai departe (24 px), cum l-a pus Ștefan. */
+   CONTACT stă puțin mai departe (24 px), cum l-a pus Ștefan.
+   02.11, 16:25: meniul ×1,1 (14 → 15,4 px), 21 px mai jos (y = 131),
+   DESPRE la x = 1243, cuvintele la distanțe egale, 16 px. */
 .navGroupRight {
     position: absolute;
-    top: 52px;
-    left: calc(var(--col-r) - 88px);
+    top: 73px;
+    left: calc(var(--col-r) - 103px);
     justify-content: flex-start;
-    column-gap: 8px;
+    column-gap: 16px;
 }
-.navGroupRight .navItem { font-size: 14px; }
-.navGroupRight .navItem:last-child { margin-left: 16px; }
+.navGroupRight .navItem { font-size: 15.4px; }
 
 .navItem {
     display: inline-flex;
@@ -531,7 +550,7 @@
 .vfGlass {
     position: absolute;
     inset: 0;
-    background: url("/assets/ui/vizor.webp?v=4") center / 100% 100% no-repeat;
+    background: url("/assets/ui/vizor.webp?v=5") center / 100% 100% no-repeat;
 }
 
 /* contorul „15 / 19” din ramă a fost scos (seria a cincea) */
@@ -599,14 +618,25 @@
 .bracket + .bracket { transform: scaleX(-1); }
 
 
-/* ── LAMPA — lumina proiectorului din spatele afișului (seria a cincea) ──
-   Fixă, cât geamul ramei (aceeași mască), între galerie și rama neagră.
-   Luminează tot afișul la fel (nu doar centrul) și nu-i schimbă culorile:
-   un strat opac gri-închis neutru în color-dodge = câștig de lumină
-   multiplicativ (rezultat = culoare / (1 − 0,078) ≈ +8,5%), același pe R, G, B,
-   deci nuanțele rămân ale afișului, iar negrul rămâne negru.
-   Trepidația obturatorului: la 24 fps (steps) lumina variază între ~+6% și
-   ~+8,5% — vizibilă, dar cam de două ori mai mică decât în prima variantă. */
+/* ── LAMPA — lumina din spatele fotogramei (02.11, 17:40, după referința lui
+   Ștefan: pelicula de 35 mm ținută în fața unei lămpi) ──
+   Ce am citit în referință și aplicăm aici:
+   • lumina trece PRIN peliculă: imaginea nu primește lumină peste ea, ci e
+     înmulțită cu lumina din spate → negrul rămâne negru, culorile se
+     saturează, iar zonele clare se ard spre alb-cald;
+   • lumina e un punct fierbinte, centrat pe fotogramă, care scade spre
+     margini — nu e uniformă (vinieta geamului ramei o completează);
+   • lumina e caldă, de bec cu incandescență (~3200 K): roșul crește mai mult
+     decât albastrul;
+   • halația: zonele foarte clare „curg” portocaliu în jur (.slotHalo);
+   • lumina scapă și pe pelicula din jur: negrul dintre cadre devine
+     maro-chihlimbar translucid, perforația și cadrele vecine primesc puțină
+     lumină, tot mai puțină cu cât sunt mai departe (.backlight).
+   Tehnic: stratul .lamp e în color-dodge = câștig de lumină multiplicativ
+   (rezultat = culoare / (1 − lampă)); în centru R ×1,35 · G ×1,27 · B ×1,13,
+   la margine ~×1,05. Varianta neutră, de comparat: /?lumina=neutra.
+   Trepidația obturatorului la 24 fps: redusă la ~45% din cea de dinainte
+   (opacitatea lămpii între 0,87 și 1). */
 .lamp {
     position: fixed;
     top: 50%;
@@ -617,30 +647,89 @@
     z-index: 34;
     pointer-events: none;
     mix-blend-mode: color-dodge;
-    background: rgb(20, 20, 20);
-    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=4") center / 100% 100% no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp?v=4") center / 100% 100% no-repeat;
+    background: radial-gradient(ellipse 72% 62% at 50% 50%,
+        rgb(66, 54, 30) 0%,
+        rgb(52, 43, 25) 30%,
+        rgb(34, 28, 17) 62%,
+        rgb(15, 13, 9) 100%);
+    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=5") center / 100% 100% no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp?v=5") center / 100% 100% no-repeat;
     will-change: opacity;
     animation: shutter24 0.5s steps(1, end) infinite;
 }
 @keyframes shutter24 {
-    0%      { opacity: 1;    }
-    8.333%  { opacity: 0.78; }
-    16.667% { opacity: 0.94; }
-    25%     { opacity: 0.74; }
-    33.333% { opacity: 1;    }
-    41.667% { opacity: 0.84; }
-    50%     { opacity: 0.72; }
-    58.333% { opacity: 0.96; }
-    66.667% { opacity: 0.80; }
-    75%     { opacity: 1;    }
-    83.333% { opacity: 0.76; }
-    91.667% { opacity: 0.90; }
+    0%      { opacity: 1;     }
+    8.333%  { opacity: 0.900; }
+    16.667% { opacity: 0.973; }
+    25%     { opacity: 0.883; }
+    33.333% { opacity: 1;     }
+    41.667% { opacity: 0.928; }
+    50%     { opacity: 0.874; }
+    58.333% { opacity: 0.982; }
+    66.667% { opacity: 0.910; }
+    75%     { opacity: 1;     }
+    83.333% { opacity: 0.892; }
+    91.667% { opacity: 0.955; }
 }
 @media (prefers-reduced-motion: reduce) {
     .lamp { animation: none; }
 }
 .notReady .lamp { opacity: 0 !important; }
+
+/* lumina care scapă pe pelicula din jurul ramei: un halou cald, alungit pe
+   verticală (cam trei cadre), pus cu „screen” — ridică negrul peliculei spre
+   maro-chihlimbar și luminează puțin perforația și cadrele vecine. Doar pe
+   lățimea peliculei; în geam nu intră (acolo lucrează .lamp). Static — nu
+   pâlpâie, ca efectul de 24 fps să rămână discret. */
+.backlight {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--strip-w);
+    height: calc(var(--slot-h) * 3);
+    z-index: 34;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    background: radial-gradient(ellipse 58% 50% at 50% 50%,
+        rgba(255, 162, 82, 0.56) 0%,
+        rgba(255, 152, 72, 0.36) 28%,
+        rgba(255, 142, 62, 0.14) 55%,
+        rgba(255, 142, 62, 0) 80%);
+    -webkit-mask:
+        linear-gradient(#000, #000),
+        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat;
+    -webkit-mask-composite: xor;
+            mask:
+        linear-gradient(#000, #000),
+        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat;
+            mask-composite: exclude;
+    transition: opacity 0.6s ease;
+}
+.notReady .backlight { opacity: 0 !important; }
+
+/* varianta de comparație /?lumina=neutra: aceeași cădere a luminii, fără
+   căldura becului (cum era lampa înainte de 02.11, 17:40) */
+.luminaNeutra .lamp {
+    background: radial-gradient(ellipse 72% 62% at 50% 50%,
+        rgb(54, 54, 54) 0%, rgb(44, 44, 44) 30%, rgb(29, 29, 29) 62%, rgb(13, 13, 13) 100%);
+}
+.luminaNeutra .backlight {
+    background: radial-gradient(ellipse 58% 50% at 50% 50%,
+        rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.26) 28%,
+        rgba(255, 255, 255, 0.10) 55%, rgba(255, 255, 255, 0) 80%);
+}
+.luminaNeutra .slotHalo { filter: blur(9px) contrast(2.4) brightness(0.62); }
+
+/* celelalte rame: haloul nu intră în geamul lor */
+.ramaFina .backlight {
+    -webkit-mask-image: linear-gradient(#000, #000), url("/assets/ui/vizor-mask-F.webp?v=1");
+            mask-image: linear-gradient(#000, #000), url("/assets/ui/vizor-mask-F.webp?v=1");
+}
+.ramaParanteze .backlight {
+    -webkit-mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000);
+            mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000);
+}
 
 
 /* ── PISTA SONORĂ — banda din stânga afișului (din 02.11, 15:10; înainte în dreapta) ──
@@ -660,7 +749,7 @@
     width: var(--band-w);
     height: 100vh;
     overflow: hidden;
-    z-index: 34;
+    z-index: 33;             /* sub lampă: și pista e luminată din spate (02.11, 17:40) */
     pointer-events: none;
     transition: opacity 0.6s ease;
     -webkit-mask-image: linear-gradient(to bottom,
@@ -735,10 +824,10 @@
        afișele vecine și pista — negrul peliculei devine gri închis, iar sus
        și jos se stinge. Două straturi de mască, adunate: geamul + restul. */
     -webkit-mask:
-        url("/assets/ui/vizor-mask.webp?v=4") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
             mask:
-        url("/assets/ui/vizor-mask.webp?v=4") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=5") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }
@@ -820,11 +909,12 @@
     object-fit: cover;
     pointer-events: none;
     mix-blend-mode: screen;
-    /* doar zonele cele mai luminoase, fără saturație adăugată */
-    filter: blur(8px) contrast(2.4) brightness(0.62);
+    /* doar zonele cele mai luminoase; 02.11, 17:40 (referința): halația e
+       caldă, portocalie, ca lumina becului care se împrăștie în emulsie */
+    filter: blur(9px) contrast(2.4) brightness(0.62) sepia(0.55) saturate(1.9);
     opacity: 0;
-    /* doar pe afiș — nu curge pe pelicula neagră din jur */
-    clip-path: inset(0);
+    /* pe afiș și 8 px în jur — lumina „curge” puțin pe negrul dintre cadre */
+    clip-path: inset(-8px);
     translate: var(--poster-shift) 0;
 }
 

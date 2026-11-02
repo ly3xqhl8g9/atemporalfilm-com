@@ -428,14 +428,18 @@ export default function LandingHero() {
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
     // variantele de comparație ale ramei:
-    //   /                — rama de 30 px (02.11, 15:00)
+    //   /                — rama de 8 px (02.11, 17:40; înainte 30 px)
     //   /?rama=fina      — rama de 12 px, în interiorul peliculei
     //   /?rama=paranteze — două paranteze despărțite (02.11, 15:34)
     const [rama, setRama]                   = useState<Rama>('groasa');
     useEffect(() => {
         const q = new URLSearchParams(window.location.search).get('rama');
         setRama(q === 'fina' || q === 'paranteze' ? q : 'groasa');
+        setLuminaNeutra(new URLSearchParams(window.location.search).get('lumina') === 'neutra');
     }, []);
+    // lumina din spatele fotogramei (02.11, 17:40): caldă, ca în referință;
+    // /?lumina=neutra — aceeași cădere, fără căldura becului
+    const [luminaNeutra, setLuminaNeutra]   = useState(false);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -551,7 +555,8 @@ export default function LandingHero() {
                 `grayscale(${(1 - e).toFixed(3)}) ` +
                 `contrast(${(1.15 - 0.15 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
             // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
-            if (halo) halo.style.opacity = (0.22 * e).toFixed(3);
+            // (02.11, 17:40: mai puternică și caldă, după referință)
+            if (halo) halo.style.opacity = (0.32 * e).toFixed(3);
         });
 
         /* PISTA SONORĂ — banda din stânga afișului curge odată cu pelicula.
@@ -735,6 +740,7 @@ export default function LandingHero() {
             ready ? '' : styles.notReady,
             rama === 'fina' ? styles.ramaFina : '',
             rama === 'paranteze' ? styles.ramaParanteze : '',
+            luminaNeutra ? styles.luminaNeutra : '',
         ].join(' ')}>
 
             {/* GRAIN overlay — peste tot */}
@@ -852,6 +858,7 @@ export default function LandingHero() {
             {/* LAMPA — lumina proiectorului, fixă în spatele ramei: afișul trece prin
                 fața ei și se luminează prin transparență, ca pelicula în lasă;
                 pâlpâie la 24 fps, ca lumina tăiată de obturator (30.10, seria a cincea) */}
+            <div className={styles.backlight} aria-hidden="true" />
             <div className={styles.lamp} aria-hidden="true" />
 
 
