@@ -382,8 +382,9 @@ const HOME   = N;          // primul slot din copia din mijloc
 const filmOf   = (slot: number) => ((slot % N) + N) % N;
 const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
 const IDLE_MS  = 160;      // derularea s-a oprit dacă nu mai vine niciun eveniment
-/** înălțimea tile-ului pistei sonore (public/assets/ui/soundtrack.svg, H din scripts/pista-sonora.py) */
-const BAND_TILE = 2000;
+/** înălțimea tile-ului pistei sonore, în px CSS (public/assets/ui/soundtrack.webp,
+    „TILE” afișat de scripts/pista-sonora.py) */
+const BAND_TILE = 3968;
 
 
 /* ============================================================
@@ -396,9 +397,6 @@ export default function LandingHero() {
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
-    // pista sonoră: în vizor, lipită de afiș (implicit, din 30.10 seara);
-    // varianta cu pista în afara ramei rămâne la /?pista=afara
-    const [trackInside, setTrackInside]     = useState(true);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -489,22 +487,19 @@ export default function LandingHero() {
             const e = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
             if (exp[i] === e) return;
             exp[i] = e;
-            // e = 0: alb-negru, subexpus, transparent (ca vecinii de până acum)
-            // e = 1: culoare plină, expus, clar (ca afișul din ramă)
+            // e = 0: alb-negru, subexpus (ca vecinii de până acum)
+            // e = 1: culoare plină, expus (ca afișul din ramă)
+            // 02.11: afișele nu se mai micșorează afară — stau lipite de pista sonoră,
+            // pe peliculă; transparența din afara ramei o dă masca galeriei
             img.style.filter =
                 // în ramă (e = 1) afișul are exact culorile lui — fără saturație sau contrast adăugat
                 `grayscale(${(1 - e).toFixed(3)}) ` +
                 `contrast(${(1.15 - 0.15 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
-            img.style.opacity   = (0.72 + 0.28 * e).toFixed(3);
-            img.style.transform = `scale(${(0.96 + 0.04 * e).toFixed(4)})`;
             // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
-            if (halo) {
-                halo.style.opacity   = (0.22 * e).toFixed(3);
-                halo.style.transform = img.style.transform;
-            }
+            if (halo) halo.style.opacity = (0.22 * e).toFixed(3);
         });
 
-        /* PISTA SONORĂ — banda stereo din dreapta ramei curge odată cu pelicula.
+        /* PISTA SONORĂ — banda din dreapta afișului curge odată cu pelicula.
            Mișcarea vine din derulare; săriturile invizibile dintre copiile galeriei
            (jumpTo) nu o mișcă, deci banda nu sare niciodată. */
         const top = gallery.scrollTop;
@@ -585,11 +580,6 @@ export default function LandingHero() {
         };
     }, [updateActive, syncList, jumpTo, recenter]);
 
-    useEffect(() => {
-        const v = new URLSearchParams(window.location.search).get('pista');
-        setTrackInside(v !== 'afara' && v !== 'out');
-    }, []);
-
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
 
@@ -610,14 +600,13 @@ export default function LandingHero() {
      *                      RENDER
      * -------------------------------------------------- */
     return (
-        <div className={`${styles.page} ${ready ? '' : styles.notReady} ${trackInside ? styles.trackInside : ''}`}>
+        <div className={`${styles.page} ${ready ? '' : styles.notReady}`}>
 
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />
 
-            {/* LASA — lumina din spatele ramei: fundalul e mai luminos în centru,
-                acolo unde intră afișul (30.10, seria a cincea) */}
-            <div className={styles.gateLight} aria-hidden="true" />
+            {/* LASA: lumina albă din geam (30.10) a fost scoasă pe 02.11 — geamul e acum
+                acoperit de peliculă (fundal negru), deci lumina nu se mai vedea */}
 
 
             {/* HEADER fix */}
@@ -688,7 +677,8 @@ export default function LandingHero() {
 
 
             {/* VIZOR — rama de geam mat (din poza lui Ștefan, 30.10.2026), fixă peste
-                galerie; afișul activ stă în interiorul ei, la fel contorul. */}
+                galerie. Din 02.11 geamul cuprinde afișul și pista sonoră întregi, cu
+                peliculă neagră împrejur; perforația rămâne în afara ramei. */}
             <div className={styles.viewfinder} aria-hidden="true">
                 <div className={styles.vfGlass} />
                 {/* contorul „15 / 19” scos — filmele nu se numerotează (30.10, seria a cincea) */}
@@ -701,8 +691,9 @@ export default function LandingHero() {
             <div className={styles.lamp} aria-hidden="true" />
 
 
-            {/* PISTA SONORĂ — bandă neagră cu forma de undă stereo, în dreapta ramei,
-                ca pista optică de lângă fotogramă pe pelicula de 35 mm (30.10, seria a cincea).
+            {/* PISTA SONORĂ — bandă neagră lipită de marginea dreaptă a afișelor, ca pista
+                optică de lângă fotogramă pe pelicula de 35 mm. Din 02.11.2026 desenul e forma
+                de undă trimisă de Ștefan, alb pe negru (scripts/pista-sonora.py).
                 Curge odată cu galeria; în dreptul ramei e luminată, în rest subexpusă. */}
             <div className={styles.soundtrack} aria-hidden="true">
                 <div
@@ -721,7 +712,9 @@ export default function LandingHero() {
             <h1 className={styles.srOnly} aria-live="polite">{projTitle}</h1>
 
 
-            {/* GALERIE CENTRALĂ — singura zonă scrolabilă */}
+            {/* GALERIE CENTRALĂ — singura zonă scrolabilă. Din 02.11.2026 e o peliculă:
+                fiecare slot = un cadru pe fundal negru, cu perforația de o parte și de
+                alta (::before / ::after în CSS), iar afișul lipit de pista sonoră. */}
             <div className={styles.gallery} ref={galleryRef}>
                 <div className={styles.galleryPad} />
                 {SLOTS.map((i) => {

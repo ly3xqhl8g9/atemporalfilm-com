@@ -1,5 +1,6 @@
 'use client';
 
+import { WorldClocks } from '@/containers/HeaderClocks';
 import styles from '@/containers/LandingHero/landing.module.css';
 
 
@@ -14,6 +15,8 @@ import styles from '@/containers/LandingHero/landing.module.css';
      • butonul de limbă — textul lui aliniat cu lista de filme (seria a patra)
      • UE + Regio — la ~19,6% din lățime
      • cele patru site-uri, apoi ADR Nord-Est — în coloana din dreapta (seria a patra)
+   02.11.2026: timecode-urile lumii — Los Angeles · New York · Buenos Aires după
+   Regio, Mumbai · Bangkok · Shanghai (▶ PLAYBACK) după ADR Nord-Est.
    ============================================================ */
 
 interface CofinanceProps {
@@ -49,6 +52,9 @@ export default function Cofinance({ langLabel, onToggleLang }: CofinanceProps) {
                 </div>
                 <div className={`${styles.cfLogo} ${styles.cfLogoRegio}`}>Regio</div>
             </div>
+
+            {/* timecode-urile lumii (02.11.2026) — două coloane, vezi HeaderClocks */}
+            <WorldClocks />
 
             {/* dreapta: site-urile aliniate cu creditul și meniul (--col-r),
                 ADR Nord-Est după ele (Modul Regie, seria a patra) */}
