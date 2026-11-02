@@ -541,8 +541,47 @@ const PEOPLE: Project[] = [
     },
 ];
 
-type Kind = 'work' | 'people';
-const ITEMS: Record<Kind, Project[]> = { work: PROJECTS, people: PEOPLE };
+/* ============================================================
+   ABOUT (03.11.2026): aceeași pagină ca WORK și PEOPLE — pelicula, rama,
+   lampa — cu pozele de pe platou trimise de Ștefan (13, decupate la 2:3,
+   public/assets/entities/about/set-NN.webp). Lista din stânga și creditul
+   din dreapta nu apar; în locul lor, textul paginii, sub meniu, unde l-a
+   cerut nota Regie 11 din 02.11, 22:52 (x = col-r − 119, y = 179).
+   ============================================================ */
+const ABOUT_SET: Project[] = Array.from({ length: 13 }, (_, k) => ({
+    title:       'On set',
+    titleRo:     'Pe platou',
+    titleFr:     'Sur le plateau',
+    year:        '',
+    director:    '',
+    production:  'Atemporal Film',
+    description: '',
+    awards:      '',
+    people:      '',
+    image:       `/assets/entities/about/set-${String(k + 1).padStart(2, '0')}.webp`,
+}));
+
+/** textul paginii ABOUT (03.11.2026, trimis de Ștefan în chat; RO și FR traduse de Claude) */
+const ABOUT_TEXT: Record<Lang, string[]> = {
+    en: [
+        'Atemporal Film is a concept-driven design studio founded by Stefan Azaharioaie in 2018 and based in Bucharest, Piatra Neamț and Madrid.',
+        'Rooted in modernist design principles and graphic design tradition, our work combines typography, grid systems and motion to create digital experiences that balance clarity, usability and bold visual expression.',
+        'Our team remains intentionally small, under 10 people, which allows creative direction to stay personal and decisions to stay sharp. Every project is led closely by the founders. No layers. No dilution.',
+    ],
+    ro: [
+        'Atemporal Film este un studio de design construit în jurul conceptului, fondat de Ștefan Azaharioaie în 2018, cu sediul în București, Piatra Neamț și Madrid.',
+        'Pornind de la principiile designului modernist și de la tradiția designului grafic, lucrările noastre îmbină tipografia, sistemele de grilă și mișcarea, pentru a crea experiențe digitale care echilibrează claritatea, ușurința în folosire și expresia vizuală îndrăzneață.',
+        'Echipa noastră rămâne în mod intenționat mică, sub 10 oameni, ca direcția creativă să rămână personală și deciziile limpezi. Fiecare proiect e condus îndeaproape de fondatori. Fără straturi. Fără diluare.',
+    ],
+    fr: [
+        'Atemporal Film est un studio de design guidé par le concept, fondé par Stefan Azaharioaie en 2018 et basé à Bucarest, Piatra Neamț et Madrid.',
+        'Ancré dans les principes du design moderniste et la tradition du graphisme, notre travail associe typographie, systèmes de grille et mouvement pour créer des expériences numériques qui équilibrent clarté, facilité d’usage et expression visuelle affirmée.',
+        'Notre équipe reste volontairement petite, moins de 10 personnes, ce qui permet à la direction créative de rester personnelle et aux décisions de rester nettes. Chaque projet est mené de près par les fondateurs. Pas d’intermédiaires. Pas de dilution.',
+    ],
+};
+
+type Kind = 'work' | 'people' | 'about';
+const ITEMS: Record<Kind, Project[]> = { work: PROJECTS, people: PEOPLE, about: ABOUT_SET };
 
 function pickMeta(p: Project, lang: Lang): string | undefined {
     const v = lang === 'ro' ? p.metaRo : lang === 'fr' ? p.metaFr : undefined;
@@ -584,6 +623,7 @@ function makeReel(items: Project[], once = false) {
 const REELS: Record<Kind, ReturnType<typeof makeReel>> = {
     work:   makeReel(ITEMS.work),
     people: makeReel(ITEMS.people, true),
+    about:  makeReel(ITEMS.about),   // 13 poze → 3 copii (39 de cadre)
 };
 const IDLE_MS  = 140;      // derularea s-a oprit dacă nu mai vine niciun eveniment
 /** derularea continuă (02.11.2026, 15:34): cât timp rotița se mișcă, galeria
@@ -735,7 +775,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const gallery = galleryRef.current;
         const track   = listTrackRef.current;
         const items   = listItemRefs.current;
-        if (!gallery || !track || items.length === 0) return;
+        if (!gallery) return;
         const last = reel.SLOTS.length - 1;
         const f    = Math.min(last, Math.max(0, (gallery.scrollTop - originRef.current) / slotPitch()));
         /* PERSPECTIVA LISTEI (02.11.2026, 23:05, cerut de Ștefan): titlul din
@@ -744,62 +784,65 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
            dintre titluri scade odată cu mărimea lor, deci lista se strânge spre
            capete. Fiecare titlu e așezat din JS (transform), după poziția
            continuă a derulării (f): mărimea și lumina curg odată cu pelicula. */
-        const n   = items.length;
-        const h   = Array.from(items, (el) => el?.offsetHeight ?? 0);
-        const sc  = new Array<number>(n);
-        const g   = new Array<number>(n);
-        // distanța (cu semn) dintre titlul i și poziția derulării; în lista
-        // „o singură dată” (PEOPLE), pe drumul cel mai scurt al roții
-        const N   = reel.N;
-        const fm  = ((f % N) + N) % N;
-        const dOf = (i: number) => {
-            if (!reel.once) return i - f;
-            const d = i - fm;
-            return d - N * Math.round(d / N);
-        };
-        for (let i = 0; i < n; i++) {
-            const ad = Math.abs(dOf(i));
-            if (ad < 1) {
-                const x = 1 - ad;
-                g[i]  = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
-                sc[i] = 1 + TITLE_GROW * g[i];
-            } else {
-                g[i]  = 0;
-                sc[i] = Math.max(LIST_MIN, Math.pow(LIST_SHRINK, ad - 1));
+        // ABOUT (03.11.2026) nu are listă — doar expunerea de mai jos
+        if (track && items.length > 0) {
+            const n   = items.length;
+            const h   = Array.from(items, (el) => el?.offsetHeight ?? 0);
+            const sc  = new Array<number>(n);
+            const g   = new Array<number>(n);
+            // distanța (cu semn) dintre titlul i și poziția derulării; în lista
+            // „o singură dată” (PEOPLE), pe drumul cel mai scurt al roții
+            const N   = reel.N;
+            const fm  = ((f % N) + N) % N;
+            const dOf = (i: number) => {
+                if (!reel.once) return i - f;
+                const d = i - fm;
+                return d - N * Math.round(d / N);
+            };
+            for (let i = 0; i < n; i++) {
+                const ad = Math.abs(dOf(i));
+                if (ad < 1) {
+                    const x = 1 - ad;
+                    g[i]  = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
+                    sc[i] = 1 + TITLE_GROW * g[i];
+                } else {
+                    g[i]  = 0;
+                    sc[i] = Math.max(LIST_MIN, Math.pow(LIST_SHRINK, ad - 1));
+                }
             }
-        }
-        // centrele titlurilor, de la i0 în ambele sensuri; pasul = media
-        // înălțimilor (cu tot cu spațiul dintre ele) celor doi vecini, micșorate
-        const c  = new Array<number>(n);
-        const pitch = (i: number) => ((h[i] + LIST_GAP) * sc[i] + (h[i + 1] + LIST_GAP) * sc[i + 1]) / 2;
-        let off: number;
-        if (reel.once) {
-            // lista nu curge: numele stau în ordine, iar mijlocul lor e pe centrul ramei
-            c[0] = 0;
-            for (let i = 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
-            off = (c[0] - h[0] * sc[0] / 2 + c[n - 1] + h[n - 1] * sc[n - 1] / 2) / 2;
-        } else {
-            const i0 = Math.min(n - 1, Math.floor(f));
-            c[i0] = 0;
-            for (let i = i0 + 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
-            for (let i = i0 - 1; i >= 0; i--) c[i] = c[i + 1] - pitch(i);
-            off = i0 + 1 < n ? c[i0] + (c[i0 + 1] - c[i0]) * (f - i0) : c[i0];
-        }
-        // centrul titlului din ramă = centrul unui titlu pe un rând (ca înainte)
-        const cy = (h.find((v) => v > 0) ?? 17) / 2;
-        track.style.transform = '';
-        for (let i = 0; i < n; i++) {
-            const el = items[i];
-            if (!el) continue;
-            const ad = Math.abs(dOf(i));
-            const o  = ad < 1
-                ? LIST_O1 + (1 - LIST_O1) * g[i]
-                : LIST_O1 * Math.pow(Math.max(0, 1 - (ad - 1) / LIST_FADE), 1.4);
-            const y  = cy + c[i] - off - h[i] / 2;
-            el.style.opacity    = o < 0.005 ? '0' : o.toFixed(3);
-            el.style.visibility = o < 0.005 ? 'hidden' : '';
-            el.style.transform  =
-                `translate3d(${(TITLE_SHIFT * g[i]).toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${sc[i].toFixed(4)})`;
+            // centrele titlurilor, de la i0 în ambele sensuri; pasul = media
+            // înălțimilor (cu tot cu spațiul dintre ele) celor doi vecini, micșorate
+            const c  = new Array<number>(n);
+            const pitch = (i: number) => ((h[i] + LIST_GAP) * sc[i] + (h[i + 1] + LIST_GAP) * sc[i + 1]) / 2;
+            let off: number;
+            if (reel.once) {
+                // lista nu curge: numele stau în ordine, iar mijlocul lor e pe centrul ramei
+                c[0] = 0;
+                for (let i = 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
+                off = (c[0] - h[0] * sc[0] / 2 + c[n - 1] + h[n - 1] * sc[n - 1] / 2) / 2;
+            } else {
+                const i0 = Math.min(n - 1, Math.floor(f));
+                c[i0] = 0;
+                for (let i = i0 + 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
+                for (let i = i0 - 1; i >= 0; i--) c[i] = c[i + 1] - pitch(i);
+                off = i0 + 1 < n ? c[i0] + (c[i0 + 1] - c[i0]) * (f - i0) : c[i0];
+            }
+            // centrul titlului din ramă = centrul unui titlu pe un rând (ca înainte)
+            const cy = (h.find((v) => v > 0) ?? 17) / 2;
+            track.style.transform = '';
+            for (let i = 0; i < n; i++) {
+                const el = items[i];
+                if (!el) continue;
+                const ad = Math.abs(dOf(i));
+                const o  = ad < 1
+                    ? LIST_O1 + (1 - LIST_O1) * g[i]
+                    : LIST_O1 * Math.pow(Math.max(0, 1 - (ad - 1) / LIST_FADE), 1.4);
+                const y  = cy + c[i] - off - h[i] / 2;
+                el.style.opacity    = o < 0.005 ? '0' : o.toFixed(3);
+                el.style.visibility = o < 0.005 ? 'hidden' : '';
+                el.style.transform  =
+                    `translate3d(${(TITLE_SHIFT * g[i]).toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${sc[i].toFixed(4)})`;
+            }
         }
 
         /* LUMINA DIN LASĂ (30.10, seria a cincea): în spatele ramei e lumină.
@@ -1066,6 +1109,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         return Math.min(SLOTS.length - 1, Math.max(0, best));
     };
     const isPeople        = kind === 'people';
+    const isAbout         = kind === 'about';
     const film            = filmOf(active);
     const proj            = items[film];
     const projTitle       = pickTitle(proj, lang);
@@ -1135,6 +1179,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 cele de dinainte deasupra, cele următoare dedesubt. Click → galeria
                 merge la filmul respectiv. (Modul Regie, 30.10.2026, seria a treia:
                 descrierea, anul, premiile și „unde am fost” scoase de pe homepage.) */}
+            {!isAbout && (
             <nav className={styles.filmList} aria-label={isPeople ? t.nav.people : t.films}>
                 <ol className={styles.filmListTrack} ref={listTrackRef}>
                     {(reel.once ? items.map((_, k) => k) : SLOTS).map((i) => {
@@ -1164,15 +1209,24 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                     })}
                 </ol>
             </nav>
+            )}
 
             {/* DREAPTA — creditul: ce a făcut echipa la film + cine.
                 Mutat mai aproape de ramă; lista de oameni scoasă (30.10, seria a treia). */}
+            {/* ABOUT (03.11.2026): în locul creditului, textul paginii, sub meniu
+                (nota Regie 11 din 02.11, 22:52: „aici vreau să intre textul”) */}
+            {isAbout ? (
+                <section className={styles.aboutText} aria-label={t.nav.about}>
+                    {ABOUT_TEXT[lang].map((para, k) => <p key={k}>{para}</p>)}
+                </section>
+            ) : (
             <aside className={`${styles.side} ${styles.sideRight}`} style={fadeStyle}>
                 <div className={styles.sideEyebrow}>{projWork}</div>
                 {/* anul filmului, pe rândul creditului, în dreapta (02.11, 23:03) */}
                 {pickYear(proj) && <div className={styles.sideYear}>{pickYear(proj)}</div>}
                 <div className={styles.sideMeta}>{projMeta ?? `${t.by} ${projBy}`}</div>
             </aside>
+            )}
 
             {/* timecode-urile lumii, în coloana din dreapta: sub meniu și sub credit,
                 fiecare cu ▶ PLAYBACK sau ■ STOP (Modul Regie, 02.11.2026, a doua serie) */}
@@ -1238,7 +1292,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* Titlul proiectului nu mai apare sus (cerut în Modul Regie, 30.10);
                 rămâne doar pentru cititoarele de ecran. */}
-            <h1 className={styles.srOnly} aria-live="polite">{projTitle}</h1>
+            <h1 className={styles.srOnly} aria-live={isAbout ? undefined : 'polite'}>{isAbout ? 'Atemporal Film — ' + t.nav.about : projTitle}</h1>
 
 
             {/* GALERIE CENTRALĂ — singura zonă scrolabilă. Din 02.11.2026 e o peliculă:
@@ -1248,8 +1302,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 <div className={styles.galleryPad} />
                 {SLOTS.map((i) => {
                     const p        = items[filmOf(i)];
-                    // PEOPLE: click pe poză nu deschide nimic (deocamdată nu există fișa omului)
-                    const isActive = i === active && !isPeople;
+                    // PEOPLE, ABOUT: click pe poză nu deschide nimic (deocamdată nu există fișa omului)
+                    const isActive = i === active && kind === 'work';
                     // expunerea (culoare, lumină, mărime) o dă syncList, după distanța față de ramă
                     return (
                         <div

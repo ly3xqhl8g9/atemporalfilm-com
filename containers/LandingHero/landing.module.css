@@ -631,6 +631,29 @@
 }
 
 
+/* ── ABOUT — textul paginii (03.11.2026) ──────────────────
+   în coloana din dreapta, la x-ul creditului (col-r − 119), sub meniu, la
+   y = 179 — unde l-a cerut nota Regie 11 din 02.11, 22:52 (pe 1382×867:
+   x = 968). Lățimea: până la anul filmului (col-r + 228) și puțin peste,
+   cel mult 384 px; pe ecranele înguste se oprește la 32 px de margine. */
+.aboutText {
+    position: fixed;
+    left: calc(var(--col-r) - 119px);
+    top: 179px;
+    width: min(384px, calc(100vw - var(--col-r) + 119px - 32px));
+    z-index: 40;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12.75px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+    text-wrap: pretty;
+    hyphens: manual;
+}
+.aboutText p { margin: 0 0 1.1em; }
+.aboutText p:last-child { margin-bottom: 0; }
+
+
 /* ── VIEWFINDER — four corners + REC + frame counter ── */
 .viewfinder {
     position: fixed;
