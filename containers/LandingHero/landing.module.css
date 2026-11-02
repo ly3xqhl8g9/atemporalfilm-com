@@ -36,33 +36,25 @@
     --band-w:     36px;                                      /* pista sonoră */
     --frame-w:    calc(var(--img-w) + var(--band-w));        /* afiș + pistă = 316 px */
     --poster-shift: calc(var(--band-w) / -2);                /* afișul + pista, centrate împreună */
-    /* perforația (a doua serie, 02.11) — după referința de 35 mm a lui Ștefan,
-       măsurată: gaura e cu ~43% mai lungă de-a curmezișul peliculei decât în
-       lungul ei, colțuri puțin rotunjite (~16% din latura scurtă), marginea
-       peliculei de la gaură ~0,39 dintr-un pas. --perf-gap ține gaurile
-       chiar dincolo de geam, sub marginea ramei. */
-    --perf-w:     30px;    /* gaura, de-a curmezișul peliculei */
-    --perf-n:     10;      /* perforații pe un cadru (un pas al galeriei = 46,8 px) */
-    --perf-gap:   14px;    /* de la cadru la perforație */
-    --perf-edge:  18px;    /* de la perforație la marginea peliculei */
-    --strip-side: calc(var(--perf-gap) + var(--perf-w) + var(--perf-edge));
-    --strip-w:    calc(var(--frame-w) + 2 * var(--strip-side));   /* pelicula: 440 px */
-    --film-base:  #0b0a09;
+    /* perforația (02.11, a doua serie, corectată la 14:40): benzile laterale
+       din poza de 35 mm a lui Ștefan — marginea peliculei, găurile, marcajele
+       portocalii —, întoarse pe verticală: public/assets/ui/perforatie-st.webp
+       și perforatie-dr.webp (scripts/perforatie.py), câte 10 găuri pe un cadru.
+       Poza e o previzualizare Adobe Stock: de licențiat înainte de publicare. */
+    --perf-band:  55px;
+    --strip-side: var(--perf-band);
+    --strip-w:    calc(var(--frame-w) + 2 * var(--strip-side));   /* pelicula: 426 px */
+    --film-base:  #0e0e0e;   /* negrul peliculei din poză */
 
-    /* rama-vizor: rama din poză (--vf-w-in × --vf-h-in = 368 × 465) are geamul
-       91,9% × 95,1% din ea — cuprinde afișul și pista întregi, cu 11 px de
-       peliculă neagră împrejur. A doua serie (02.11): rama e îngroșată în afară
-       cu --vf-gros (geamul rămâne la fel), ca marginile ei să acopere toată
-       lățimea peliculei (440 px) — în dreptul ramei perforația nu se vede, doar
-       deasupra și dedesubt. vizor.webp și vizor-mask.webp sunt făcute de
-       scripts/vizor-gros.py cu aceleași valori (46 46): dacă le schimbi aici,
-       rulează din nou scriptul. */
-    --vf-w-in:   calc((var(--frame-w) + 22px) / 0.919);
-    --vf-h-in:   calc((var(--img-h) + 22px) / 0.951);
-    --vf-gros-x: 46px;
-    --vf-gros-y: 46px;
-    --vf-w:      calc(var(--vf-w-in) + 2 * var(--vf-gros-x));   /* 460 px */
-    --vf-h:      calc(var(--vf-h-in) + 2 * var(--vf-gros-y));   /* 557 px */
+    /* rama-vizor (02.11, a doua serie, corectată la 14:40): groasă și plină.
+       Geamul stă pe marginea afișului + pistei (314 × 418, adică 1 px de ramă
+       peste ele pe fiecare latură, colțuri de 4 px) — în geam nu se vede
+       pelicula. Rama e mai lată decât pelicula (446 > 426), deci acoperă
+       perforația; deasupra și dedesubt perforația se vede. vizor.webp și
+       vizor-mask.webp: scripts/vizor-gros.py 446 550 "" (dacă schimbi aici
+       mărimile sau afișul, rulează din nou scriptul). */
+    --vf-w:      446px;
+    --vf-h:      550px;
     /* pasul galeriei = un cadru: afiș + 48 px de peliculă neagră între cadre */
     --slot-h:    calc(var(--img-h) + 48px);
     --gallery-w: var(--strip-w);
@@ -483,26 +475,26 @@
 .vfGlass {
     position: absolute;
     inset: 0;
-    background: url("/assets/ui/vizor.webp") center / 100% 100% no-repeat;
+    background: url("/assets/ui/vizor.webp?v=3") center / 100% 100% no-repeat;
 }
 
 /* contorul „15 / 19” din ramă a fost scos (seria a cincea) */
 
-/* varianta de comparație /?rama=lata (02.11, a doua serie): rama îngroșată
-   doar lateral (46 px), sus și jos rămâne subțire; aceeași formă, același geam
-   (scripts/vizor-gros.py 46 0 → vizor-A.webp, vizor-mask-A.webp) */
-.ramaLata { --vf-gros-y: 0px; }
-.ramaLata .vfGlass { background-image: url("/assets/ui/vizor-A.webp"); }
+/* varianta de comparație /?rama=lata (02.11, a doua serie): rama groasă
+   lateral, subțire sus și jos (446 × 446); același geam
+   (scripts/vizor-gros.py 446 446 -A → vizor-A.webp, vizor-mask-A.webp) */
+.ramaLata { --vf-h: 446px; }
+.ramaLata .vfGlass { background-image: url("/assets/ui/vizor-A.webp?v=3"); }
 .ramaLata .lamp {
-    -webkit-mask-image: url("/assets/ui/vizor-mask-A.webp");
-            mask-image: url("/assets/ui/vizor-mask-A.webp");
+    -webkit-mask-image: url("/assets/ui/vizor-mask-A.webp?v=3");
+            mask-image: url("/assets/ui/vizor-mask-A.webp?v=3");
 }
 .ramaLata .gallery {
     -webkit-mask-image:
-        url("/assets/ui/vizor-mask-A.webp"),
+        url("/assets/ui/vizor-mask-A.webp?v=3"),
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
             mask-image:
-        url("/assets/ui/vizor-mask-A.webp"),
+        url("/assets/ui/vizor-mask-A.webp?v=3"),
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
 
@@ -528,8 +520,8 @@
     pointer-events: none;
     mix-blend-mode: color-dodge;
     background: rgb(20, 20, 20);
-    -webkit-mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp") center / 100% 100% no-repeat;
+    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=3") center / 100% 100% no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp?v=3") center / 100% 100% no-repeat;
     will-change: opacity;
     animation: shutter24 0.5s steps(1, end) infinite;
 }
@@ -560,8 +552,8 @@
    odată cu galeria (transform din JS). În dreptul ramei e luminată; deasupra
    și dedesubt e subexpusă, la fel ca afișele vecine. */
 .soundtrack {
-    --gate-top: calc(50% - var(--vf-h-in) / 2);
-    --gate-bot: calc(50% + var(--vf-h-in) / 2);
+    --gate-top: calc(50% - var(--img-h) / 2);
+    --gate-bot: calc(50% + var(--img-h) / 2);
     position: fixed;
     top: 0;
     /* lipită de marginea dreaptă a afișului (02.11: varianta „pista în afara
@@ -598,7 +590,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    background: url("/assets/ui/soundtrack.webp") 0 0 repeat-y;
+    background: url("/assets/ui/soundtrack.webp?v=3") 0 0 repeat-y;
     will-change: transform;
 }
 
@@ -641,10 +633,10 @@
        afișele vecine și pista — negrul peliculei devine gri închis, iar sus
        și jos se stinge. Două straturi de mască, adunate: geamul + restul. */
     -webkit-mask:
-        url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=3") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
             mask:
-        url("/assets/ui/vizor-mask.webp") center / var(--vf-w) var(--vf-h) no-repeat,
+        url("/assets/ui/vizor-mask.webp?v=3") center / var(--vf-w) var(--vf-h) no-repeat,
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }
@@ -671,8 +663,9 @@
 .slot {
     flex-shrink: 0;
     height: var(--slot-h);
-    /* un cadru de peliculă: fundal negru, sloturile lipite unul de altul */
-    background: var(--film-base);
+    /* un cadru de peliculă: fundal negru, sloturile lipite unul de altul.
+       Negrul doar între benzile perforate — prin găurile lor se vede pagina. */
+    background: linear-gradient(var(--film-base), var(--film-base)) center / calc(100% - 2 * var(--perf-band)) 100% no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -697,25 +690,21 @@
     filter: grayscale(1) contrast(1.15) brightness(0.4);
 }
 
-/* PERFORAȚIA (02.11) — de o parte și de alta a cadrului, ca pe pelicula de
-   35 mm: găuri dreptunghiulare cu colțuri rotunjite, prin care se vede
-   fundalul paginii. --perf-n pe fiecare cadru, deci curg odată cu afișele.
-   Forma și proporțiile — din referința de 35 mm (a doua serie, 02.11): 30 × 21 px,
-   colțuri de 3,4 px. În dreptul ramei sunt acoperite de marginea ei groasă. */
+/* PERFORAȚIA (02.11, corectată la 14:40) — benzile laterale din poza de 35 mm
+   a lui Ștefan, una pe cadru: stânga cu marcajele „▷23A · 23”, dreapta cu
+   codul de bare. Curg odată cu afișele; în dreptul ramei le acoperă rama. */
 .slot::before,
 .slot::after {
     content: "";
     position: absolute;
     top: 0;
     bottom: 0;
-    width: var(--perf-w);
-    background: var(--bg);
+    width: var(--perf-band);
     pointer-events: none;
-    -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 46.8' preserveAspectRatio='none'><rect y='12.9' width='30' height='21' rx='3.4'/></svg>") 0 0 / 100% calc(var(--slot-h) / var(--perf-n)) repeat-y;
-            mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 46.8' preserveAspectRatio='none'><rect y='12.9' width='30' height='21' rx='3.4'/></svg>") 0 0 / 100% calc(var(--slot-h) / var(--perf-n)) repeat-y;
+    background: url("/assets/ui/perforatie-st.webp?v=1") 0 0 / 100% 100% no-repeat;
 }
-.slot::before { left: var(--perf-edge); }
-.slot::after  { right: var(--perf-edge); }
+.slot::before { left: 0; }
+.slot::after  { right: 0; background-image: url("/assets/ui/perforatie-dr.webp?v=1"); }
 
 
 /* halația: copie a afișului, estompată și cu contrast mare (rămân doar zonele
