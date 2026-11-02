@@ -463,6 +463,11 @@ export default function LandingHero() {
     const restRef       = useRef(HOME);
     const dirRef        = useRef(0);
     const prevTopRef    = useRef(0);
+    // rama (vizorul) și poziția măsurată a cadrului 0 față de ea (02.11, 18:35):
+    // ținta derulării se măsoară pe ecran — centrul cadrului pe centrul ramei —
+    // nu se mai calculează din 50vh, care în Safari poate diferi de centrul ramei
+    const vfRef         = useRef<HTMLDivElement | null>(null);
+    const originRef     = useRef(0);
 
     const t = UI[lang];
 
@@ -471,8 +476,9 @@ export default function LandingHero() {
     const updateActive = useCallback(() => {
         const gallery = galleryRef.current;
         if (!gallery) return;
-        const galleryRect = gallery.getBoundingClientRect();
-        const galleryMid  = galleryRect.top + galleryRect.height / 2;
+        // centrul ramei (nu al galeriei): acolo trebuie să stea afișul
+        const vfRect     = (vfRef.current ?? gallery).getBoundingClientRect();
+        const galleryMid = vfRect.top + vfRect.height / 2;
         let bestIdx  = lastActiveRef.current;
         let bestDist = Infinity;
         slotRefs.current.forEach((el, i) => {
@@ -518,7 +524,7 @@ export default function LandingHero() {
         const items   = listItemRefs.current;
         if (!gallery || !track || items.length === 0) return;
         const last = SLOTS.length - 1;
-        const f    = Math.min(last, Math.max(0, gallery.scrollTop / slotPitch()));
+        const f    = Math.min(last, Math.max(0, (gallery.scrollTop - originRef.current) / slotPitch()));
         const i0   = Math.floor(f);
         const i1   = Math.min(last, i0 + 1);
         const y0   = items[i0]?.offsetTop ?? 0;
@@ -581,18 +587,32 @@ export default function LandingHero() {
         }
     }, [slotPitch]);
 
+    /** poziția de derulare la care cadrul `slot` stă exact în centrul ramei —
+        măsurată pe ecran, deci aceeași în Safari și în Chrome */
+    const scrollFor = useCallback((slot: number): number => {
+        const gallery = galleryRef.current;
+        const el      = slotRefs.current[slot];
+        const vf      = vfRef.current;
+        if (!gallery || !el || !vf) return originRef.current + slot * slotPitch();
+        const r  = el.getBoundingClientRect();
+        const v  = vf.getBoundingClientRect();
+        const to = gallery.scrollTop + (r.top + r.height / 2) - (v.top + v.height / 2);
+        originRef.current = to - slot * slotPitch();
+        return to;
+    }, [slotPitch]);
+
     /** mută galeria fără animație */
     const jumpTo = useCallback((slot: number) => {
         const gallery = galleryRef.current;
         if (!gallery) return;
-        gallery.scrollTop = slot * slotPitch();
+        gallery.scrollTop = scrollFor(slot);
         lastTopRef.current = gallery.scrollTop;   // săritura nu mișcă pista sonoră
         prevTopRef.current = gallery.scrollTop;   // și nu contează ca mișcare
         lastActiveRef.current = slot;
         restRef.current = slot;
         setActive(slot);
         syncList();
-    }, [slotPitch, syncList]);
+    }, [scrollFor, syncList]);
 
     const stopGlide = useCallback(() => {
         if (animRef.current !== null) cancelAnimationFrame(animRef.current);
@@ -607,7 +627,7 @@ export default function LandingHero() {
         stopGlide();
         const pitch = slotPitch();
         const from  = gallery.scrollTop;
-        const to    = slot * pitch;
+        const to    = scrollFor(slot);
         const dist  = to - from;
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (Math.abs(dist) < 0.5 || still) {
@@ -628,7 +648,7 @@ export default function LandingHero() {
             }
         };
         animRef.current = requestAnimationFrame(step);
-    }, [slotPitch, stopGlide]);
+    }, [slotPitch, scrollFor, stopGlide]);
 
     /** derularea s-a oprit într-o copie de margine → aceeași poziție în copia din mijloc */
     const recenter = useCallback(() => {
@@ -649,18 +669,25 @@ export default function LandingHero() {
 
     /** galeria e pe cadrul `slot`: actualizăm totul, apoi revenim în copia din mijloc */
     const arrive = useCallback((slot: number) => {
+        // verificare finală, pe ecran: dacă a rămas vreo diferență (ex. o așezare
+        // întreruptă), cadrul e pus exact în ramă
+        const gallery = galleryRef.current;
+        if (gallery) {
+            const to = scrollFor(slot);
+            if (Math.abs(gallery.scrollTop - to) > 0.75) gallery.scrollTop = to;
+        }
         updateActive();
         syncList();
         restRef.current = slot;
         recenter();
-    }, [updateActive, syncList, recenter]);
+    }, [scrollFor, updateActive, syncList, recenter]);
 
     /** rotița s-a oprit → galeria se așază pe un cadru: pe următorul în direcția
         mișcării, dacă s-a mișcat mai mult de NUDGE din cadrul de plecare */
     const settle = useCallback(() => {
         const gallery = galleryRef.current;
         if (!gallery || animRef.current !== null) return;
-        const f    = gallery.scrollTop / slotPitch();
+        const f    = (gallery.scrollTop - originRef.current) / slotPitch();
         const last = SLOTS.length - 1;
         let target = Math.round(f);
         if (Math.abs(f - target) > 0.001 && Math.abs(f - restRef.current) > NUDGE && dirRef.current !== 0) {
@@ -703,12 +730,25 @@ export default function LandingHero() {
             window.clearTimeout(idle);
             if (animRef.current === null) idle = window.setTimeout(settle, IDLE_MS);
         };
-        // omul pune mâna pe rotiță / pe ecran → animația de așezare se oprește
-        const onGrab = () => stopGlide();
+        // omul pune mâna pe rotiță / pe ecran → animația de așezare se oprește.
+        // 02.11, 18:35: în Safari, inerția rotiței trimite la final evenimente
+        // „wheel” fără mișcare; ele opreau așezarea la jumătatea drumului și
+        // nimic n-o mai relua (afișul rămânea sub geam, decalat). Acum orice
+        // atingere a rotiței repornește și cronometrul de așezare, iar după
+        // degetul ridicat (touchend / pointerup) galeria se așază din nou.
+        const scheduleSettle = () => {
+            window.clearTimeout(idle);
+            idle = window.setTimeout(settle, IDLE_MS);
+        };
+        const onWheel = () => { stopGlide(); scheduleSettle(); };
+        const onGrab  = () => { stopGlide(); window.clearTimeout(idle); };
+        const onLift  = () => { if (animRef.current === null) scheduleSettle(); };
         gallery.addEventListener('scroll', onScroll, { passive: true });
-        gallery.addEventListener('wheel', onGrab, { passive: true });
+        gallery.addEventListener('wheel', onWheel, { passive: true });
         gallery.addEventListener('touchstart', onGrab, { passive: true });
         gallery.addEventListener('pointerdown', onGrab, { passive: true });
+        gallery.addEventListener('touchend', onLift, { passive: true });
+        window.addEventListener('pointerup', onLift, { passive: true });
         window.addEventListener('resize', onScroll);
         // fonturile schimbă înălțimea rândurilor → recalculăm după ce se încarcă
         document.fonts?.ready.then(syncList).catch(() => {});
@@ -717,9 +757,11 @@ export default function LandingHero() {
             window.clearTimeout(idle);
             stopGlide();
             gallery.removeEventListener('scroll', onScroll);
-            gallery.removeEventListener('wheel', onGrab);
+            gallery.removeEventListener('wheel', onWheel);
             gallery.removeEventListener('touchstart', onGrab);
             gallery.removeEventListener('pointerdown', onGrab);
+            gallery.removeEventListener('touchend', onLift);
+            window.removeEventListener('pointerup', onLift);
             window.removeEventListener('resize', onScroll);
         };
     }, [updateActive, syncList, jumpTo, settle, stopGlide]);
@@ -833,7 +875,7 @@ export default function LandingHero() {
             {/* VIZOR — rama de geam mat (din poza lui Ștefan, 30.10.2026), fixă peste
                 galerie. Din 02.11 geamul cuprinde afișul și pista sonoră întregi, cu
                 peliculă neagră împrejur; perforația rămâne în afara ramei. */}
-            <div className={styles.viewfinder} aria-hidden="true">
+            <div ref={vfRef} className={styles.viewfinder} aria-hidden="true">
                 <div className={styles.vfGlass} />
                 {/* contorul „15 / 19” scos — filmele nu se numerotează (30.10, seria a cincea) */}
             </div>
