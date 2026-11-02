@@ -19,7 +19,8 @@ import styles from './landing.module.css';
 /* ============================================================
    Atemporal Film — homepage
    Port 1:1 al design-ului Claude (home.jsx + index.html + styles.css).
-   Galerie centrală cu scroll-snap. Restul layout-ului e fix.
+   Galerie centrală: derulare continuă, iar când rotița se oprește se
+   așază pe un cadru (02.11.2026). Restul layout-ului e fix.
    Textele laterale și parantezele se schimbă cu fade subtil când
    imaginea curentă se schimbă.
    ============================================================ */
@@ -381,7 +382,36 @@ const HOME   = N;          // primul slot din copia din mijloc
 
 const filmOf   = (slot: number) => ((slot % N) + N) % N;
 const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
-const IDLE_MS  = 160;      // derularea s-a oprit dacă nu mai vine niciun eveniment
+const IDLE_MS  = 140;      // derularea s-a oprit dacă nu mai vine niciun eveniment
+/** derularea continuă (02.11.2026, 15:34): cât timp rotița se mișcă, galeria
+    curge liber; când se oprește, se așază pe cadrul următor în direcția în care
+    s-a mișcat — dacă s-a mișcat mai mult de NUDGE din cadru; altfel revine. */
+const NUDGE    = 0.02;     // din pasul unui cadru (351 px → ~7 px)
+/** titlul din dreptul ramei, în lista din stânga (Modul Regie, 02.11, 15:34) */
+const TITLE_GROW  = 0.46;  // ×1,46
+const TITLE_SHIFT = 18;    // px spre dreapta
+
+/* RAMA ÎN PARANTEZE — varianta /?rama=paranteze (02.11.2026, 15:34, după
+   referința lui Ștefan): în locul ramei de geam, două paranteze negre,
+   despărțite, una de fiecare parte a peliculei, mai scunde decât afișul.
+   Groase în colțuri, subțiri la mijloc. Toate măsurile în px CSS. */
+const BRACKET = {
+    h:   210,   // înălțimea: două treimi din afiș (315)
+    d:   50,    // cât intră spre afiș: vârfurile ajung exact la marginea imaginii
+    t:   3,     // grosimea la mijloc și pe brațe
+    r:   12,    // rotunjirea colțului exterior
+    ri:  34,    // rotunjirea colțului interior (mai mare → colțuri pline, ca în referință)
+    gap: 24,    // de la marginea peliculei la marginea exterioară a parantezei
+};
+function bracketPath({ h, d, t, r, ri }: typeof BRACKET): string {
+    return [
+        `M ${d} 0 H ${r} A ${r} ${r} 0 0 0 0 ${r}`,
+        `V ${h - r} A ${r} ${r} 0 0 0 ${r} ${h} H ${d}`,
+        `V ${h - t} H ${t + ri} A ${ri} ${ri} 0 0 1 ${t} ${h - t - ri}`,
+        `V ${t + ri} A ${ri} ${ri} 0 0 1 ${t + ri} ${t} H ${d} Z`,
+    ].join(' ');
+}
+type Rama = 'groasa' | 'fina' | 'paranteze';
 /** înălțimea tile-ului pistei sonore, în px CSS (public/assets/ui/soundtrack.webp,
     „TILE” afișat de scripts/pista-sonora.py) */
 const BAND_TILE = 2049;   // 02.11, 15:00: 2732 × 0,75 (tot ansamblul micșorat)
@@ -397,11 +427,14 @@ export default function LandingHero() {
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
-    // varianta de comparație (02.11, 15:00): /?rama=fina — rama de 12 px, în
-    // interiorul peliculei (perforația se vede și lateral)
-    const [ramaFina, setRamaFina]           = useState(false);
+    // variantele de comparație ale ramei:
+    //   /                — rama de 30 px (02.11, 15:00)
+    //   /?rama=fina      — rama de 12 px, în interiorul peliculei
+    //   /?rama=paranteze — două paranteze despărțite (02.11, 15:34)
+    const [rama, setRama]                   = useState<Rama>('groasa');
     useEffect(() => {
-        setRamaFina(new URLSearchParams(window.location.search).get('rama') === 'fina');
+        const q = new URLSearchParams(window.location.search).get('rama');
+        setRama(q === 'fina' || q === 'paranteze' ? q : 'groasa');
     }, []);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
@@ -413,6 +446,13 @@ export default function LandingHero() {
     const bandYRef      = useRef(0);
     const lastTopRef    = useRef(0);
     const exposureRef   = useRef<number[]>([]);
+    const titleGrowRef  = useRef<number[]>([]);
+    // derularea continuă: animația de așezare, cadrul pe care s-a oprit ultima
+    // dată, direcția ultimei mișcări și poziția de la evenimentul precedent
+    const animRef       = useRef<number | null>(null);
+    const restRef       = useRef(HOME);
+    const dirRef        = useRef(0);
+    const prevTopRef    = useRef(0);
 
     const t = UI[lang];
 
@@ -475,10 +515,19 @@ export default function LandingHero() {
         const y1   = items[i1]?.offsetTop ?? y0;
         const y    = y0 + (y1 - y0) * (f - i0);
         track.style.transform = `translate3d(0, ${-y}px, 0)`;
+        const grow = titleGrowRef.current;
         items.forEach((el, i) => {
             if (!el) return;
             const d = Math.abs(i - f);
             el.style.opacity = String(Math.max(0.16, 1 - 0.6 * d));
+            // titlul din dreptul ramei crește treptat (×1,46, 18 px spre dreapta)
+            const x = Math.max(0, 1 - d);
+            const g = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;
+            if (grow[i] === g) return;
+            grow[i] = g;
+            const btn = el.firstElementChild as HTMLElement | null;
+            if (btn) btn.style.transform = g === 0 ? '' :
+                `translateX(${(TITLE_SHIFT * g).toFixed(2)}px) scale(${(1 + TITLE_GROW * g).toFixed(4)})`;
         });
 
         /* LUMINA DIN LASĂ (30.10, seria a cincea): în spatele ramei e lumină.
@@ -518,25 +567,58 @@ export default function LandingHero() {
         }
     }, [slotPitch]);
 
-    const goTo = useCallback((slot: number) => {
-        galleryRef.current?.scrollTo({ top: slot * slotPitch(), behavior: 'smooth' });
-    }, [slotPitch]);
-
-    /** mută galeria fără animație (scroll-behavior: smooth e oprit o clipă) */
+    /** mută galeria fără animație */
     const jumpTo = useCallback((slot: number) => {
         const gallery = galleryRef.current;
         if (!gallery) return;
-        gallery.style.scrollBehavior = 'auto';
         gallery.scrollTop = slot * slotPitch();
-        gallery.style.scrollBehavior = '';
         lastTopRef.current = gallery.scrollTop;   // săritura nu mișcă pista sonoră
+        prevTopRef.current = gallery.scrollTop;   // și nu contează ca mișcare
         lastActiveRef.current = slot;
+        restRef.current = slot;
         setActive(slot);
         syncList();
     }, [slotPitch, syncList]);
 
+    const stopGlide = useCallback(() => {
+        if (animRef.current !== null) cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+    }, []);
+
+    /** dusă lin până la un cadru: încetinește spre final, ca o peliculă care
+        se oprește în fereastra proiectorului; durata crește cu distanța */
+    const glideTo = useCallback((slot: number, onDone?: () => void) => {
+        const gallery = galleryRef.current;
+        if (!gallery) return;
+        stopGlide();
+        const pitch = slotPitch();
+        const from  = gallery.scrollTop;
+        const to    = slot * pitch;
+        const dist  = to - from;
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (Math.abs(dist) < 0.5 || still) {
+            gallery.scrollTop = to;
+            onDone?.();
+            return;
+        }
+        const dur = Math.min(900, 240 + 260 * Math.sqrt(Math.abs(dist) / pitch));
+        const t0  = performance.now();
+        const step = (now: number) => {
+            const k = Math.min(1, (now - t0) / dur);
+            gallery.scrollTop = from + dist * (1 - Math.pow(1 - k, 3));   // ease-out
+            if (k < 1) {
+                animRef.current = requestAnimationFrame(step);
+            } else {
+                animRef.current = null;
+                onDone?.();
+            }
+        };
+        animRef.current = requestAnimationFrame(step);
+    }, [slotPitch, stopGlide]);
+
     /** derularea s-a oprit într-o copie de margine → aceeași poziție în copia din mijloc */
     const recenter = useCallback(() => {
+        if (isHome(lastActiveRef.current)) restRef.current = lastActiveRef.current;
         const gallery = galleryRef.current;
         const slot    = lastActiveRef.current;
         if (!gallery || isHome(slot)) return;
@@ -551,6 +633,34 @@ export default function LandingHero() {
         }, 60);
     }, [jumpTo]);
 
+    /** galeria e pe cadrul `slot`: actualizăm totul, apoi revenim în copia din mijloc */
+    const arrive = useCallback((slot: number) => {
+        updateActive();
+        syncList();
+        restRef.current = slot;
+        recenter();
+    }, [updateActive, syncList, recenter]);
+
+    /** rotița s-a oprit → galeria se așază pe un cadru: pe următorul în direcția
+        mișcării, dacă s-a mișcat mai mult de NUDGE din cadrul de plecare */
+    const settle = useCallback(() => {
+        const gallery = galleryRef.current;
+        if (!gallery || animRef.current !== null) return;
+        const f    = gallery.scrollTop / slotPitch();
+        const last = SLOTS.length - 1;
+        let target = Math.round(f);
+        if (Math.abs(f - target) > 0.001 && Math.abs(f - restRef.current) > NUDGE && dirRef.current !== 0) {
+            target = dirRef.current > 0 ? Math.ceil(f - NUDGE) : Math.floor(f + NUDGE);
+        }
+        target = Math.min(last, Math.max(0, target));
+        glideTo(target, () => arrive(target));
+    }, [slotPitch, glideTo, arrive]);
+
+    /** click pe un titlu din listă → galeria curge până la filmul respectiv */
+    const goTo = useCallback((slot: number) => {
+        glideTo(slot, () => arrive(slot));
+    }, [glideTo, arrive]);
+
 
     useEffect(() => {
         const gallery = galleryRef.current;
@@ -563,6 +673,11 @@ export default function LandingHero() {
         let ticking = false;
         let idle    = 0;
         const onScroll = () => {
+            // direcția mișcării făcute de om (nu de animația de așezare)
+            const top = gallery.scrollTop;
+            const dy  = top - prevTopRef.current;
+            prevTopRef.current = top;
+            if (animRef.current === null && Math.abs(dy) > 0.5) dirRef.current = Math.sign(dy);
             if (!ticking) {
                 requestAnimationFrame(() => {
                     updateActive();
@@ -572,19 +687,28 @@ export default function LandingHero() {
                 ticking = true;
             }
             window.clearTimeout(idle);
-            idle = window.setTimeout(recenter, IDLE_MS);
+            if (animRef.current === null) idle = window.setTimeout(settle, IDLE_MS);
         };
+        // omul pune mâna pe rotiță / pe ecran → animația de așezare se oprește
+        const onGrab = () => stopGlide();
         gallery.addEventListener('scroll', onScroll, { passive: true });
+        gallery.addEventListener('wheel', onGrab, { passive: true });
+        gallery.addEventListener('touchstart', onGrab, { passive: true });
+        gallery.addEventListener('pointerdown', onGrab, { passive: true });
         window.addEventListener('resize', onScroll);
         // fonturile schimbă înălțimea rândurilor → recalculăm după ce se încarcă
         document.fonts?.ready.then(syncList).catch(() => {});
         return () => {
             cancelAnimationFrame(readyId);
             window.clearTimeout(idle);
+            stopGlide();
             gallery.removeEventListener('scroll', onScroll);
+            gallery.removeEventListener('wheel', onGrab);
+            gallery.removeEventListener('touchstart', onGrab);
+            gallery.removeEventListener('pointerdown', onGrab);
             window.removeEventListener('resize', onScroll);
         };
-    }, [updateActive, syncList, jumpTo, recenter]);
+    }, [updateActive, syncList, jumpTo, settle, stopGlide]);
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
@@ -606,7 +730,12 @@ export default function LandingHero() {
      *                      RENDER
      * -------------------------------------------------- */
     return (
-        <div className={`${styles.page} ${ready ? '' : styles.notReady} ${ramaFina ? styles.ramaFina : ''}`}>
+        <div className={[
+            styles.page,
+            ready ? '' : styles.notReady,
+            rama === 'fina' ? styles.ramaFina : '',
+            rama === 'paranteze' ? styles.ramaParanteze : '',
+        ].join(' ')}>
 
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />
@@ -693,6 +822,31 @@ export default function LandingHero() {
                 <div className={styles.vfGlass} />
                 {/* contorul „15 / 19” scos — filmele nu se numerotează (30.10, seria a cincea) */}
             </div>
+
+            {/* RAMA ÎN PARANTEZE — doar în varianta /?rama=paranteze (02.11, 15:34) */}
+            {rama === 'paranteze' && (
+                <div
+                    className={styles.brackets}
+                    aria-hidden="true"
+                    style={{
+                        '--br-h':   `${BRACKET.h}px`,
+                        '--br-d':   `${BRACKET.d}px`,
+                        '--br-gap': `${BRACKET.gap}px`,
+                    } as React.CSSProperties}
+                >
+                    {[0, 1].map((k) => (
+                        <svg
+                            key={k}
+                            className={styles.bracket}
+                            width={BRACKET.d}
+                            height={BRACKET.h}
+                            viewBox={`0 0 ${BRACKET.d} ${BRACKET.h}`}
+                        >
+                            <path d={bracketPath(BRACKET)} />
+                        </svg>
+                    ))}
+                </div>
+            )}
 
 
             {/* LAMPA — lumina proiectorului, fixă în spatele ramei: afișul trece prin

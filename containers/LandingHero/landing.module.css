@@ -82,6 +82,19 @@
        la stânga centrului; pe ecrane înguste nu coboară sub 64 px.
        Timecode-urile pornesc la 170 px după el. */
     --logo-x:    max(64px, calc(50% - 827px));
+
+    /* BARA DE JOS (Modul Regie, 02.11.2026, 15:34) — UE + Regio 31 px spre
+       dreapta (pe 2048: x = 432); după ele, la 220 px, blocul de două
+       timecode-uri (Mumbai / New York, x = 652). Pe ecranele înguste blocul
+       se oprește la 16 px de peliculă, iar logo-urile se strâng spre butonul
+       de limbă, ca să nu se suprapună. */
+    --cf-logos-x0: calc(max(calc(var(--list-x) + 60px), min(19.6vw, calc(var(--wc-l) - 190px))) + 31px);
+    --wc-bl-w:     176px;   /* timecode + ■ STOP / ▶ PLAYBACK */
+    --wc-bl-x:     min(calc(var(--cf-logos-x0) + 220px), calc(50% - var(--strip-w) / 2 - var(--wc-bl-w) - 16px));
+    --cf-logos-x:  max(calc(var(--list-x) + 94px), min(var(--cf-logos-x0), calc(var(--wc-bl-x) - 190px)));
+}
+@media (max-width: 1599px) {
+    .page { --wc-bl-w: 112px; }   /* stările rămân doar semne */
 }
 
 .page * { box-sizing: border-box; }
@@ -258,12 +271,13 @@
     background: currentColor;
 }
 
-/* ── TIMECODE-URILE LUMII — sus, în dreapta (02.11.2026, 15:00) ──
-   Un rând deasupra meniului (pe 2048×864: y = 80): Los Angeles ▶ PLAYBACK
-   (x = 1258, pe verticala meniului) · Mumbai ■ STOP (1454) · Shanghai (1622);
-   sub Shanghai, o coloană la pas de 24 px, fiecare timecode cu starea lui pe
-   rândul de dedesubt: ▶ PLAYBACK · New York · ▶ PLAYBACK · Buenos Aires · ■ STOP.
-   Între grupuri, 20 px. Bangkok a urcat în antet, lângă Madrid. */
+/* ── TIMECODE-URILE LUMII (02.11.2026, 15:34) ──
+   Sus în dreapta, pe rândul de deasupra meniului (pe 2048×864: y = 80):
+   Los Angeles ▶ PLAYBACK (x = 1258, pe verticala meniului) · Buenos Aires
+   ■ STOP (1454), la 20 px între grupuri. Jos, în bara de cofinanțare:
+   Mumbai ■ STOP / New York ▶ PLAYBACK, două rânduri la pas de 20 px, după
+   UE + Regio (x = 652, y = 816 / 836), și Shanghai ▶ PLAYBACK după site-uri
+   (x = 1507, y = 816). Bangkok e în antet, lângă Madrid. */
 .worldClocks {
     position: fixed;
     top: 80px;
@@ -279,15 +293,23 @@
     color: var(--fg);
     white-space: nowrap;
 }
-.wcRow { display: inline-flex; align-items: center; gap: 11px; }
-.wcCol {
-    display: flex;
+.wcRow { display: inline-flex; align-items: center; gap: 11px; height: 13px; }
+/* jos în stânga: Mumbai / New York, unul sub altul (pas de 20 px) */
+.wcBottomLeft {
+    top: auto;
+    bottom: 15px;             /* pe 864: rândurile la y = 816 și 836 */
+    left: var(--wc-bl-x);
     flex-direction: column;
-    align-items: flex-start;
-    row-gap: 11px;   /* 13 px rândul + 11 = pas de 24 px */
+    row-gap: 7px;
+    z-index: 61;              /* peste bara de jos */
 }
-/* fiecare rând are 13 px, și când starea rămâne doar semn (ecrane înguste) */
-.wcCol > * { height: 13px; }
+/* jos în dreapta: Shanghai, după site-uri, pe rândul lui Mumbai */
+.wcBottomRight {
+    top: auto;
+    bottom: 35px;
+    left: calc(var(--col-r) + 161px);
+    z-index: 61;
+}
 /* pe ecranele unde rândul nu încape (1440 px și mai înguste),
    stările rămân doar semne (▶ / ■), ca Bangkok */
 @media (max-width: 1599px) {
@@ -427,7 +449,9 @@
     left: var(--list-x);
     top: 0;
     height: 100vh;
-    width: min(420px, calc(50vw - var(--strip-w) / 2 - var(--list-x) - 24px));
+    /* 02.11, 15:34: până la 34 px de peliculă (înainte cel mult 420 px), ca
+       titlul din ramă, mărit ×1,46, să încapă */
+    width: calc(50% - var(--strip-w) / 2 - var(--list-x) - 34px);
     overflow: hidden;
     z-index: 40;
     pointer-events: none;
@@ -468,6 +492,13 @@
     text-transform: uppercase;
     color: var(--fg);
     text-wrap: pretty;
+    /* titlul din dreptul ramei: mărit ×1,46 și 18 px spre dreapta (Modul Regie,
+       02.11.2026, 15:34) — JS-ul (syncList) îl crește treptat, odată cu
+       derularea, de la marginea stângă. Lățimea maximă e aleasă astfel încât
+       și mărit să încapă în coloană (titlurile foarte lungi trec pe 2 rânduri). */
+    max-width: calc((100% - 18px) / 1.46);
+    transform-origin: 0 50%;
+    will-change: transform;
 }
 .filmListBtn:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 0.5px; }
 .filmListBtn:focus-visible { outline: 0.5px solid var(--fg); outline-offset: 4px; }
@@ -476,11 +507,13 @@
     /* creditul: în coloana din dreapta, aproape de centrul vertical
        (seria a cincea: 52 px spre stânga, pe un singur rând —
        pe 2048×864: x = 1294, y = 407) */
-    left: calc(var(--col-r) - 52px);
-    top: calc(50% - 25px);
+    /* 02.11, 15:34: 67 px spre stânga, primul rând 10 px mai sus, al doilea
+       rând la 26 px sub primul — pe 2048×864: x = 1227, y = 397 / 423 */
+    left: calc(var(--col-r) - 119px);
+    top: calc(50% - 35px);
 }
 .sideRight .sideEyebrow { margin-bottom: 2px; line-height: 1.5; white-space: nowrap; }
-.sideRight .sideMeta    { margin-top: 2px; }
+.sideRight .sideMeta    { margin-top: 10px; }
 
 
 /* ── VIEWFINDER — four corners + REC + frame counter ── */
@@ -520,6 +553,50 @@
         url("/assets/ui/vizor-mask-F.webp?v=1"),
         linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
 }
+
+
+/* varianta /?rama=paranteze (02.11, 15:34, după referința lui Ștefan):
+   fără rama de geam — două paranteze negre, despărțite, de o parte și de
+   alta a peliculei, mai scunde decât afișul (forma: bracketPath în
+   index.tsx, măsurile în BRACKET). „Geamul” devine exact afișul + pista
+   (235 × 313): acolo pelicula e expusă plin și luminată de lampă; marginile
+   expunerii sunt moi (16 px), ca să nu se vadă o linie pe negrul dintre
+   cadre când trece prin fereastră. */
+.ramaParanteze { --vf-w: calc(var(--frame-w) - 2px); --vf-h: calc(var(--img-h) - 2px); }
+.ramaParanteze .vfGlass { display: none; }
+.ramaParanteze .lamp {
+    -webkit-mask: none;
+            mask: none;
+    border-radius: 3px;
+}
+.ramaParanteze .gallery {
+    -webkit-mask:
+        linear-gradient(to bottom,
+            transparent calc(50% - var(--img-h) / 2 - 14px), black calc(50% - var(--img-h) / 2 + 2px),
+            black calc(50% + var(--img-h) / 2 - 2px), transparent calc(50% + var(--img-h) / 2 + 14px))
+            center / var(--frame-w) 100% no-repeat,
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+            mask:
+        linear-gradient(to bottom,
+            transparent calc(50% - var(--img-h) / 2 - 14px), black calc(50% - var(--img-h) / 2 + 2px),
+            black calc(50% + var(--img-h) / 2 - 2px), transparent calc(50% + var(--img-h) / 2 + 14px))
+            center / var(--frame-w) 100% no-repeat,
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+}
+.brackets {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(var(--strip-w) + 2 * var(--br-gap));
+    height: var(--br-h);
+    display: flex;
+    justify-content: space-between;
+    z-index: 35;
+    pointer-events: none;
+}
+.bracket { display: block; flex: none; fill: var(--film-base); }
+.bracket + .bracket { transform: scaleX(-1); }
 
 
 /* ── LAMPA — lumina proiectorului din spatele afișului (seria a cincea) ──
@@ -635,7 +712,11 @@
 }
 
 
-/* ── GALLERY — vertical scroll-snap column ───────────── */
+/* ── GALLERY — coloana verticală care se derulează ──────
+   02.11.2026, 15:34: fără scroll-snap — galeria curge continuu cât timp
+   rotița se mișcă, iar când se oprește JS-ul (settle / glideTo) o așază
+   lin pe un cadru. scroll-behavior trebuie să rămână „auto”: animația o
+   face JS-ul, cadru cu cadru. */
 .gallery {
     position: fixed;
     top: 0;
@@ -644,8 +725,8 @@
     width: var(--gallery-w);
     height: 100vh;
     overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
+    overscroll-behavior: contain;
     scrollbar-width: none;
     z-index: 30;
     transition: opacity 0.6s ease;
@@ -678,7 +759,6 @@
     flex-shrink: 0;
     /* jumătate de viewport minus jumătate de pas → primul afiș pornește centrat */
     height: calc(50vh - var(--slot-h) / 2);
-    scroll-snap-align: none;
 }
 
 .slot {
@@ -690,8 +770,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
 }
 
 .slotImg {
@@ -774,9 +852,9 @@
     align-items: center;
 }
 
-.cofinanceLeft  { left: calc(var(--list-x) - 14px); }
-.cofinanceLogos { left: max(calc(var(--list-x) + 60px), min(19.6vw, calc(var(--wc-l) - 190px))); gap: 20px; }
-.cofinanceRight { left: calc(var(--col-r) - 37px); gap: 26px; transform: translateY(-2px); }   /* seria a cincea */
+.cofinanceLeft  { left: calc(var(--list-x) + 20px); transform: translateY(-2px); }   /* 02.11, 15:34: +34 px */
+.cofinanceLogos { left: var(--cf-logos-x); gap: 20px; transform: translateY(-2px); }  /* 02.11, 15:34: +31 px */
+.cofinanceRight { left: calc(var(--col-r) - 96px); gap: 26px; transform: translateY(-3px); }   /* 02.11, 15:34: −59 px */
 
 .cfLogo {
     font-family: var(--font-mono), monospace;

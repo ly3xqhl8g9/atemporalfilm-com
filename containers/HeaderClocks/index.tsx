@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import styles from '@/containers/LandingHero/landing.module.css';
 
@@ -41,18 +41,23 @@ const SHANGHAI:     Zone = { city: 'Shanghai',     tz: 'Asia/Shanghai',         
 
 type Transport = 'play' | 'stop';
 
-/** sus, în dreapta: rândul (timecode + stare alături) și coloana de sub Shanghai
-    (timecode, iar starea pe rândul de dedesubt) */
-const RIGHT_ROW: [Zone, Transport][] = [
-    [LOS_ANGELES, 'play'],
-    [MUMBAI,      'stop'],
-];
-const RIGHT_COL: [Zone, Transport][] = [
-    [SHANGHAI,     'play'],
-    [NEW_YORK,     'play'],
+/** Timecode-urile lumii (Modul Regie, 02.11.2026, 15:34), în trei locuri:
+    sus în dreapta, pe un rând — Los Angeles ▶ PLAYBACK · Buenos Aires ■ STOP;
+    jos în stânga, după UE + Regio, două rânduri — Mumbai ■ STOP / New York ▶ PLAYBACK;
+    jos în dreapta, după site-uri — Shanghai ▶ PLAYBACK.
+    Starea stă mereu alături de timecode, pe același rând. */
+const TOP_ROW: [Zone, Transport][] = [
+    [LOS_ANGELES,  'play'],
     [BUENOS_AIRES, 'stop'],
 ];
-const WORLD: Zone[] = [...RIGHT_ROW, ...RIGHT_COL].map(([z]) => z);
+const BOTTOM_LEFT: [Zone, Transport][] = [
+    [MUMBAI,   'stop'],
+    [NEW_YORK, 'play'],
+];
+const BOTTOM_RIGHT: [Zone, Transport][] = [
+    [SHANGHAI, 'play'],
+];
+const WORLD: Zone[] = [...TOP_ROW, ...BOTTOM_LEFT, ...BOTTOM_RIGHT].map(([z]) => z);
 /** antetul: București și Madrid cu ● REC, Bangkok doar cu ▶ */
 const HOME:  Zone[] = [BUCHAREST, MADRID, BANGKOK];
 
@@ -157,7 +162,8 @@ export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }
 }
 
 
-/** Coloana din dreapta: timecode-urile lumii, fiecare cu ▶ PLAYBACK sau ■ STOP. */
+/** Timecode-urile lumii, fiecare cu ▶ PLAYBACK sau ■ STOP: sus în dreapta,
+    jos în stânga și jos în dreapta (vezi TOP_ROW, BOTTOM_LEFT, BOTTOM_RIGHT). */
 export function WorldClocks({
     playbackLabel = 'PLAYBACK',
     stopLabel = 'STOP',
@@ -166,22 +172,17 @@ export function WorldClocks({
     const status = (state: Transport) => state === 'play'
         ? <span className={styles.hdPlay}><span className={styles.wcLabel}>{playbackLabel}</span></span>
         : <span className={styles.hdStop}><span className={styles.wcLabel}>{stopLabel}</span></span>;
+    const rows = (list: [Zone, Transport][]) => list.map(([z, state]) => (
+        <span key={z.tz} className={styles.wcRow}>
+            {tc(z)}
+            {status(state)}
+        </span>
+    ));
     return (
-        <div className={styles.worldClocks}>
-            {RIGHT_ROW.map(([z, state]) => (
-                <span key={z.tz} className={styles.wcRow}>
-                    {tc(z)}
-                    {status(state)}
-                </span>
-            ))}
-            <span className={styles.wcCol}>
-                {RIGHT_COL.map(([z, state]) => (
-                    <Fragment key={z.tz}>
-                        {tc(z)}
-                        {status(state)}
-                    </Fragment>
-                ))}
-            </span>
-        </div>
+        <>
+            <div className={styles.worldClocks}>{rows(TOP_ROW)}</div>
+            <div className={`${styles.worldClocks} ${styles.wcBottomLeft}`}>{rows(BOTTOM_LEFT)}</div>
+            <div className={`${styles.worldClocks} ${styles.wcBottomRight}`}>{rows(BOTTOM_RIGHT)}</div>
+        </>
     );
 }
