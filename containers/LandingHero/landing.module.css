@@ -50,6 +50,14 @@
     --perf-band:  26px;
     --strip-side: var(--perf-band);
     --strip-w:    calc(var(--frame-w) + 2 * var(--strip-side));   /* pelicula: 289 px */
+    /* 02.11.2026, 19:26 (cerut de Ștefan): toată pelicula — galeria, rama,
+       lampa, lumina din spate, pista, parantezele — stă cu ⅓ din lățimea ei
+       (289 / 3 ≈ 96 px) la dreapta centrului paginii. Coloana din dreapta
+       (creditul, meniul, timecode-urile, site-urile) se mută odată cu ea;
+       lista din stânga rămâne pe loc și primește spațiul în plus.
+       Pe ecrane sub 1440 px deplasarea scade treptat (la 1280 px: 32 px),
+       ca bara de jos din dreapta (site-uri, ADR, Shanghai) să încapă. */
+    --reel-x:     round(clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px), 1px);   /* rotunjit: afișul rămâne pe pixel întreg */
     --film-base:  #0e0e0e;   /* negrul peliculei din poză */
 
     /* rama-vizor (02.11, 15:00): mult mai subțire — 30 px de jur împrejur
@@ -76,11 +84,11 @@
     /* bara de jos: coloana timecode-urilor Americii (02.11) — pe 2048 px la
        x = 608 (după Regio); pe ecrane înguste, cel mult până la 12 px de peliculă */
     --wc-w:      97px;
-    --wc-l:      min(calc(19.6vw + 207px), calc(50vw - var(--strip-w) / 2 - var(--wc-w) - 12px));
+    --wc-l:      min(calc(19.6vw + 207px), calc(50vw + var(--reel-x) - var(--strip-w) / 2 - var(--wc-w) - 12px));
     /* coloana din dreapta — creditul, meniul și site-urile din bara de jos
        aliniate pe aceeași verticală, la 173 px de marginea ramei
        (seria a patra: creditul mutat cu 28 px spre dreapta) */
-    --col-r:     calc(50% + var(--vf-w0) / 2 + 173px);
+    --col-r:     calc(50% + var(--reel-x) + var(--vf-w0) / 2 + 173px);
     /* coloana din stânga — lista de filme și textul butonului de limbă.
        Pe 2048 px: x = 335 (seria a patra), adică 684 px la stânga centrului
        (măsurat ca restul paginii); pe ecrane înguste nu coboară sub 64 px. */
@@ -97,7 +105,7 @@
        de limbă, ca să nu se suprapună. */
     --cf-logos-x0: calc(max(calc(var(--list-x) + 60px), min(19.6vw, calc(var(--wc-l) - 190px))) + 31px);
     --wc-bl-w:     176px;   /* timecode + ■ STOP / ▶ PLAYBACK */
-    --wc-bl-x:     min(calc(var(--cf-logos-x0) + 220px), calc(50% - var(--strip-w) / 2 - var(--wc-bl-w) - 16px));
+    --wc-bl-x:     min(calc(var(--cf-logos-x0) + 220px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - var(--wc-bl-w) - 16px));
     --cf-logos-x:  max(calc(var(--list-x) + 94px), min(var(--cf-logos-x0), calc(var(--wc-bl-x) - 190px)));
 }
 @media (max-width: 1599px) {
@@ -216,7 +224,7 @@
     column-gap: 103px;
     row-gap: 8px;
     /* nu intră peste afișele din galerie */
-    max-width: calc(50vw - var(--strip-w) / 2 - var(--logo-x) - 165px - 12px);
+    max-width: calc(50vw + var(--reel-x) - var(--strip-w) / 2 - var(--logo-x) - 165px - 12px);
     font-family: var(--font-mono), monospace;
     font-size: 9.5px;
     line-height: 14px;
@@ -474,7 +482,7 @@
     height: 100vh;
     /* 02.11, 15:34: până la 34 px de peliculă (înainte cel mult 420 px), ca
        titlul din ramă, mărit ×1,46, să încapă */
-    width: calc(50% - var(--strip-w) / 2 - var(--list-x) - 34px);
+    width: calc(50% + var(--reel-x) - var(--strip-w) / 2 - var(--list-x) - 34px);
     overflow: hidden;
     z-index: 40;
     pointer-events: none;
@@ -543,7 +551,7 @@
 .viewfinder {
     position: fixed;
     top: 50%;
-    left: 50%;
+    left: calc(50% + var(--reel-x));
     transform: translate(-50%, -50%);
     width: var(--vf-w);
     height: var(--vf-h);
@@ -611,7 +619,7 @@
 .brackets {
     position: fixed;
     top: 50%;
-    left: 50%;
+    left: calc(50% + var(--reel-x));
     transform: translate(-50%, -50%);
     width: calc(var(--strip-w) + 2 * var(--br-gap));
     height: var(--br-h);
@@ -647,7 +655,7 @@
 .lamp {
     position: fixed;
     top: 50%;
-    left: 50%;
+    left: calc(50% + var(--reel-x));
     transform: translate(-50%, -50%);
     width: var(--vf-w);
     height: var(--vf-h);
@@ -691,7 +699,7 @@
 .backlight {
     position: fixed;
     top: 50%;
-    left: 50%;
+    left: calc(50% + var(--reel-x));
     transform: translate(-50%, -50%);
     width: var(--strip-w);
     height: calc(var(--slot-h) * 3);
@@ -752,7 +760,7 @@
     top: 0;
     /* lipită de marginea stângă a afișului, între perforația din stânga și
        imagine, ca pe pelicula de 35 mm (02.11, 15:10) */
-    left: calc(50% - (var(--img-w) + var(--band-w)) / 2);
+    left: calc(50% + var(--reel-x) - (var(--img-w) + var(--band-w)) / 2);
     width: var(--band-w);
     height: 100vh;
     overflow: hidden;
@@ -816,7 +824,7 @@
 .gallery {
     position: fixed;
     top: 0;
-    left: 50%;
+    left: calc(50% + var(--reel-x));
     transform: translateX(-50%);
     width: var(--gallery-w);
     height: 100vh;
