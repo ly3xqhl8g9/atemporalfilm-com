@@ -46,9 +46,11 @@ type Transport = 'play' | 'stop';
     jos în stânga, după UE + Regio, două rânduri — Mumbai ■ STOP / New York ▶ PLAYBACK;
     jos în dreapta, după site-uri, două rânduri — Shanghai ▶ PLAYBACK / Buenos Aires ■ STOP.
     Starea stă mereu alături de timecode, pe același rând. */
-const TOP_ROW: [Zone, Transport][] = [
+/* 02.11, 23:03 (Modul Regie): Bangkok și Los Angeles coboară din dreapta-sus
+   în colțul din stânga-jos, unul sub altul, înaintea butonului de limbă */
+const BOTTOM_FAR: [Zone, Transport][] = [
+    [BANGKOK,      'play'],
     [LOS_ANGELES,  'play'],
-    [BANGKOK,      'play'],     // 02.11, 16:25: urcat din antet, cu PLAYBACK scris
 ];
 const BOTTOM_LEFT: [Zone, Transport][] = [
     [MUMBAI,   'stop'],
@@ -58,7 +60,7 @@ const BOTTOM_RIGHT: [Zone, Transport][] = [
     [SHANGHAI,     'play'],
     [BUENOS_AIRES, 'stop'],     // 02.11, 16:25: sub Shanghai
 ];
-const WORLD: Zone[] = [...TOP_ROW, ...BOTTOM_LEFT, ...BOTTOM_RIGHT].map(([z]) => z);
+const WORLD: Zone[] = [...BOTTOM_FAR, ...BOTTOM_LEFT, ...BOTTOM_RIGHT].map(([z]) => z);
 /** antetul: București și Madrid cu ● REC (Bangkok a trecut sus în dreapta, 02.11, 16:25) */
 const HOME:  Zone[] = [BUCHAREST, MADRID];
 
@@ -157,8 +159,9 @@ export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }
 }
 
 
-/** Timecode-urile lumii, fiecare cu ▶ PLAYBACK sau ■ STOP: sus în dreapta,
-    jos în stânga și jos în dreapta (vezi TOP_ROW, BOTTOM_LEFT, BOTTOM_RIGHT). */
+/** Timecode-urile lumii, fiecare cu ▶ PLAYBACK sau ■ STOP, toate în bara de jos:
+    în colțul din stânga, după UE + Regio și după site-uri
+    (vezi BOTTOM_FAR, BOTTOM_LEFT, BOTTOM_RIGHT). */
 export function WorldClocks({
     playbackLabel = 'PLAYBACK',
     stopLabel = 'STOP',
@@ -175,7 +178,7 @@ export function WorldClocks({
     ));
     return (
         <>
-            <div className={styles.worldClocks}>{rows(TOP_ROW)}</div>
+            <div className={`${styles.worldClocks} ${styles.wcBottomFar}`}>{rows(BOTTOM_FAR)}</div>
             <div className={`${styles.worldClocks} ${styles.wcBottomLeft}`}>{rows(BOTTOM_LEFT)}</div>
             <div className={`${styles.worldClocks} ${styles.wcBottomRight}`}>{rows(BOTTOM_RIGHT)}</div>
         </>

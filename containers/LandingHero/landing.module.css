@@ -12,6 +12,8 @@
        02.11, 17:40: încă +½ (luminanța 0,615 → 0,87, ×√2) → L 0,955, adică
        din nou cât restul site-ului; textele secundare revin la valorile lui. */
     --bg:        oklch(0.955 0.004 80);
+    /* 02.11, 22:52 (Modul Regie, cue-ul 10): textul paginii negru */
+    --fg:        #000;
     --fg-soft:   oklch(0.40 0.005 80);
     --fg-faint:  oklch(0.58 0.005 80);
     --rule:      oklch(0.82 0.005 80);
@@ -107,6 +109,15 @@
     --wc-bl-w:     176px;   /* timecode + ■ STOP / ▶ PLAYBACK */
     --wc-bl-x:     min(calc(var(--cf-logos-x0) + 220px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - var(--wc-bl-w) - 16px));
     --cf-logos-x:  max(calc(var(--list-x) + 94px), min(var(--cf-logos-x0), calc(var(--wc-bl-x) - 190px)));
+
+    /* 02.11, 23:03 (Modul Regie, pe 1382×867): în colțul din stânga-jos,
+       Bangkok / Los Angeles la x = 79 (15 px după marginea listei), apoi
+       butonul de limbă la 225, apoi UE + Regio (cel puțin 15 px după buton),
+       apoi Mumbai / New York (cel puțin 24 px după logo-uri). */
+    --wc-far-x:    calc(var(--list-x) + 15px);
+    --lang-x:      calc(var(--list-x) + 161px);
+    --cf-logos-x2: max(var(--cf-logos-x), calc(var(--lang-x) + 72px));
+    --wc-bl-x2:    max(var(--wc-bl-x), calc(var(--cf-logos-x2) + 190px));
 }
 @media (max-width: 1599px) {
     .page { --wc-bl-w: 112px; }   /* stările rămân doar semne */
@@ -323,20 +334,36 @@
 /* jos în stânga: Mumbai / New York, unul sub altul (pas de 20 px) */
 .wcBottomLeft {
     top: auto;
-    bottom: 15px;             /* pe 864: rândurile la y = 816 și 836 */
-    left: var(--wc-bl-x);
+    /* 02.11, 22:52–23:03: rândurile tuturor timecode-urilor de jos la
+       y = 816 și 838 pe 867 (pas de 22 px) */
+    bottom: 16px;
+    left: var(--wc-bl-x2);
     flex-direction: column;
-    row-gap: 7px;
+    row-gap: 9px;
     z-index: 61;              /* peste bara de jos */
 }
+/* în colțul din stânga-jos: Bangkok / Los Angeles (02.11, 23:03, coborâte
+   din dreapta-sus), înaintea butonului de limbă */
+.wcBottomFar {
+    top: auto;
+    bottom: 16px;
+    left: var(--wc-far-x);
+    flex-direction: column;
+    row-gap: 9px;
+    z-index: 61;
+}
+/* doar semnele (▶ / ■), pe orice ecran — așa le-a așezat Ștefan, și numai
+   așa încap înaintea butonului de limbă */
+.wcBottomFar .wcLabel { display: none; }
+.wcBottomFar .wcRow   { gap: 6px; }
 /* jos în dreapta: Shanghai / Buenos Aires, după site-uri, pe rândurile lui
    Mumbai / New York (02.11, 16:25) */
 .wcBottomRight {
     top: auto;
-    bottom: 15px;
-    left: calc(var(--col-r) + 161px);
+    bottom: 16px;
+    left: calc(var(--col-r) + 136px);   /* 02.11, 22:52: −25 px */
     flex-direction: column;
-    row-gap: 7px;
+    row-gap: 9px;
     z-index: 61;
 }
 /* pe ecranele unde rândul nu încape (1440 px și mai înguste),
@@ -345,6 +372,13 @@
     .worldClocks .wcLabel { display: none; }
     .worldClocks .wcRow   { gap: 6px; }
     .worldClocks          { column-gap: 48px; }
+    /* 02.11, 22:52: la Shanghai / Buenos Aires semnul stă la 12 px */
+    .wcBottomRight .wcRow { gap: 12px; }
+}
+/* unde Mumbai / New York nu mai încap între UE + Regio și peliculă
+   (sub ~1376 px lățime), blocul lor se ascunde — se reface pe telefon/tabletă (faza 2b) */
+@media (max-width: 1375px) {
+    .wcBottomLeft { display: none; }
 }
 
 /* ── NAV — un rând orizontal sub antet, împărțit în jurul galeriei ──
@@ -386,6 +420,33 @@
     column-gap: 16px;
 }
 .navGroupRight .navItem { font-size: 15.4px; }
+
+/* 02.11, 23:03 (Modul Regie, pe 1382×867): meniul din dreapta urcă la y = 85;
+   ABOUT 61 px spre dreapta (col-r − 42), CONTACT 22 px (col-r + 66);
+   WORK înaintea lui ABOUT, la 16 px */
+.navItemAt {
+    position: absolute;
+    top: 27px;            /* 58 + 27 = 85 */
+    pointer-events: auto;
+    display: inline-flex;
+}
+.navItemAt .navItem { font-size: 15.4px; }
+.navAbout   { left: calc(var(--col-r) - 42px); }
+.navContact { left: calc(var(--col-r) + 66px); }
+.navWork    { right: calc(100% - var(--col-r) + 58px); }
+/* PEOPLE · GEAR — în stânga, pe rândul meniului (02.11, 23:03: pe 1382×867
+   la x = 405, după timecode-urile din antet); pe ecranele foarte înguste
+   se opresc la 12 px de peliculă */
+.navPeople {
+    left: min(calc(var(--logo-x) + 341px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 133px));
+    column-gap: 16px;
+}
+/* pagina deschisă: subliniată */
+.page .navItemActive {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+}
 
 .navItem {
     display: inline-flex;
@@ -504,8 +565,16 @@
     will-change: transform;
 }
 .filmListItem {
-    margin: 0 0 9px;
+    /* 02.11, 23:05: fiecare titlu e așezat de JS (syncList) — poziție, mărime
+       și lumină după distanța față de ramă (perspectiva listei) */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
     pointer-events: auto;
+    transform-origin: 0 50%;
+    will-change: transform, opacity;
 }
 .filmListBtn {
     appearance: none;
@@ -528,8 +597,6 @@
        derularea, de la marginea stângă. Lățimea maximă e aleasă astfel încât
        și mărit să încapă în coloană (titlurile foarte lungi trec pe 2 rânduri). */
     max-width: calc((100% - 18px) / 1.46);
-    transform-origin: 0 50%;
-    will-change: transform;
 }
 .filmListBtn:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 0.5px; }
 .filmListBtn:focus-visible { outline: 0.5px solid var(--fg); outline-offset: 4px; }
@@ -545,6 +612,19 @@
 }
 .sideRight .sideEyebrow { margin-bottom: 2px; line-height: 1.5; white-space: nowrap; }
 .sideRight .sideMeta    { margin-top: 10px; }
+/* anul filmului: pe rândul creditului, la col-r + 228 (02.11, 23:03: pe
+   1382×867 la x = 1314) */
+.sideYear {
+    position: absolute;
+    top: 0;
+    left: 347px;              /* creditul e la col-r − 119 */
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10.5px;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
+    color: var(--fg-faint);
+    font-variant-numeric: tabular-nums;
+}
 
 
 /* ── VIEWFINDER — four corners + REC + frame counter ── */
@@ -961,9 +1041,9 @@
     align-items: center;
 }
 
-.cofinanceLeft  { left: calc(var(--list-x) + 20px); transform: translateY(-2px); }   /* 02.11, 15:34: +34 px */
-.cofinanceLogos { left: var(--cf-logos-x); gap: 20px; transform: translateY(-2px); }  /* 02.11, 15:34: +31 px */
-.cofinanceRight { left: calc(var(--col-r) - 96px); gap: 26px; transform: translateY(-3px); }   /* 02.11, 15:34: −59 px */
+.cofinanceLeft  { left: var(--lang-x); transform: translateY(-2px); }        /* 02.11, 23:03: +141 px */
+.cofinanceLogos { left: var(--cf-logos-x2); gap: 20px; transform: translateY(-2px); }  /* 02.11, 15:34: +31 px */
+.cofinanceRight { left: calc(var(--col-r) - 121px); gap: 26px; transform: translateY(-3px); }   /* 02.11, 22:52: −25 px */
 
 .cfLogo {
     font-family: var(--font-mono), monospace;

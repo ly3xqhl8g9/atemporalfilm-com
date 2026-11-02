@@ -7,6 +7,7 @@ import {
     useState,
 } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import Cofinance from '@/containers/Cofinance';
 import FilmDetail from '@/containers/FilmDetail';
@@ -72,8 +73,10 @@ const LANG_NEXT:  Record<Lang, Lang>   = { en: 'ro', ro: 'fr', fr: 'en' };
 
 interface UITexts {
     nav: {
+        work:     string;
         about:    string;
         people:   string;
+        gear:     string;
         services: string;
         contact:  string;
         latest:   string;
@@ -86,8 +89,10 @@ interface UITexts {
 const UI: Record<Lang, UITexts> = {
     ro: {
         nav: {
+            work:     'Lucrări',
             about:    'Despre',
             people:   'Echipa',
+            gear:     'Echipament',
             services: 'Servicii',
             contact:  'Contact',
             latest:   'Recente',
@@ -98,8 +103,10 @@ const UI: Record<Lang, UITexts> = {
     },
     en: {
         nav: {
+            work:     'Work',
             about:    'About',
             people:   'People',
+            gear:     'Gear',
             services: 'Services',
             contact:  'Contact',
             latest:   'Latest',
@@ -110,8 +117,10 @@ const UI: Record<Lang, UITexts> = {
     },
     fr: {
         nav: {
+            work:     'Travaux',
             about:    'À propos',
             people:   'Équipe',
+            gear:     'Matériel',
             services: 'Services',
             contact:  'Contact',
             latest:   'Récents',
@@ -133,6 +142,28 @@ function pickWork(p: Project, lang: Lang): string {
 }
 
 /** Titlul proiectului în limba selectată, cu fallback la EN. */
+/** Anul filmului, pentru coloana din dreapta (02.11, 23:03): primul an de 4 cifre
+    din câmpul `year` („feature 2018 · horror” → 2018); gol dacă lipsește. */
+function pickYear(p: Project): string {
+    return p.year.match(/\b(19|20)\d{2}\b/)?.[0] ?? '';
+}
+
+/** Un link din meniu, subliniat când pagina lui e cea deschisă (02.11, 23:03:
+    „ca să știm pe ce pagină suntem”). WORK = homepage-ul. */
+function NavLink({ href, match, children }: { href: string; match?: string; children: React.ReactNode }) {
+    const path   = usePathname();
+    const active = path === (match ?? href);
+    return (
+        <Link
+            href={href}
+            className={`${styles.navItem} ${active ? styles.navItemActive : ''}`}
+            aria-current={active ? 'page' : undefined}
+        >
+            {children}
+        </Link>
+    );
+}
+
 function pickTitle(p: Project, lang: Lang): string {
     if (lang === 'ro') return p.titleRo;
     if (lang === 'fr') return p.titleFr ?? p.title;
@@ -455,6 +486,14 @@ const NUDGE    = 0.02;     // din pasul unui cadru (351 px → ~7 px)
 /** titlul din dreptul ramei, în lista din stânga (Modul Regie, 02.11, 15:34) */
 const TITLE_GROW  = 0.46;  // ×1,46
 const TITLE_SHIFT = 18;    // px spre dreapta
+/** perspectiva listei (02.11.2026, 23:05): după vecinii imediați (×1), fiecare
+    titlu e cu 8% mai mic decât cel dinaintea lui, până la jumătate; lumina scade
+    de la 0,45 (vecinii) la zero, pe douăsprezece titluri */
+const LIST_SHRINK = 0.92;
+const LIST_MIN    = 0.5;
+const LIST_O1     = 0.45;
+const LIST_FADE   = 12;
+const LIST_GAP    = 9;     // spațiul dintre titluri la mărimea normală (px)
 
 /* RAMA ÎN PARANTEZE — varianta /?rama=paranteze (02.11.2026, 15:34, după
    referința lui Ștefan): în locul ramei de geam, două paranteze negre,
@@ -521,7 +560,6 @@ export default function LandingHero() {
     const bandYRef      = useRef(0);
     const lastTopRef    = useRef(0);
     const exposureRef   = useRef<number[]>([]);
-    const titleGrowRef  = useRef<number[]>([]);
     // derularea continuă: animația de așezare, cadrul pe care s-a oprit ultima
     // dată, direcția ultimei mișcări și poziția de la evenimentul precedent
     const animRef       = useRef<number | null>(null);
@@ -591,26 +629,52 @@ export default function LandingHero() {
         if (!gallery || !track || items.length === 0) return;
         const last = SLOTS.length - 1;
         const f    = Math.min(last, Math.max(0, (gallery.scrollTop - originRef.current) / slotPitch()));
-        const i0   = Math.floor(f);
-        const i1   = Math.min(last, i0 + 1);
-        const y0   = items[i0]?.offsetTop ?? 0;
-        const y1   = items[i1]?.offsetTop ?? y0;
-        const y    = y0 + (y1 - y0) * (f - i0);
-        track.style.transform = `translate3d(0, ${-y}px, 0)`;
-        const grow = titleGrowRef.current;
-        items.forEach((el, i) => {
-            if (!el) return;
-            const d = Math.abs(i - f);
-            el.style.opacity = String(Math.max(0.16, 1 - 0.6 * d));
-            // titlul din dreptul ramei crește treptat (×1,46, 18 px spre dreapta)
-            const x = Math.max(0, 1 - d);
-            const g = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;
-            if (grow[i] === g) return;
-            grow[i] = g;
-            const btn = el.firstElementChild as HTMLElement | null;
-            if (btn) btn.style.transform = g === 0 ? '' :
-                `translateX(${(TITLE_SHIFT * g).toFixed(2)}px) scale(${(1 + TITLE_GROW * g).toFixed(4)})`;
-        });
+        /* PERSPECTIVA LISTEI (02.11.2026, 23:05, cerut de Ștefan): titlul din
+           ramă e cel mai mare; cu cât un titlu e mai departe de el, cu atât e mai
+           mic și mai stins — ca rândurile unei role care se depărtează. Distanța
+           dintre titluri scade odată cu mărimea lor, deci lista se strânge spre
+           capete. Fiecare titlu e așezat din JS (transform), după poziția
+           continuă a derulării (f): mărimea și lumina curg odată cu pelicula. */
+        const n   = items.length;
+        const h   = Array.from(items, (el) => el?.offsetHeight ?? 0);
+        const sc  = new Array<number>(n);
+        const g   = new Array<number>(n);
+        for (let i = 0; i < n; i++) {
+            const ad = Math.abs(i - f);
+            if (ad < 1) {
+                const x = 1 - ad;
+                g[i]  = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;   // smoothstep
+                sc[i] = 1 + TITLE_GROW * g[i];
+            } else {
+                g[i]  = 0;
+                sc[i] = Math.max(LIST_MIN, Math.pow(LIST_SHRINK, ad - 1));
+            }
+        }
+        // centrele titlurilor, de la i0 în ambele sensuri; pasul = media
+        // înălțimilor (cu tot cu spațiul dintre ele) celor doi vecini, micșorate
+        const c  = new Array<number>(n);
+        const i0 = Math.min(n - 1, Math.floor(f));
+        const pitch = (i: number) => ((h[i] + LIST_GAP) * sc[i] + (h[i + 1] + LIST_GAP) * sc[i + 1]) / 2;
+        c[i0] = 0;
+        for (let i = i0 + 1; i < n; i++) c[i] = c[i - 1] + pitch(i - 1);
+        for (let i = i0 - 1; i >= 0; i--) c[i] = c[i + 1] - pitch(i);
+        const off = i0 + 1 < n ? c[i0] + (c[i0 + 1] - c[i0]) * (f - i0) : c[i0];
+        // centrul titlului din ramă = centrul unui titlu pe un rând (ca înainte)
+        const cy = (h.find((v) => v > 0) ?? 17) / 2;
+        track.style.transform = '';
+        for (let i = 0; i < n; i++) {
+            const el = items[i];
+            if (!el) continue;
+            const ad = Math.abs(i - f);
+            const o  = ad < 1
+                ? LIST_O1 + (1 - LIST_O1) * g[i]
+                : LIST_O1 * Math.pow(Math.max(0, 1 - (ad - 1) / LIST_FADE), 1.4);
+            const y  = cy + c[i] - off - h[i] / 2;
+            el.style.opacity    = o < 0.005 ? '0' : o.toFixed(3);
+            el.style.visibility = o < 0.005 ? 'hidden' : '';
+            el.style.transform  =
+                `translate3d(${(TITLE_SHIFT * g[i]).toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${sc[i].toFixed(4)})`;
+        }
 
         /* LUMINA DIN LASĂ (30.10, seria a cincea): în spatele ramei e lumină.
            Afișul se aprinde treptat cât intră în ramă — culoare, expunere,
@@ -910,12 +974,17 @@ export default function LandingHero() {
             {/* NAV — în rândul antetului, în dreapta galeriei: Despre · Echipa · Contact,
                 fără cifre și fără punctuație. Servicii și Recente scoase de pe homepage;
                 butonul de limbă e în bara de jos. Modul Regie, 30.10.2026 (seria a doua). */}
+            {/* 02.11, 23:03 (Modul Regie): meniul urcă la y = 85; WORK (= homepage-ul)
+                apare înaintea lui ABOUT, CONTACT stă mai departe; PEOPLE și GEAR
+                au trecut în stânga, pe același rând, după timecode-urile din antet. Pagina deschisă e subliniată. */}
             <nav className={styles.navRow} aria-label="Main navigation">
-                <div className={`${styles.navGroup} ${styles.navGroupRight}`}>
-                    <Link href="/about" className={styles.navItem}>{t.nav.about}</Link>
-                    <Link href="/about" className={styles.navItem}>{t.nav.people}</Link>
-                    <Link href="/contact" className={styles.navItem}>{t.nav.contact}</Link>
-                </div>
+                <span className={`${styles.navItemAt} ${styles.navPeople}`}>
+                    <NavLink href="/about" match="/people">{t.nav.people}</NavLink>
+                    <NavLink href="/gear">{t.nav.gear}</NavLink>
+                </span>
+                <span className={`${styles.navItemAt} ${styles.navWork}`}><NavLink href="/">{t.nav.work}</NavLink></span>
+                <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
+                <span className={`${styles.navItemAt} ${styles.navContact}`}><NavLink href="/contact">{t.nav.contact}</NavLink></span>
             </nav>
 
 
@@ -936,7 +1005,7 @@ export default function LandingHero() {
                                 key={i}
                                 ref={(el) => { listItemRefs.current[i] = el; }}
                                 className={styles.filmListItem}
-                                style={{ opacity: Math.max(0.16, 1 - 0.6 * Math.abs(i - HOME)) }}
+                                style={{ opacity: i === HOME ? 1 : 0 }}   // până la prima așezare (syncList)
                                 aria-hidden={home ? undefined : true}
                             >
                                 <button
@@ -958,6 +1027,8 @@ export default function LandingHero() {
                 Mutat mai aproape de ramă; lista de oameni scoasă (30.10, seria a treia). */}
             <aside className={`${styles.side} ${styles.sideRight}`} style={fadeStyle}>
                 <div className={styles.sideEyebrow}>{projWork}</div>
+                {/* anul filmului, pe rândul creditului, în dreapta (02.11, 23:03) */}
+                {pickYear(proj) && <div className={styles.sideYear}>{pickYear(proj)}</div>}
                 <div className={styles.sideMeta}>{t.by} {projBy}</div>
             </aside>
 
