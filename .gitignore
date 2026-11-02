@@ -38,3 +38,6 @@ next-env.d.ts
 
 # Modul Regie — cue-uri trimise din previzualizarea locală
 /.regie/
+
+# GEAR — adresele celor care au cerut lista de echipament (date personale)
+/.gear/

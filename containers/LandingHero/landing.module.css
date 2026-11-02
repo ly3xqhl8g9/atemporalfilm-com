@@ -467,6 +467,140 @@
 }
 .navItem:hover { opacity: 0.5; }
 
+/* GEAR și CONTACT sunt butoane (03.11.2026), dar arată ca linkurile din meniu */
+.navButton {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    line-height: inherit;
+    cursor: pointer;
+}
+
+/* CONTACT → confirmarea copierii, sub cuvânt, aliniată la dreapta lui */
+.copiedNote {
+    position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--fg-soft);
+}
+.copiedNoteText {
+    display: block;
+    animation: copiedNote 2.6s ease forwards;
+}
+@keyframes copiedNote {
+    0%   { opacity: 0; transform: translateY(-3px); }
+    8%   { opacity: 1; transform: none; }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* GEAR → căsuța pentru mail (03.11.2026). În coloana din dreapta, sub meniu:
+   începe unde începe creditul / textul ABOUT (col-r − 119; pe 1382: x = 967)
+   și se termină la marginea dreaptă a lui CONTACT (col-r + 253); y = 112. */
+.gearBox {
+    position: absolute;
+    top: 54px;            /* 58 + 54 = 112 */
+    left: calc(var(--col-r) - 119px);
+    width: min(372px, calc(100vw - var(--col-r) + 119px - 32px));
+    box-sizing: border-box;
+    padding: 18px 20px 16px;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    color: var(--fg);
+    pointer-events: auto;
+    z-index: 70;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12.75px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    animation: gearIn 0.18s ease-out;
+}
+@keyframes gearIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+}
+.gearPrompt { margin: 0 26px 16px 0; }
+.gearClose {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: 0;
+    padding: 2px 4px;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--fg);
+    cursor: pointer;
+    opacity: 0.55;
+}
+.gearClose:hover { opacity: 1; }
+.gearForm {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--fg-soft);
+}
+.gearForm:focus-within { border-bottom-color: var(--fg); }
+.gearInput {
+    flex: 1;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 4px 0 5px;
+    font: inherit;
+    color: var(--fg);
+    outline: none;
+}
+.gearInput::placeholder { color: var(--fg-faint); opacity: 1; }
+.gearSend {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 4px 0 5px;
+    font: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.gearSend:disabled { opacity: 0.35; cursor: default; }
+.gearSend:not(:disabled):hover { opacity: 0.5; }
+.gearHoney {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+.gearStatus { margin: 10px 0 0; min-height: 1.6em; }
+.gearStatus:empty { min-height: 0; margin: 0; }
+.gearNote {
+    margin: 10px 0 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--fg-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+    .gearBox, .copiedNoteText { animation: none; }
+}
+
 .langBtn {
     appearance: none;
     background: transparent;

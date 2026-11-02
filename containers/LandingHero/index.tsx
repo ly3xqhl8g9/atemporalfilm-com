@@ -13,6 +13,8 @@ import Cofinance from '@/containers/Cofinance';
 import FilmDetail from '@/containers/FilmDetail';
 import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 
+import ContactCopy from './ContactCopy';
+import GearRequest from './GearRequest';
 import styles from './landing.module.css';
 
 
@@ -1167,10 +1169,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 <span className={`${styles.navItemAt} ${styles.navPeople}`}>
                     <NavLink href="/people">{t.nav.people}</NavLink>
                 </span>
-                <span className={`${styles.navItemAt} ${styles.navGear}`}><NavLink href="/gear">{t.nav.gear}</NavLink></span>
+                {/* 03.11: GEAR deschide căsuța pentru mail → descarcă lista de echipament */}
+                <GearRequest lang={lang} label={t.nav.gear} />
                 <span className={`${styles.navItemAt} ${styles.navWork}`}><NavLink href="/">{t.nav.work}</NavLink></span>
                 <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
-                <span className={`${styles.navItemAt} ${styles.navContact}`}><NavLink href="/contact">{t.nav.contact}</NavLink></span>
+                {/* 03.11: CONTACT copiază datele de contact în clipboard */}
+                <ContactCopy lang={lang} label={t.nav.contact} />
             </nav>
 
 
