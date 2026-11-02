@@ -491,6 +491,7 @@ export default function LandingHero() {
     // nu se mai calculează din 50vh, care în Safari poate diferi de centrul ramei
     const vfRef         = useRef<HTMLDivElement | null>(null);
     const originRef     = useRef(0);
+    const keyTargetRef  = useRef<number | null>(null);   // cadrul spre care merge galeria după săgeți
 
     const t = UI[lang];
 
@@ -791,6 +792,34 @@ export default function LandingHero() {
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
+
+    /* SĂGEȚILE ↑ ↓ (02.11.2026, 19:21): o apăsare = afișul anterior / următor,
+       cu aceeași mișcare lină ca la rotiță. Apăsările repetate (sau ținute)
+       se adună: fiecare pornește de la cadrul spre care merge deja galeria.
+       Nu fac nimic cât timp e deschisă fereastra filmului sau când se scrie
+       într-un câmp de text (ex. o notă în Modul Regie). */
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+            if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+            if (expandedIdx !== null) return;
+            const el = e.target as HTMLElement | null;
+            if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+            e.preventDefault();   // fără derularea proprie a browserului
+            const from = animRef.current !== null && keyTargetRef.current !== null
+                ? keyTargetRef.current
+                : lastActiveRef.current;
+            const last   = SLOTS.length - 1;
+            const target = Math.min(last, Math.max(0, from + (e.key === 'ArrowDown' ? 1 : -1)));
+            keyTargetRef.current = target;
+            glideTo(target, () => {
+                keyTargetRef.current = null;
+                arrive(target);
+            });
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [expandedIdx, glideTo, arrive]);
 
 
     const film            = filmOf(active);
