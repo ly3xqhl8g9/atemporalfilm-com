@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 import Cofinance from '@/containers/Cofinance';
 import FilmDetail from '@/containers/FilmDetail';
-import HeaderClocks from '@/containers/HeaderClocks';
+import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 
 import styles from './landing.module.css';
 
@@ -384,7 +384,7 @@ const isHome   = (slot: number) => slot >= HOME && slot < HOME + N;
 const IDLE_MS  = 160;      // derularea s-a oprit dacă nu mai vine niciun eveniment
 /** înălțimea tile-ului pistei sonore, în px CSS (public/assets/ui/soundtrack.webp,
     „TILE” afișat de scripts/pista-sonora.py) */
-const BAND_TILE = 3968;
+const BAND_TILE = 2732;
 
 
 /* ============================================================
@@ -397,6 +397,12 @@ export default function LandingHero() {
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
     const [lang, setLang]                   = useState<Lang>('ro');
+    // varianta de comparație (02.11, a doua serie): /?rama=lata — rama îngroșată
+    // doar la stânga și la dreapta (sus și jos subțire, ca înainte)
+    const [ramaLata, setRamaLata]           = useState(false);
+    useEffect(() => {
+        setRamaLata(new URLSearchParams(window.location.search).get('rama') === 'lata');
+    }, []);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -600,7 +606,7 @@ export default function LandingHero() {
      *                      RENDER
      * -------------------------------------------------- */
     return (
-        <div className={`${styles.page} ${ready ? '' : styles.notReady}`}>
+        <div className={`${styles.page} ${ready ? '' : styles.notReady} ${ramaLata ? styles.ramaLata : ''}`}>
 
             {/* GRAIN overlay — peste tot */}
             <div className={styles.grain} aria-hidden="true" />
@@ -674,6 +680,10 @@ export default function LandingHero() {
                 <div className={styles.sideEyebrow}>{projWork}</div>
                 <div className={styles.sideMeta}>{t.by} {projBy}</div>
             </aside>
+
+            {/* timecode-urile lumii, în coloana din dreapta: sub meniu și sub credit,
+                fiecare cu ▶ PLAYBACK sau ■ STOP (Modul Regie, 02.11.2026, a doua serie) */}
+            <WorldClocks />
 
 
             {/* VIZOR — rama de geam mat (din poza lui Ștefan, 30.10.2026), fixă peste

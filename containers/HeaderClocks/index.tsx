@@ -10,15 +10,15 @@ import styles from '@/containers/LandingHero/landing.module.css';
    Timecode-uri la 24 fps (ore:minute:secunde:cadre).
    Abrevierea fusului trece singură între ora de vară și cea de iarnă.
 
-   Modul Regie, 02.11.2026:
-     • <HeaderClocks /> — în antet rămâne doar București: „EET 15:54:21:11” + ● REC,
-       imediat după logo.
-     • <WorldClocks />  — timecode-urile lumii, în bara de jos, în două coloane:
-         stânga  — Los Angeles · New York · Buenos Aires
-         dreapta — Mumbai · Bangkok · Shanghai ▶ PLAYBACK
-       New York și Shanghai au coborât din antet (cue-urile 01 și 02);
-       Los Angeles, Buenos Aires, Mumbai și Bangkok sunt noi (cue-ul 03).
-       Shanghai nu e în REC, ci în PLAYBACK (triunghi verde).
+   Modul Regie, 02.11.2026 (a doua serie, 14:20):
+     • <HeaderClocks /> — în antet, imediat după logo: București și Madrid,
+       fiecare cu ● REC (Madrid e nou, cue-ul 09).
+     • <WorldClocks />  — timecode-urile lumii au urcat din bara de jos în
+       coloana din dreapta, fiecare cu starea lui de „magnetofon”:
+         sub meniu   — Los Angeles ▶ PLAYBACK · Mumbai ■ STOP ·
+                       Shanghai ▶ PLAYBACK · Bangkok ▶ PLAYBACK
+         sub credit  — New York ▶ PLAYBACK · Buenos Aires ■ STOP
+       (cue-urile 02–08; ordinea rândurilor e cea din cue-uri).
    ============================================================ */
 
 interface Zone { city: string; tz: string; abbr: Record<string, string> }
@@ -27,18 +27,27 @@ interface Zone { city: string; tz: string; abbr: Record<string, string> }
 const LOS_ANGELES:  Zone = { city: 'Los Angeles',  tz: 'America/Los_Angeles',            abbr: { '-8': 'PST', '-7': 'PDT' } };
 const NEW_YORK:     Zone = { city: 'New York',     tz: 'America/New_York',               abbr: { '-5': 'EST', '-4': 'EDT' } };
 const BUENOS_AIRES: Zone = { city: 'Buenos Aires', tz: 'America/Argentina/Buenos_Aires', abbr: { '-3': 'ART' } };
+const MADRID:       Zone = { city: 'Madrid',       tz: 'Europe/Madrid',                  abbr: { '1': 'CET', '2': 'CEST' } };
 const BUCHAREST:    Zone = { city: 'București',    tz: 'Europe/Bucharest',               abbr: { '2': 'EET', '3': 'EEST' } };
 const MUMBAI:       Zone = { city: 'Mumbai',       tz: 'Asia/Kolkata',                   abbr: { '5.5': 'IST' } };
 const BANGKOK:      Zone = { city: 'Bangkok',      tz: 'Asia/Bangkok',                   abbr: { '7': 'ICT' } };
 const SHANGHAI:     Zone = { city: 'Shanghai',     tz: 'Asia/Shanghai',                  abbr: { '8': 'CST' } };
 
-/** coloanele din bara de jos, fiecare de la vest la est */
-const AMERICAS: Zone[] = [LOS_ANGELES, NEW_YORK, BUENOS_AIRES];
-const ASIA:     Zone[] = [MUMBAI, BANGKOK, SHANGHAI];
-const WORLD:    Zone[] = [...AMERICAS, ...ASIA];
-const HOME:     Zone[] = [BUCHAREST];
-/** fusul care e „în playback” */
-const PLAYBACK_ZONE = SHANGHAI;
+type Transport = 'play' | 'stop';
+
+/** coloana din dreapta: sub meniu și sub credit, în ordinea din cue-uri */
+const RIGHT_TOP: [Zone, Transport][] = [
+    [LOS_ANGELES, 'play'],
+    [MUMBAI,      'stop'],
+    [SHANGHAI,    'play'],
+    [BANGKOK,     'play'],
+];
+const RIGHT_LOW: [Zone, Transport][] = [
+    [NEW_YORK,     'play'],
+    [BUENOS_AIRES, 'stop'],
+];
+const WORLD: Zone[] = [...RIGHT_TOP, ...RIGHT_LOW].map(([z]) => z);
+const HOME:  Zone[] = [BUCHAREST, MADRID];
 
 const FPS = 24;
 
@@ -119,36 +128,40 @@ function useTimecodes(zones: Zone[]) {
 }
 
 
-/** Antetul: București + REC, imediat după logo. */
+/** Antetul: București și Madrid, fiecare cu ● REC, imediat după logo. */
 export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }) {
     const tc = useTimecodes(HOME);
     return (
         <div className={styles.hdClocks}>
-            <span className={styles.hdTimecodeGroup}>
-                {tc(BUCHAREST)}
-                <span className={styles.hdRec}>{recLabel}</span>
-            </span>
+            {HOME.map((z) => (
+                <span key={z.tz} className={styles.hdTimecodeGroup}>
+                    {tc(z)}
+                    <span className={styles.hdRec}>{recLabel}</span>
+                </span>
+            ))}
         </div>
     );
 }
 
 
-/** Bara de jos: timecode-urile lumii, în două coloane (Americile · Asia). */
-export function WorldClocks({ playbackLabel = 'PLAYBACK' }: { playbackLabel?: string }) {
+/** Coloana din dreapta: timecode-urile lumii, fiecare cu ▶ PLAYBACK sau ■ STOP. */
+export function WorldClocks({
+    playbackLabel = 'PLAYBACK',
+    stopLabel = 'STOP',
+}: { playbackLabel?: string; stopLabel?: string }) {
     const tc = useTimecodes(WORLD);
+    const row = ([z, state]: [Zone, Transport]) => (
+        <span key={z.tz} className={styles.wcRow}>
+            {tc(z)}
+            {state === 'play'
+                ? <span className={styles.hdPlay}>{playbackLabel}</span>
+                : <span className={styles.hdStop}>{stopLabel}</span>}
+        </span>
+    );
     return (
         <>
-            <div className={`${styles.worldClocks} ${styles.wcAmericas}`}>
-                {AMERICAS.map((z) => tc(z))}
-            </div>
-            <div className={`${styles.worldClocks} ${styles.wcAsia}`}>
-                {ASIA.map((z) => (z === PLAYBACK_ZONE ? (
-                    <span key={z.tz} className={styles.wcRow}>
-                        {tc(z)}
-                        <span className={styles.hdPlay}>{playbackLabel}</span>
-                    </span>
-                ) : tc(z)))}
-            </div>
+            <div className={`${styles.worldClocks} ${styles.wcTop}`}>{RIGHT_TOP.map(row)}</div>
+            <div className={`${styles.worldClocks} ${styles.wcLow}`}>{RIGHT_LOW.map(row)}</div>
         </>
     );
 }
