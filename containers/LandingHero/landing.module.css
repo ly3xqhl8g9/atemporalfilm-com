@@ -38,7 +38,9 @@
        fundalul peliculei e negru. Dimensiunile urmează ideea, nu milimetrii. */
     --band-w:     27px;                                      /* pista sonoră (36 × 0,75) */
     --frame-w:    calc(var(--img-w) + var(--band-w));        /* afiș + pistă = 237 px */
-    --poster-shift: calc(var(--band-w) / -2);                /* afișul + pista, centrate împreună */
+    /* 02.11, 15:10: pista trece în stânga afișului → afișul se mută spre dreapta
+       cu jumătate de pistă; afișul + pista rămân centrate împreună */
+    --poster-shift: calc(var(--band-w) / 2);
     /* perforația (02.11, a doua serie, corectată la 14:40): benzile laterale
        din poza de 35 mm a lui Ștefan — marginea peliculei, găurile, marcajele
        portocalii —, întoarse pe verticală: public/assets/ui/perforatie-st.webp
@@ -564,7 +566,7 @@
 .notReady .lamp { opacity: 0 !important; }
 
 
-/* ── PISTA SONORĂ — banda din dreapta afișului ──
+/* ── PISTA SONORĂ — banda din stânga afișului (din 02.11, 15:10; înainte în dreapta) ──
    Ca pista optică de lângă fotogramă, pe pelicula de 35 mm. Din 02.11.2026
    desenul e forma de undă trimisă de Ștefan, alb pe negru, verticală:
    /assets/ui/soundtrack.webp (generat de scripts/pista-sonora.py) și curge
@@ -575,9 +577,9 @@
     --gate-bot: calc(50% + var(--img-h) / 2);
     position: fixed;
     top: 0;
-    /* lipită de marginea dreaptă a afișului (02.11: varianta „pista în afara
-       ramei” a fost retrasă — pista face parte din peliculă) */
-    left: calc(50% + (var(--img-w) - var(--band-w)) / 2);
+    /* lipită de marginea stângă a afișului, între perforația din stânga și
+       imagine, ca pe pelicula de 35 mm (02.11, 15:10) */
+    left: calc(50% - (var(--img-w) + var(--band-w)) / 2);
     width: var(--band-w);
     height: 100vh;
     overflow: hidden;

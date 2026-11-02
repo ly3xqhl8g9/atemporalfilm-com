@@ -505,7 +505,7 @@ export default function LandingHero() {
             if (halo) halo.style.opacity = (0.22 * e).toFixed(3);
         });
 
-        /* PISTA SONORĂ — banda din dreapta afișului curge odată cu pelicula.
+        /* PISTA SONORĂ — banda din stânga afișului curge odată cu pelicula.
            Mișcarea vine din derulare; săriturile invizibile dintre copiile galeriei
            (jumpTo) nu o mișcă, deci banda nu sare niciodată. */
         const top = gallery.scrollTop;
@@ -701,7 +701,7 @@ export default function LandingHero() {
             <div className={styles.lamp} aria-hidden="true" />
 
 
-            {/* PISTA SONORĂ — bandă neagră lipită de marginea dreaptă a afișelor, ca pista
+            {/* PISTA SONORĂ — bandă neagră lipită de marginea stângă a afișelor, ca pista
                 optică de lângă fotogramă pe pelicula de 35 mm. Din 02.11.2026 desenul e forma
                 de undă trimisă de Ștefan, alb pe negru (scripts/pista-sonora.py).
                 Curge odată cu galeria; în dreptul ramei e luminată, în rest subexpusă. */}
