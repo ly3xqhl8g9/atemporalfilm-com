@@ -421,6 +421,12 @@ const BAND_TILE = 2049;   // 02.11, 15:00: 2732 × 0,75 (tot ansamblul micșorat
    <LandingHero />
    ============================================================ */
 
+/* EXPUNEREA AFIȘELOR (02.11.2026, 18:25): afară — subexpuse, alb-negru;
+   în ramă — dense (≈ −1¾ diafragmă), pentru că lampa din spatele geamului
+   (.lamp, color-dodge, ~×3,3 în medie) le aduce la expunerea corectă. */
+const EXPO_OUT = 0.15;
+const EXPO_IN  = 0.30;
+
 export default function LandingHero() {
     const [active, setActive]               = useState(HOME);   // slotul din ramă
     const [ready, setReady]                 = useState(false);  // așezat pe filmul de start
@@ -550,10 +556,13 @@ export default function LandingHero() {
             // e = 1: culoare plină, expus (ca afișul din ramă)
             // 02.11: afișele nu se mai micșorează afară — stau lipite de pista sonoră,
             // pe peliculă; transparența din afara ramei o dă masca galeriei
+            // 02.11, 18:25: pelicula e densă — afișul e ținut întunecat (×0,15 afară,
+            // ×0,30 în ramă), iar lampa din spate (~×3,3) îl aduce în geam la expunerea
+            // corectă, cu culorile lui; în centrul geamului puțin peste, la margini puțin sub
             img.style.filter =
-                // în ramă (e = 1) afișul are exact culorile lui — fără saturație sau contrast adăugat
                 `grayscale(${(1 - e).toFixed(3)}) ` +
-                `contrast(${(1.15 - 0.15 * e).toFixed(3)}) brightness(${(0.4 + 0.6 * e).toFixed(3)})`;
+                `contrast(${(1.15 - 0.15 * e).toFixed(3)}) ` +
+                `brightness(${(EXPO_OUT + (EXPO_IN - EXPO_OUT) * e).toFixed(3)})`;
             // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
             // (02.11, 17:40: mai puternică și caldă, după referință)
             if (halo) halo.style.opacity = (0.32 * e).toFixed(3);

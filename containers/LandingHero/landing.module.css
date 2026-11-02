@@ -64,8 +64,9 @@
        02.11, 18:15: RAMA DE METAL VOPSIT — geamul e exact afișul + pista
        (237 × 315, colțuri drepte, fără textura de geam: tot afișul se vede);
        lateralele de 30 px acoperă perforația (297 > 289), sus și jos 8 px.
-       Suprafața: vopsea „ciocănită” gri-oliv, din poza lui Ștefan.
-       scripts/rama-metal.py 297 331 237 315 public/assets/ui */
+       Suprafața: vopsea „ciocănită”, din poza lui Ștefan; 18:25: vopsită
+       negru, cu același relief.
+       scripts/rama-metal.py 297 331 237 315 public/assets/ui "" --negru */
     --vf-w:      297px;
     --vf-h:      331px;
     /* pasul galeriei = un cadru: afiș + 36 px de peliculă neagră între cadre */
@@ -553,7 +554,7 @@
 .vfGlass {
     position: absolute;
     inset: 0;
-    background: url("/assets/ui/vizor.webp?v=7") center / 100% 100% no-repeat;
+    background: url("/assets/ui/vizor.webp?v=8") center / 100% 100% no-repeat;
     /* rama de metal stă puțin deasupra peliculei: o umbră fină sub ea */
     filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
 }
@@ -572,10 +573,10 @@
 .ramaFina .gallery {
     -webkit-mask-image:
         url("/assets/ui/vizor-mask-F.webp?v=1"),
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
             mask-image:
         url("/assets/ui/vizor-mask-F.webp?v=1"),
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
 }
 
 
@@ -599,13 +600,13 @@
             transparent calc(50% - var(--img-h) / 2 - 14px), black calc(50% - var(--img-h) / 2 + 2px),
             black calc(50% + var(--img-h) / 2 - 2px), transparent calc(50% + var(--img-h) / 2 + 14px))
             center / var(--frame-w) 100% no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
             mask:
         linear-gradient(to bottom,
             transparent calc(50% - var(--img-h) / 2 - 14px), black calc(50% - var(--img-h) / 2 + 2px),
             black calc(50% + var(--img-h) / 2 - 2px), transparent calc(50% + var(--img-h) / 2 + 14px))
             center / var(--frame-w) 100% no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
 }
 .brackets {
     position: fixed;
@@ -658,8 +659,8 @@
         rgb(183, 180, 174) 30%,
         rgb(177, 175, 171) 62%,
         rgb(170, 169, 168) 100%);
-    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=7") center / 100% 100% no-repeat;
-            mask: url("/assets/ui/vizor-mask.webp?v=7") center / 100% 100% no-repeat;
+    -webkit-mask: url("/assets/ui/vizor-mask.webp?v=8") center / 100% 100% no-repeat;
+            mask: url("/assets/ui/vizor-mask.webp?v=8") center / 100% 100% no-repeat;
     will-change: opacity;
     animation: shutter24 0.5s steps(1, end) infinite;
 }
@@ -704,11 +705,11 @@
         rgba(255, 142, 62, 0) 80%);
     -webkit-mask:
         linear-gradient(#000, #000),
-        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat;
+        url("/assets/ui/vizor-mask.webp?v=8") center / var(--vf-w) var(--vf-h) no-repeat;
     -webkit-mask-composite: xor;
             mask:
         linear-gradient(#000, #000),
-        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat;
+        url("/assets/ui/vizor-mask.webp?v=8") center / var(--vf-w) var(--vf-h) no-repeat;
             mask-composite: exclude;
     transition: opacity 0.6s ease;
 }
@@ -725,7 +726,7 @@
         rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.26) 28%,
         rgba(255, 255, 255, 0.10) 55%, rgba(255, 255, 255, 0) 80%);
 }
-.luminaNeutra .slotHalo { filter: blur(9px) contrast(2.4) brightness(0.62); }
+.luminaNeutra .slotHalo { filter: blur(9px) contrast(2.4) brightness(0.2); }
 
 /* celelalte rame: haloul nu intră în geamul lor */
 .ramaFina .backlight {
@@ -759,15 +760,15 @@
     pointer-events: none;
     transition: opacity 0.6s ease;
     -webkit-mask-image: linear-gradient(to bottom,
-        transparent 0, rgba(0, 0, 0, 0.72) 8%,
-        rgba(0, 0, 0, 0.72) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
-        black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.72) calc(var(--gate-bot) + 40px),
-        rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        transparent 0, rgba(0, 0, 0, 0.88) 8%,
+        rgba(0, 0, 0, 0.88) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
+        black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.88) calc(var(--gate-bot) + 40px),
+        rgba(0, 0, 0, 0.88) 92%, transparent 100%);
             mask-image: linear-gradient(to bottom,
-        transparent 0, rgba(0, 0, 0, 0.72) 8%,
-        rgba(0, 0, 0, 0.72) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
-        black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.72) calc(var(--gate-bot) + 40px),
-        rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        transparent 0, rgba(0, 0, 0, 0.88) 8%,
+        rgba(0, 0, 0, 0.88) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
+        black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.88) calc(var(--gate-bot) + 40px),
+        rgba(0, 0, 0, 0.88) 92%, transparent 100%);
 }
 /* subexpunerea din afara ramei: albul pistei devine gri */
 .soundtrack::after {
@@ -826,15 +827,17 @@
     z-index: 30;
     transition: opacity 0.6s ease;
 
-    /* expunerea peliculei (02.11): în geamul ramei plină; în rest 72%, ca
+    /* 18:25: în afara geamului 88% (înainte 72%) — afișele subexpuse și
+       pelicula mai închise, ca în referință.
+       expunerea peliculei (02.11): în geamul ramei plină; în rest 72%, ca
        afișele vecine și pista — negrul peliculei devine gri închis, iar sus
        și jos se stinge. Două straturi de mască, adunate: geamul + restul. */
     -webkit-mask:
-        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        url("/assets/ui/vizor-mask.webp?v=8") center / var(--vf-w) var(--vf-h) no-repeat,
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
             mask:
-        url("/assets/ui/vizor-mask.webp?v=7") center / var(--vf-w) var(--vf-h) no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.72) 8%, rgba(0, 0, 0, 0.72) 92%, transparent 100%);
+        url("/assets/ui/vizor-mask.webp?v=8") center / var(--vf-w) var(--vf-h) no-repeat,
+        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }
 
@@ -881,7 +884,7 @@
 
     /* implicit = în afara ramei: alb-negru, subexpus. Cât intră în ramă,
        JS-ul (syncList) îl aprinde treptat până la culoare plină. */
-    filter: grayscale(1) contrast(1.15) brightness(0.4);
+    filter: grayscale(1) contrast(1.15) brightness(0.15);
 }
 
 /* PERFORAȚIA (02.11, corectată la 14:40) — benzile laterale din poza de 35 mm
@@ -917,7 +920,9 @@
     mix-blend-mode: screen;
     /* doar zonele cele mai luminoase; 02.11, 17:40 (referința): halația e
        caldă, portocalie, ca lumina becului care se împrăștie în emulsie */
-    filter: blur(9px) contrast(2.4) brightness(0.62) sepia(0.55) saturate(1.9);
+    /* 18:25: afișul e acum dens (×0,3), iar lampa îl aduce la expunerea
+       corectă — halația e și ea ×0,3, ca să rămână în aceeași proporție */
+    filter: blur(9px) contrast(2.4) brightness(0.2) sepia(0.55) saturate(1.9);
     opacity: 0;
     /* pe afiș și 8 px în jur — lumina „curge” puțin pe negrul dintre cadre */
     clip-path: inset(-8px);

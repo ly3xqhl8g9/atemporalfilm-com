@@ -1,5 +1,5 @@
 """Rama-vizor din metal vopsit (Modul Regie / chat, 02.11.2026, 18:15).
-    python3 scripts/rama-metal.py LATIME INALTIME GEAM_L GEAM_I IESIRE/ [SUFIX]
+    python3 scripts/rama-metal.py LATIME INALTIME GEAM_L GEAM_I IESIRE/ [SUFIX] [--negru]
 Scrie vizor{SUFIX}.webp (rama) și vizor-mask{SUFIX}.webp (geamul), la 3× (Retina),
 de LATIME × INALTIME px CSS, cu geamul GEAM_L × GEAM_I px CSS în centru.
 
@@ -10,6 +10,9 @@ de LATIME × INALTIME px CSS, cu geamul GEAM_L × GEAM_I px CSS în centru.
     vopsea „ciocănită”, gri-oliv): lumina neuniformă din poză e netezită, iar
     textura e repetată în oglindă, ca să nu se vadă îmbinări; 1 px de poză =
     1 px de imagine (⅓ px CSS) — boabele vopselei au 2–4 px CSS;
+  • --negru (02.11, 18:25): aceeași textură, vopsită negru — din poză se
+    păstrează doar relieful (luminanța), adus la un negru mat-satinat: fondul
+    ~#141414, iar vârfurile boabelor prind puțină lumină;
   • muchiile: colțurile exterioare rotunjite (5 px), o umbră fină pe marginea
     geamului (grosimea tablei) și o lumină fină pe muchia exterioară de sus.
 Are nevoie de scipy."""
@@ -19,9 +22,12 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage as nd
 
-W_CSS, H_CSS, GW, GH = (float(x) for x in sys.argv[1:5])
-out = sys.argv[5]
-suffix = sys.argv[6] if len(sys.argv) > 6 else ''
+flags = [a for a in sys.argv[1:] if a.startswith('--')]
+args = [a for a in sys.argv[1:] if not a.startswith('--')]
+W_CSS, H_CSS, GW, GH = (float(x) for x in args[0:4])
+out = args[4]
+suffix = args[5] if len(args) > 5 else ''
+BLACK = '--negru' in flags
 S = 3                       # pixeli de imagine pe px CSS
 R_OUT = 5                   # raza colțurilor exterioare, px CSS
 
@@ -57,6 +63,14 @@ for y in range(-OV, H, PH - OV):
         acc[ys:ys + PH, xs:xs + PW] += patch * win[..., None]
         wsum[ys:ys + PH, xs:xs + PW] += win
 tex = (acc / np.maximum(wsum, 1e-6)[..., None])[OV:OV + H, OV:OV + W]
+
+if BLACK:
+    # vopsea neagră: relieful din poză (luminanța, normalizată), pe un fond
+    # aproape negru; puterea >1 face vârfurile mai lucioase decât văile
+    L = tex.mean(axis=2)
+    rel = L / L.mean()
+    v = 0.078 * rel ** 1.8
+    tex = np.repeat(np.clip(v, 0, 1)[..., None], 3, axis=2)
 
 yy, xx = np.mgrid[0:H, 0:W] + 0.5
 cx, cy = W / 2, H / 2
