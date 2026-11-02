@@ -18,7 +18,7 @@ type Lang = 'ro' | 'en' | 'fr';
 
 const TEXT: Record<Lang, {
     prompt: string; placeholder: string; send: string; sending: string;
-    done: string; invalid: string; error: string; note: string; close: string;
+    done: string; invalid: string; error: string; note: string; quote: string; close: string;
 }> = {
     en: {
         prompt:      'Add your email here to receive the gear list.',
@@ -29,6 +29,7 @@ const TEXT: Record<Lang, {
         invalid:     'Please check the address.',
         error:       'Something went wrong. Write to us at atemporalfilm@gmail.com.',
         note:        'We keep your address only for gear inquiries.',
+        quote:       'For price quotes, write to us at',
         close:       'Close',
     },
     ro: {
@@ -40,6 +41,7 @@ const TEXT: Record<Lang, {
         invalid:     'Verifică adresa, te rog.',
         error:       'Ceva n-a mers. Scrie-ne la atemporalfilm@gmail.com.',
         note:        'Păstrăm adresa doar pentru cererile de echipament.',
+        quote:       'Pentru oferte de preț, scrie-ne la',
         close:       'Închide',
     },
     fr: {
@@ -51,6 +53,7 @@ const TEXT: Record<Lang, {
         invalid:     'Vérifiez l’adresse, s’il vous plaît.',
         error:       'Une erreur est survenue. Écrivez-nous à atemporalfilm@gmail.com.',
         note:        'Nous gardons votre adresse uniquement pour les demandes de matériel.',
+        quote:       'Pour un devis, écrivez-nous à',
         close:       'Fermer',
     },
 };
@@ -195,7 +198,10 @@ export default function GearRequest({ lang, label }: { lang: Lang; label: string
                     </form>
 
                     <p className={styles.gearStatus} role="status" aria-live="polite">{status}</p>
-                    <p className={styles.gearNote}>{tx.note}</p>
+                    <p className={styles.gearNote}>
+                        {tx.note}<br />
+                        {tx.quote} <a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>.
+                    </p>
                 </div>
             )}
         </>
