@@ -1,6 +1,7 @@
 'use client';
 
 import React, {
+    useEffect,
     useState,
 } from 'react';
 import { usePathname } from 'next/navigation';
@@ -23,6 +24,11 @@ const Regie = process.env.NODE_ENV === 'development'
     ? dynamic(() => import('@/components/Regie'), { ssr: false })
     : null;
 
+// Modul vizitator (03.11): `/?vizitator` ascunde butonul REGIE pentru tot
+// restul sesiunii din tab (sessionStorage), ca site-ul să se vadă exact ca
+// online. `/?regie` îl aduce înapoi. Doar în previzualizarea locală.
+const VIZITATOR_KEY = 'atemporal-vizitator';
+
 
 
 export default function AppWrapper({
@@ -44,6 +50,19 @@ export default function AppWrapper({
     // homepage-ul are propriul header (în <LandingHero />).
     const pathname = usePathname();
     const isHome = pathname === '/' || pathname === '/people' || pathname === '/about';   // /people (02.11) și /about (03.11) folosesc același layout
+
+    const [vizitator, setVizitator] = useState(false);
+    useEffect(() => {
+        if (!Regie) return;
+        try {
+            const q = new URLSearchParams(window.location.search);
+            if (q.has('vizitator')) window.sessionStorage.setItem(VIZITATOR_KEY, '1');
+            if (q.has('regie')) window.sessionStorage.removeItem(VIZITATOR_KEY);
+            setVizitator(window.sessionStorage.getItem(VIZITATOR_KEY) === '1');
+        } catch {
+            // sessionStorage indisponibil — rămâne modul obișnuit
+        }
+    }, [pathname]);
 
 
     return (
@@ -94,7 +113,7 @@ export default function AppWrapper({
                     </div>
                 )}
 
-                {Regie && <Regie />}
+                {Regie && !vizitator && <Regie />}
             </LanguageContext.Provider>
         </AppContext.Provider>
     );
