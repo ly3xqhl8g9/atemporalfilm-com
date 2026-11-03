@@ -2192,9 +2192,17 @@
     left: var(--person-l);
     width: min(384px, calc(100vw - var(--person-l) - 32px));
 }
-/* contactele scrise de pe WORK: sub 1440 px nu mai încap în dreapta (treceau
-   peste credit și ieșeau din ecran) — rămâne CONTACT, care copiază mailul */
-@media (max-width: 1439px) {
+/* contactele scrise de pe WORK (03.11, 17:00 — înapoi pe ecranele sub 1440 px,
+   ascunse la 1721a42): rămân pe verticala lui CONTACT și a ceasului; unde
+   blocul (~208 px, rândul „Bucharest, Vasile Lascar 23-25”) n-ar mai încăpea
+   până la marginea ecranului, rândurile prea lungi trec pe al doilea rând
+   (pe 1382: doar adresa din București). Ascunse doar pe ecranele scunde (sub
+   760 px), unde ar ajunge peste credit (ex. 1280 × 720) */
+.workContacts {
+    max-width: calc(100% - var(--nav-r) + 194px - 12px);
+    white-space: normal;
+}
+@media (max-height: 759px) {
     .workContacts { display: none; }
 }
 /* ABOUT pe ecranele scunde (ex. 1280 × 720): textele nu mai ies sus peste logo
