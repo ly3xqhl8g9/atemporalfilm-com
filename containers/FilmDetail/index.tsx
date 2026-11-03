@@ -14,7 +14,7 @@ import styles from '@/containers/LandingHero/landing.module.css';
    pe dreapta, meta jos.
    ============================================================ */
 
-type Lang = 'ro' | 'en' | 'fr';
+import type { Lang } from '@/containers/LandingHero/i18n';
 
 interface FilmDetailData {
     title:       string;
@@ -45,14 +45,32 @@ const META_LABELS: Record<Lang, { director: string; year: string; category: stri
     ro: { director: 'REGIE',    year: 'AN',     category: 'CATEGORIE', close: 'ÎNCHIDE' },
     en: { director: 'DIRECTOR', year: 'YEAR',   category: 'CATEGORY',  close: 'CLOSE'   },
     fr: { director: 'RÉALISÉ PAR', year: 'ANNÉE', category: 'CATÉGORIE', close: 'FERMER' },
+    es: { director: 'DIRECCIÓN', year: 'AÑO',   category: 'CATEGORÍA', close: 'CERRAR'  },
+    th: { director: 'ผู้กำกับ',   year: 'ปี',     category: 'ประเภท',    close: 'ปิด'      },
+    zh: { director: '导演',       year: '年份',    category: '类别',       close: '关闭'     },
+    hi: { director: 'निर्देशक',    year: 'वर्ष',    category: 'श्रेणी',     close: 'बंद करें' },
+};
+
+/** categoria filmului, în limba paginii (03.11.2026, 13:49) */
+const CATEGORY: Record<Lang, { feature: string; short: string; film: string; anim: string; doc: string }> = {
+    en: { feature: 'FEATURE FILM',  short: 'SHORT FILM',    film: 'FILM',     anim: 'ANIM',      doc: 'DOC' },
+    es: { feature: 'LARGOMETRAJE',  short: 'CORTOMETRAJE',  film: 'PELÍCULA', anim: 'ANIMACIÓN', doc: 'DOCUMENTAL' },
+    fr: { feature: 'LONG MÉTRAGE',  short: 'COURT MÉTRAGE', film: 'FILM',     anim: 'ANIMATION', doc: 'DOCUMENTAIRE' },
+    ro: { feature: 'LUNGMETRAJ',    short: 'SCURTMETRAJ',   film: 'FILM',     anim: 'ANIMAȚIE',  doc: 'DOCUMENTAR' },
+    th: { feature: 'ภาพยนตร์ขนาดยาว', short: 'ภาพยนตร์สั้น', film: 'ภาพยนตร์', anim: 'แอนิเมชัน', doc: 'สารคดี' },
+    zh: { feature: '长片',           short: '短片',           film: '电影',      anim: '动画',       doc: '纪录片' },
+    hi: { feature: 'फ़ीचर फ़िल्म',     short: 'शॉर्ट फ़िल्म',     film: 'फ़िल्म',     anim: 'एनिमेशन',    doc: 'डॉक्यूमेंट्री' },
 };
 
 function pickField(p: FilmDetailData, lang: Lang, base: 'description' | 'awards' | 'people'): string {
+    // RO e textul de bază; FR are câmpuri proprii; celelalte limbi iau varianta EN
+    // (descrierile sunt încă temporare — se traduc când sunt scrise)
     if (lang === 'ro') return p[base];
-    const suffix = lang === 'en' ? 'En' : 'Fr';
-    const key = (base + suffix) as keyof FilmDetailData;
-    const v = p[key];
-    return (typeof v === 'string' && v.length > 0) ? v : p[base];
+    const pick = (suffix: 'En' | 'Fr') => {
+        const v = p[(base + suffix) as keyof FilmDetailData];
+        return (typeof v === 'string' && v.length > 0) ? v : '';
+    };
+    return (lang === 'fr' && pick('Fr')) || pick('En') || p[base];
 }
 
 function pickTitle(p: FilmDetailData, lang: Lang): string {
@@ -95,9 +113,10 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
         const isAnim    = /animation|animație/i.test(film.year);
         const isDoc     = /documentary|documentar/i.test(film.year);
 
-        let cat = isFeature ? 'FEATURE FILM' : isShort ? 'SHORT FILM' : 'FILM';
-        if (isAnim) cat += ' · ANIM';
-        if (isDoc)  cat += ' · DOC';
+        const C = CATEGORY[lang];
+        let cat = isFeature ? C.feature : isShort ? C.short : C.film;
+        if (isAnim) cat += ' · ' + C.anim;
+        if (isDoc)  cat += ' · ' + C.doc;
 
         const list = awards
             .split(/\s*[·•]\s*/)
@@ -109,7 +128,7 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
             category:   cat,
             awardsList: list,
         };
-    }, [film.year, awards]);
+    }, [film.year, awards, lang]);
 
 
     return (

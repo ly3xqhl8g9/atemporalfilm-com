@@ -1,5 +1,10 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
+import {
+    HTML_LANG, LANG_CODE, LANG_MENU_LABEL, LANG_NAME, LANGS, type Lang,
+} from '@/containers/LandingHero/i18n';
 import styles from '@/containers/LandingHero/landing.module.css';
 import TimeCalculator from '@/containers/LandingHero/TimeCalculator';
 
@@ -20,26 +25,73 @@ import TimeCalculator from '@/containers/LandingHero/TimeCalculator';
    ============================================================ */
 
 interface CofinanceProps {
-    lang:         'ro' | 'en' | 'fr';   // limba paginii (pentru Time Calculator)
-    langLabel:    string;       // limba spre care comută butonul (ex. „EN”)
-    onToggleLang: () => void;
+    lang:   Lang;                    // limba paginii
+    onLang: (lang: Lang) => void;    // alegerea din lista de limbi
 }
 
-export default function Cofinance({ lang, langLabel, onToggleLang }: CofinanceProps) {
+/* BUTONUL DE LIMBĂ (03.11.2026, 13:49): arată limba de acum; click → lista
+   limbilor, deschisă în sus (EN, ES, FR, RO, TH, ZH, HI), fiecare scrisă în
+   limba ei. Se închide la alegere, cu Esc sau cu click în afară. */
+function LangMenu({ lang, onLang }: CofinanceProps) {
+    const [open, setOpen] = useState(false);
+    const wrapRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        if (!open) return;
+        const onDown = (e: PointerEvent) => {
+            if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+        };
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+        document.addEventListener('pointerdown', onDown);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('pointerdown', onDown);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [open]);
+
+    return (
+        <span className={styles.langWrap} ref={wrapRef}>
+            <button
+                type="button"
+                className={`${styles.langBtn} ${open ? styles.langBtnOn : ''}`}
+                onClick={() => setOpen((o) => !o)}
+                aria-haspopup="true"
+                aria-expanded={open}
+                aria-label={`${LANG_MENU_LABEL[lang]}: ${LANG_NAME[lang]}`}
+                title={LANG_MENU_LABEL[lang]}
+            >
+                {LANG_CODE[lang]}
+                <span className={styles.langBtnArrow} aria-hidden="true">▴</span>
+            </button>
+            {open && (
+                <span className={styles.langMenu} role="menu" aria-label={LANG_MENU_LABEL[lang]}>
+                    {LANGS.map((l) => (
+                        <button
+                            key={l}
+                            type="button"
+                            role="menuitemradio"
+                            aria-checked={l === lang}
+                            lang={HTML_LANG[l]}
+                            className={`${styles.langItem} ${l === lang ? styles.langItemOn : ''}`}
+                            onClick={() => { onLang(l); setOpen(false); }}
+                        >
+                            <span className={styles.langItemCode}>{LANG_CODE[l]}</span>
+                            <span className={styles.langItemName}>{LANG_NAME[l]}</span>
+                        </button>
+                    ))}
+                </span>
+            )}
+        </span>
+    );
+}
+
+export default function Cofinance({ lang, onLang }: CofinanceProps) {
     return (
         <footer className={styles.cofinance}>
 
             <div className={styles.cofinanceLeft}>
-                <button
-                    type="button"
-                    className={styles.langBtn}
-                    onClick={onToggleLang}
-                    aria-label={`Switch to ${langLabel}`}
-                    title={`Switch to ${langLabel}`}
-                >
-                    {langLabel}
-                    <span className={styles.langBtnArrow} aria-hidden="true">⇆</span>
-                </button>
+                <LangMenu lang={lang} onLang={onLang} />
             </div>
 
             <div className={styles.cofinanceLogos}>

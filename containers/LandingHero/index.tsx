@@ -15,6 +15,7 @@ import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 
 import ContactCopy, { WorkContacts } from './ContactCopy';
 import GearRequest from './GearRequest';
+import { HTML_LANG, LANG_STORE, isLang, type Lang } from './i18n';
 import LogoReel from './LogoReel';
 import styles from './landing.module.css';
 
@@ -77,10 +78,7 @@ interface Project {
 
 /* ── Limbi & traduceri UI ──────────────────────────────── */
 
-type Lang = 'ro' | 'en' | 'fr';
-
-const LANG_LABEL: Record<Lang, string> = { ro: 'RO', en: 'EN', fr: 'FR' };
-const LANG_NEXT:  Record<Lang, Lang>   = { en: 'ro', ro: 'fr', fr: 'en' };
+// Lang, LANGS etc.: ./i18n.ts (03.11.2026, 13:49: EN, ES, FR, RO, TH, ZH, HI)
 
 interface UITexts {
     nav: {
@@ -144,7 +142,97 @@ const UI: Record<Lang, UITexts> = {
         rec:   'REC',
         replay: 'Rejouer',
     },
+    es: {
+        nav: {
+            work:     'Trabajos',
+            about:    'Nosotros',
+            people:   'Equipo',
+            gear:     'Material',
+            services: 'Servicios',
+            contact:  'Contacto',
+            latest:   'Recientes',
+        },
+        films: 'Películas',
+        by:    'by',
+        rec:   'REC',
+        replay: 'Volver a ver',
+    },
+    th: {
+        nav: {
+            work:     'ผลงาน',
+            about:    'เกี่ยวกับเรา',
+            people:   'ทีมงาน',
+            gear:     'อุปกรณ์',
+            services: 'บริการ',
+            contact:  'ติดต่อ',
+            latest:   'ล่าสุด',
+        },
+        films: 'ภาพยนตร์',
+        by:    'by',
+        rec:   'REC',
+        replay: 'เล่นอีกครั้ง',
+    },
+    zh: {
+        nav: {
+            work:     '作品',
+            about:    '关于',
+            people:   '团队',
+            gear:     '器材',
+            services: '服务',
+            contact:  '联系',
+            latest:   '最新',
+        },
+        films: '电影',
+        by:    'by',
+        rec:   'REC',
+        replay: '重新播放',
+    },
+    hi: {
+        nav: {
+            work:     'काम',
+            about:    'परिचय',
+            people:   'टीम',
+            gear:     'उपकरण',
+            services: 'सेवाएँ',
+            contact:  'संपर्क',
+            latest:   'नवीनतम',
+        },
+        films: 'फ़िल्में',
+        by:    'by',
+        rec:   'REC',
+        replay: 'फिर से चलाएँ',
+    },
 };
+
+/* CREDITELE ÎN CELELALTE LIMBI (03.11.2026, 13:49): după textul englezesc al
+   creditului (workEn) sau al funcției (meta). EN, RO și FR rămân în câmpurile
+   fiecărui film. Formulări scurte, ca rândul să încapă înaintea anului
+   (~45 de caractere): ex. în spaniolă „diseño sonoro”, nu „diseñador de sonido”,
+   în creditul cel mai lung. */
+type MoreLang = 'es' | 'th' | 'zh' | 'hi';
+const WORK_T: Record<string, Record<MoreLang, string>> = {
+    'Sound designer':                 { es: 'Diseñador de sonido',          th: 'นักออกแบบเสียง',                 zh: '声音设计',              hi: 'साउंड डिज़ाइनर' },
+    'Sound recording':                { es: 'Grabación de sonido',          th: 'บันทึกเสียง',                    zh: '录音',                  hi: 'साउंड रिकॉर्डिंग' },
+    'Sound recordist':                { es: 'Sonidista',                    th: 'ผู้บันทึกเสียง',                   zh: '录音师',                hi: 'साउंड रिकॉर्डिस्ट' },
+    'Editorial department':           { es: 'Departamento de montaje',      th: 'ฝ่ายตัดต่อ',                      zh: '剪辑部门',              hi: 'संपादन विभाग' },
+    'Production sound mixer':         { es: 'Jefe de sonido directo',       th: 'ผู้ควบคุมเสียงในกองถ่าย',          zh: '同期录音师',            hi: 'प्रोडक्शन साउंड मिक्सर' },
+    'Production sound':               { es: 'Sonido directo',               th: 'เสียงในกองถ่าย',                  zh: '同期录音',              hi: 'प्रोडक्शन साउंड' },
+    'Sound mixer':                    { es: 'Ingeniero de sonido',          th: 'วิศวกรเสียง',                     zh: '声音工程师',            hi: 'साउंड इंजीनियर' },
+    'Distribution':                   { es: 'Distribución',                 th: 'จัดจำหน่าย',                      zh: '发行',                  hi: 'वितरण' },
+    'Sound, sound designer':          { es: 'Sonido, diseñador de sonido',  th: 'เสียง, นักออกแบบเสียง',             zh: '声音、声音设计',         hi: 'साउंड, साउंड डिज़ाइनर' },
+    'Film editor, sound designer':    { es: 'Montador, diseñador de sonido', th: 'ตัดต่อภาพยนตร์, นักออกแบบเสียง',    zh: '剪辑、声音设计',         hi: 'फ़िल्म एडिटर, साउंड डिज़ाइनर' },
+    'Dialogue editor, foley artist, sound designer':
+                                      { es: 'Editor de diálogos, foley, diseño sonoro', th: 'ตัดต่อบทพูด, ฟอลีย์, ออกแบบเสียง', zh: '对白剪辑、拟音、声音设计', hi: 'डायलॉग एडिटर, फ़ोली, साउंड डिज़ाइनर' },
+    'Sound, editing':                 { es: 'Sonido, montaje',              th: 'เสียง, ตัดต่อ',                    zh: '声音、剪辑',             hi: 'साउंड, एडिटिंग' },
+    // PEOPLE / ABOUT
+    'Distribution, festivals, producing':      { es: 'Distribución, festivales, producción',     th: 'จัดจำหน่าย, เทศกาลภาพยนตร์, อำนวยการผลิต', zh: '发行、电影节、制片',       hi: 'वितरण, फ़ेस्टिवल, प्रोडक्शन' },
+    'Production sound, sound design, editing': { es: 'Sonido directo, diseño sonoro, montaje',    th: 'เสียงในกองถ่าย, ออกแบบเสียง, ตัดต่อ',       zh: '同期录音、声音设计、剪辑',  hi: 'प्रोडक्शन साउंड, साउंड डिज़ाइन, एडिटिंग' },
+    'Quiet on set':                            { es: 'Silencio en el set',                         th: 'เงียบในกองถ่าย',                         zh: '片场安静',                 hi: 'सेट पर ख़ामोशी' },
+    'COO, Atemporal Film':                     { es: 'COO, Atemporal Film',                        th: 'COO, Atemporal Film',                    zh: 'COO，Atemporal Film',      hi: 'COO, Atemporal Film' },
+    'Sound designer, editor':                  { es: 'Diseñador de sonido, montador',              th: 'นักออกแบบเสียง, ช่างตัดต่อ',               zh: '声音设计、剪辑师',         hi: 'साउंड डिज़ाइनर, एडिटर' },
+    'Studio cat, Atemporal Film':              { es: 'Gato del estudio, Atemporal Film',           th: 'แมวประจำสตูดิโอ, Atemporal Film',          zh: '工作室的猫，Atemporal Film', hi: 'स्टूडियो की बिल्ली, Atemporal Film' },
+};
+const isMore = (l: Lang): l is MoreLang => l === 'es' || l === 'th' || l === 'zh' || l === 'hi';
 
 
 /** Ce a făcut echipa la film, în limba selectată (fallback: RO, apoi textul temporar). */
@@ -152,6 +240,10 @@ const WORK_PLACEHOLDER = 'Sound design, mixing, distribution';   // TEMPORAR —
 const BY_DEFAULT       = 'Stefan Azaharioaie';
 
 function pickWork(p: Project, lang: Lang): string {
+    if (isMore(lang)) {
+        const en = p.workEn ?? '';
+        return WORK_T[en]?.[lang] || en || p.work || WORK_PLACEHOLDER;
+    }
     const v = lang === 'en' ? p.workEn : lang === 'fr' ? p.workFr : undefined;
     return v || p.work || WORK_PLACEHOLDER;
 }
@@ -632,6 +724,38 @@ const PEOPLE: Project[] = [
                     'Chez Atemporal, Diana est en charge de la planification stratégique et du développement de la structure. Elle élabore les dossiers de financement et coordonne la distribution en salles de films roumains dans les cinémas de Roumanie.',
                 ],
             },
+            es: {
+                role: 'Manager | Coordinadora de distribución en salas',
+                text: [
+                    'Diana Smeu estudió Guion y Estudios Cinematográficos en la Universidad Nacional de Teatro y Cine «I.L. Caragiale» (UNATC) de Bucarest. Ha coordinado varios festivales y eventos de cine, entre ellos Les Films de Cannes à Bucarest y el American Independent Film Festival.',
+                    'Su formación académica incluye también estudios de Filosofía, Política y Economía en Bucarest, así como de Filosofía de Asia en la Universidad Complutense de Madrid.',
+                    'En Atemporal, Diana se encarga de la planificación estratégica y del desarrollo organizativo. Prepara las solicitudes de financiación y coordina la distribución en salas de películas rumanas en los cines de Rumanía.',
+                ],
+            },
+            th: {
+                role: 'ผู้จัดการ | ผู้ประสานงานการจัดจำหน่ายภาพยนตร์ในโรงภาพยนตร์',
+                text: [
+                    'Diana Smeu ศึกษาด้านการเขียนบทภาพยนตร์และภาพยนตร์ศึกษาที่มหาวิทยาลัยการละครและภาพยนตร์แห่งชาติ “I.L. Caragiale” (UNATC) ในกรุงบูคาเรสต์ เธอเคยประสานงานเทศกาลและกิจกรรมภาพยนตร์หลายงาน รวมถึง Les Films de Cannes à Bucarest และ American Independent Film Festival',
+                    'นอกจากนี้ เธอยังศึกษาด้านปรัชญา การเมือง และเศรษฐศาสตร์ในกรุงบูคาเรสต์ รวมถึงปรัชญาเอเชียที่มหาวิทยาลัยคอมพลูเตนเซแห่งมาดริด',
+                    'ที่ Atemporal Diana ดูแลการวางแผนเชิงกลยุทธ์และการพัฒนาองค์กร เธอรับผิดชอบการจัดทำข้อเสนอขอทุน และประสานงานการจัดจำหน่ายภาพยนตร์โรมาเนียในโรงภาพยนตร์ทั่วโรมาเนีย',
+                ],
+            },
+            zh: {
+                role: '经理 | 院线发行协调',
+                text: [
+                    'Diana Smeu 毕业于布加勒斯特“I.L. Caragiale”国立戏剧电影大学（UNATC），主修编剧与电影研究。她曾统筹多个电影节和电影活动，包括 Les Films de Cannes à Bucarest 和 American Independent Film Festival。',
+                    '她还曾在布加勒斯特学习哲学、政治学与经济学，并在马德里康普顿斯大学学习亚洲哲学。',
+                    '在 Atemporal，Diana 负责战略规划与机构发展，撰写资助申请，并统筹罗马尼亚电影在全国影院的院线发行。',
+                ],
+            },
+            hi: {
+                role: 'मैनेजर | थिएट्रिकल डिस्ट्रीब्यूशन कोऑर्डिनेटर',
+                text: [
+                    'Diana Smeu ने बुखारेस्ट की नेशनल यूनिवर्सिटी ऑफ़ थिएटर एंड फ़िल्म “I.L. Caragiale” (UNATC) से पटकथा लेखन और फ़िल्म अध्ययन की पढ़ाई की है। वे कई फ़िल्म फ़ेस्टिवलों और आयोजनों का समन्वय कर चुकी हैं, जिनमें Les Films de Cannes à Bucarest और American Independent Film Festival शामिल हैं।',
+                    'उन्होंने बुखारेस्ट में दर्शनशास्त्र, राजनीति और अर्थशास्त्र की पढ़ाई भी की है, और मैड्रिड की कॉम्प्लुटेंस यूनिवर्सिटी में एशियाई दर्शन का अध्ययन किया है।',
+                    'Atemporal में Diana रणनीतिक योजना और संगठनात्मक विकास की ज़िम्मेदारी संभालती हैं। वे फ़ंडिंग प्रस्ताव तैयार करती हैं और रोमानिया के सिनेमाघरों में रोमानियाई फ़िल्मों के थिएट्रिकल डिस्ट्रीब्यूशन का समन्वय करती हैं।',
+                ],
+            },
         },
         image:       '/assets/entities/people/diana-smeu.webp',
     },
@@ -669,6 +793,30 @@ const PEOPLE: Project[] = [
                     'Fort de plus de dix ans d’expérience, Ștefan a façonné le son de productions en Roumanie, au Royaume-Uni, aux Émirats arabes unis, en Arabie saoudite, en Turquie, en Zambie et au Zimbabwe. Titulaire d’une licence et d’un master en montage et sound design, il prépare actuellement un doctorat. Quand il n’enregistre pas le son sur un plateau, il est en studio, à peaufiner chaque détail.',
                 ],
             },
+            es: {
+                role: 'Fundador | Diseñador de sonido • Sonido directo • Montador • Artista de foley',
+                text: [
+                    'Con más de una década de experiencia, Ștefan ha dado forma al sonido de producciones en Rumanía, el Reino Unido, los Emiratos Árabes Unidos, Arabia Saudí, Turquía, Zambia y Zimbabue. Es graduado y máster en Montaje y Diseño de Sonido, y actualmente cursa un doctorado. Cuando no está grabando sonido en un rodaje, está en el estudio, puliendo cada detalle.',
+                ],
+            },
+            th: {
+                role: 'ผู้ก่อตั้ง | นักออกแบบเสียง • บันทึกเสียงในกองถ่าย • ช่างตัดต่อ • ศิลปินฟอลีย์',
+                text: [
+                    'ด้วยประสบการณ์กว่าสิบปี Ștefan สร้างสรรค์งานเสียงให้กับโปรดักชันในโรมาเนีย สหราชอาณาจักร สหรัฐอาหรับเอมิเรตส์ ซาอุดีอาระเบีย ตุรกี แซมเบีย และซิมบับเว เขาจบปริญญาตรีและปริญญาโทด้านการตัดต่อและการออกแบบเสียง และกำลังศึกษาระดับปริญญาเอก เมื่อไม่ได้บันทึกเสียงอยู่ในกองถ่าย เขาจะอยู่ในสตูดิโอ ขัดเกลาทุกรายละเอียด',
+                ],
+            },
+            zh: {
+                role: '创始人 | 声音设计 • 同期录音 • 剪辑 • 拟音',
+                text: [
+                    'Ștefan 拥有十余年从业经验，曾为罗马尼亚、英国、阿联酋、沙特阿拉伯、土耳其、赞比亚和津巴布韦的作品打造声音。他拥有剪辑与声音设计学士和硕士学位，目前正在攻读博士学位。不在片场录音的时候，他就在录音棚里打磨每一个细节。',
+                ],
+            },
+            hi: {
+                role: 'संस्थापक | साउंड डिज़ाइनर • प्रोडक्शन साउंड मिक्सिंग • एडिटर • फ़ोली आर्टिस्ट',
+                text: [
+                    'एक दशक से अधिक के अनुभव के साथ, Ștefan ने रोमानिया, ब्रिटेन, संयुक्त अरब अमीरात, सऊदी अरब, तुर्की, ज़ाम्बिया और ज़िम्बाब्वे की प्रोडक्शनों के लिए साउंड गढ़ा है। उनके पास एडिटिंग और साउंड डिज़ाइन में BA और MA की डिग्रियाँ हैं और वे इस समय PhD कर रहे हैं। जब वे सेट पर साउंड रिकॉर्ड नहीं कर रहे होते, तो स्टूडियो में हर बारीकी को निखारते मिलते हैं।',
+                ],
+            },
         },
         image:       '/assets/entities/people/stefan-azaharioaie.webp',
     },
@@ -692,6 +840,10 @@ const PEOPLE: Project[] = [
             en: { role: 'Technical Inspector, Guardian Angel, Wise Advisor', text: [] },
             ro: { role: 'Inspector tehnic, înger păzitor, sfătuitor înțelept', text: [] },
             fr: { role: 'Inspecteur technique, ange gardien, sage conseiller', text: [] },
+            es: { role: 'Inspector técnico, ángel de la guarda, sabio consejero', text: [] },
+            th: { role: 'ผู้ตรวจสอบด้านเทคนิค เทวดาผู้พิทักษ์ ที่ปรึกษาผู้รอบรู้', text: [] },
+            zh: { role: '技术督察、守护天使、睿智顾问', text: [] },
+            hi: { role: 'तकनीकी निरीक्षक, रक्षक फ़रिश्ता, समझदार सलाहकार', text: [] },
         },
         image:       '/assets/entities/people/fram.webp',
     },
@@ -724,12 +876,37 @@ const ABOUT_TEXT: Record<Lang, string[]> = {
         'Dirigée par Diana Smeu et Ștefan Azaharioaie, Atemporal est attirée par les projets non conventionnels, audacieux et osés.',
         'Notre équipe parle couramment l’anglais et possède une solide expérience dans des contextes internationaux variés, notamment en Roumanie, au Royaume-Uni, en Espagne, aux Émirats arabes unis, en Arabie saoudite, en Turquie, en Zambie et au Zimbabwe.',
     ],
+    es: [
+        'Atemporal es una empresa de producción y posproducción cinematográfica con sede en Bucarest, Rumanía, y presencia activa en Piatra Neamț y en Madrid, España.',
+        'Fundada en 2018, la empresa ha prestado servicios de posproducción y de sonido directo para largometrajes, cortometrajes, documentales y series de televisión, colaborando con producciones de todo el mundo.',
+        'Dirigida por Diana Smeu y Ștefan Azaharioaie, Atemporal se siente atraída por los proyectos poco convencionales, valientes y audaces.',
+        'Nuestro equipo habla inglés con fluidez y tiene una amplia experiencia de trabajo en contextos internacionales muy diversos, como Rumanía, el Reino Unido, España, los Emiratos Árabes Unidos, Arabia Saudí, Turquía, Zambia y Zimbabue.',
+    ],
+    th: [
+        'Atemporal เป็นบริษัทผลิตและโพสต์โปรดักชันภาพยนตร์ ตั้งอยู่ที่กรุงบูคาเรสต์ ประเทศโรมาเนีย และดำเนินงานอยู่ที่เมืองเปียตรา เนียมตส์ และกรุงมาดริด ประเทศสเปน',
+        'ก่อตั้งขึ้นในปี 2018 บริษัทให้บริการงานโพสต์โปรดักชันและบันทึกเสียงในกองถ่ายสำหรับภาพยนตร์ขนาดยาว ภาพยนตร์สั้น สารคดี และซีรีส์โทรทัศน์ โดยร่วมงานกับโปรดักชันจากทั่วโลก',
+        'ภายใต้การนำของ Diana Smeu และ Ștefan Azaharioaie บริษัท Atemporal สนใจโปรเจกต์ที่แหวกขนบ กล้าหาญ และท้าทาย',
+        'ทีมงานของเราสื่อสารภาษาอังกฤษได้อย่างคล่องแคล่ว และมีประสบการณ์มากมายในการทำงานในบริบทนานาชาติที่หลากหลาย ทั้งโรมาเนีย สหราชอาณาจักร สเปน สหรัฐอาหรับเอมิเรตส์ ซาอุดีอาระเบีย ตุรกี แซมเบีย และซิมบับเว',
+    ],
+    zh: [
+        'Atemporal 是一家总部位于罗马尼亚布加勒斯特的电影制作与后期制作公司，在皮亚特拉尼亚姆茨以及西班牙马德里亦有活跃业务。',
+        '公司成立于 2018 年，为剧情长片、短片、纪录片和电视剧提供后期制作及现场录音服务，合作的作品来自世界各地。',
+        'Atemporal 由 Diana Smeu 与 Ștefan Azaharioaie 共同领导，钟情于不落俗套、大胆而无畏的项目。',
+        '我们的团队英语流利，在多元的国际环境中拥有丰富的工作经验，足迹遍及罗马尼亚、英国、西班牙、阿联酋、沙特阿拉伯、土耳其、赞比亚和津巴布韦。',
+    ],
+    hi: [
+        'Atemporal एक फ़िल्म प्रोडक्शन और पोस्ट-प्रोडक्शन कंपनी है, जिसका मुख्यालय बुखारेस्ट, रोमानिया में है और जो पियात्रा नेअम्त्स तथा मैड्रिड, स्पेन में भी सक्रिय है।',
+        '2018 में स्थापित यह कंपनी फ़ीचर फ़िल्मों, शॉर्ट फ़िल्मों, डॉक्यूमेंट्री और टीवी सीरीज़ के लिए पोस्ट-प्रोडक्शन और लोकेशन साउंड रिकॉर्डिंग सेवाएँ देती है, और दुनिया भर की प्रोडक्शनों के साथ काम कर चुकी है।',
+        'Diana Smeu और Ștefan Azaharioaie के नेतृत्व में, Atemporal लीक से हटकर चलने वाले, साहसी और बेबाक प्रोजेक्ट्स की ओर आकर्षित होती है।',
+        'हमारी टीम धाराप्रवाह अंग्रेज़ी बोलती है और उसे रोमानिया, यूनाइटेड किंगडम, स्पेन, संयुक्त अरब अमीरात, सऊदी अरब, तुर्की, ज़ाम्बिया और ज़िम्बाब्वे सहित विविध अंतरराष्ट्रीय परिवेशों में काम करने का व्यापक अनुभव है।',
+    ],
 };
 
 type Kind = 'work' | 'about';
 const ITEMS: Record<Kind, Project[]> = { work: PROJECTS, about: PEOPLE };
 
 function pickMeta(p: Project, lang: Lang): string | undefined {
+    if (isMore(lang)) return (p.meta && WORK_T[p.meta]?.[lang]) || p.meta;
     const v = lang === 'ro' ? p.metaRo : lang === 'fr' ? p.metaFr : undefined;
     return v || p.meta;
 }
@@ -838,7 +1015,19 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const [ready, setReady]                 = useState(false);  // așezat pe filmul de start
     const [textVisible, setTextVisible]     = useState(true);
     const [expandedIdx, setExpandedIdx]     = useState<number | null>(null);
-    const [lang, setLang]                   = useState<Lang>('en');
+    const [lang, setLangState]              = useState<Lang>('en');
+    // limba aleasă rămâne cât ține vizita (WORK ↔ ABOUT); o vizită nouă pornește în engleză
+    useEffect(() => {
+        try {
+            const saved = window.sessionStorage.getItem(LANG_STORE);
+            if (isLang(saved)) setLangState(saved);
+        } catch { /* fără sessionStorage: rămâne engleza */ }
+    }, []);
+    useEffect(() => { document.documentElement.lang = HTML_LANG[lang]; }, [lang]);
+    const setLang = useCallback((l: Lang) => {
+        setLangState(l);
+        try { window.sessionStorage.setItem(LANG_STORE, l); } catch { /* ignorat */ }
+    }, []);
     // variantele de comparație ale ramei:
     //   /                — rama de metal vopsit: laterale 30 px, sus/jos 8 px (02.11, 18:15)
     //   /?rama=fina      — rama de 12 px, în interiorul peliculei
@@ -1399,7 +1588,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 </span>
                 <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
-                <ContactCopy lang={lang} label={t.nav.contact} farNote={kind === 'work'} />
+                <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work'} />
             </nav>
 
 
@@ -1583,11 +1772,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
 
             {/* BARA DE JOS — fixă, mereu vizibilă: limba + cofinanțarea */}
-            <Cofinance
-                lang={lang}
-                langLabel={LANG_LABEL[LANG_NEXT[lang]]}
-                onToggleLang={() => setLang(LANG_NEXT[lang])}
-            />
+            <Cofinance lang={lang} onLang={setLang} />
 
 
             {/* DETAIL OVERLAY — apare când dai click pe afișul activ */}

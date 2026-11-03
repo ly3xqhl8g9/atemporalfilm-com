@@ -33,7 +33,7 @@ const DOWNLOAD_NAME = 'Atemporal-Film-Equipment.pdf';
 const LOG_DIR       = path.join(process.cwd(), '.gear');
 const LOG_FILE      = path.join(LOG_DIR, 'cereri.jsonl');
 const EMAIL_RE      = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const LANGS         = ['ro', 'en', 'fr'];
+const LANGS         = ['en', 'es', 'fr', 'ro', 'th', 'zh', 'hi'];
 
 const MAIL_FROM     = 'contact@atemporalfilm.com';   // expeditorul validat în Mailjet (ca la contact)
 const MAIL_TO       = 'atemporalfilm@gmail.com';

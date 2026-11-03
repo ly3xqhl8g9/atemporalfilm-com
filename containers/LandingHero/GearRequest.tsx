@@ -14,7 +14,7 @@ import styles from './landing.module.css';
    ============================================================ */
 
 
-type Lang = 'ro' | 'en' | 'fr';
+import type { Lang } from './i18n';
 
 const TEXT: Record<Lang, {
     prompt: string; placeholder: string; send: string; sending: string;
@@ -56,7 +56,57 @@ const TEXT: Record<Lang, {
         quote:       'Pour un devis, écrivez-nous à',
         close:       'Fermer',
     },
+    es: {
+        prompt:      'Deja aquí tu correo para recibir la lista de material.',
+        placeholder: 'nombre@correo.es',
+        send:        'Enviar',
+        sending:     'Enviando…',
+        done:        'Gracias. La lista se está descargando.',
+        invalid:     'Revisa la dirección, por favor.',
+        error:       'Algo ha fallado. Escríbenos a atemporalfilm@gmail.com.',
+        note:        'Solo guardamos tu dirección para las consultas de material.',
+        quote:       'Para presupuestos, escríbenos a',
+        close:       'Cerrar',
+    },
+    th: {
+        prompt:      'กรอกอีเมลของคุณที่นี่เพื่อรับรายการอุปกรณ์',
+        placeholder: 'name@email.com',
+        send:        'ส่ง',
+        sending:     'กำลังส่ง…',
+        done:        'ขอบคุณ กำลังดาวน์โหลดรายการ',
+        invalid:     'โปรดตรวจสอบที่อยู่อีเมล',
+        error:       'เกิดข้อผิดพลาด เขียนถึงเราได้ที่ atemporalfilm@gmail.com',
+        note:        'เราเก็บอีเมลของคุณไว้สำหรับการสอบถามเรื่องอุปกรณ์เท่านั้น',
+        quote:       'ขอใบเสนอราคา เขียนถึงเราได้ที่',
+        close:       'ปิด',
+    },
+    zh: {
+        prompt:      '在此留下您的邮箱，即可收到器材清单。',
+        placeholder: 'name@email.com',
+        send:        '发送',
+        sending:     '发送中…',
+        done:        '谢谢。清单正在下载。',
+        invalid:     '请检查邮箱地址。',
+        error:       '出了点问题。请写信至 atemporalfilm@gmail.com',
+        note:        '您的邮箱仅用于器材咨询。',
+        quote:       '如需报价，请写信至',
+        close:       '关闭',
+    },
+    hi: {
+        prompt:      'उपकरणों की सूची पाने के लिए अपना ईमेल यहाँ लिखें।',
+        placeholder: 'name@email.com',
+        send:        'भेजें',
+        sending:     'भेजा जा रहा है…',
+        done:        'धन्यवाद। सूची डाउनलोड हो रही है।',
+        invalid:     'कृपया पता जाँच लें।',
+        error:       'कुछ गड़बड़ हो गई। हमें atemporalfilm@gmail.com पर लिखें।',
+        note:        'हम आपका पता केवल उपकरण संबंधी पूछताछ के लिए रखते हैं।',
+        quote:       'कीमत के कोटेशन के लिए हमें लिखें:',
+        close:       'बंद करें',
+    },
 };
+/* punctul de după adresa din rândul pentru oferte (în thai și chineză nu se pune) */
+const QUOTE_END: Record<Lang, string> = { en: '.', es: '.', fr: '.', ro: '.', th: '', zh: '。', hi: '।' };
 
 const DOWNLOAD_NAME = 'Atemporal-Film-Equipment.pdf';
 const STORE_KEY     = 'af-gear-email';     // adresa rămâne completată la a doua cerere
@@ -202,7 +252,7 @@ export default function GearRequest({ lang, label }: { lang: Lang; label: string
                     <p className={styles.gearStatus} role="status" aria-live="polite">{status}</p>
                     <p className={styles.gearNote}>
                         {tx.note}<br />
-                        {tx.quote} <a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>.
+                        {tx.quote} <a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>{QUOTE_END[lang]}
                     </p>
                 </div>
             )}

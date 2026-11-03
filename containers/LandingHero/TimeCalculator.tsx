@@ -21,7 +21,7 @@ import styles from './landing.module.css';
    ============================================================ */
 
 
-type Lang = 'ro' | 'en' | 'fr';
+import type { Lang } from './i18n';
 
 export const TIME_CALC_LABEL = 'Time Calculator';
 
@@ -77,6 +77,70 @@ const TEXT: Record<Lang, {
         note:    'Cliquez sur une valeur pour la copier.',
         copied:  'Copié',
         close:   'Fermer',
+    },
+    es: {
+        lead:    'Time stretch de audio entre dos cadencias de imagen.',
+        from:    'De',
+        to:      'A',
+        other:   'otra',
+        swap:    'Invertir',
+        ratio:   'Relación',
+        rate:    'Tasa de conversión',
+        length:  'Nueva duración',
+        pitch:   'Tono en varispeed',
+        sr:      '48 kHz leído como',
+        runtime: 'Duración',
+        note:    'Haz clic en un valor para copiarlo.',
+        copied:  'Copiado',
+        close:   'Cerrar',
+    },
+    th: {
+        lead:    'ยืด/หดเวลาเสียงระหว่างอัตราเฟรม',
+        from:    'จาก',
+        to:      'เป็น',
+        other:   'อื่น ๆ',
+        swap:    'สลับ',
+        ratio:   'อัตราส่วน',
+        rate:    'อัตราการแปลง',
+        length:  'ความยาวใหม่',
+        pitch:   'ระดับเสียง varispeed',
+        sr:      '48 kHz อ่านเป็น',
+        runtime: 'ความยาวภาพยนตร์',
+        note:    'คลิกที่ค่าเพื่อคัดลอก',
+        copied:  'คัดลอกแล้ว',
+        close:   'ปิด',
+    },
+    zh: {
+        lead:    '在不同帧率之间进行音频时间伸缩。',
+        from:    '从',
+        to:      '到',
+        other:   '其他',
+        swap:    '互换',
+        ratio:   '比率',
+        rate:    '转换率',
+        length:  '新时长',
+        pitch:   '变速音高',
+        sr:      '48 kHz 读作',
+        runtime: '影片时长',
+        note:    '点击数值即可复制。',
+        copied:  '已复制',
+        close:   '关闭',
+    },
+    hi: {
+        lead:    'फ़्रेम रेट्स के बीच ऑडियो टाइम स्ट्रेच।',
+        from:    'से',
+        to:      'तक',
+        other:   'अन्य',
+        swap:    'अदला-बदली',
+        ratio:   'अनुपात',
+        rate:    'रूपांतरण दर',
+        length:  'नई अवधि',
+        pitch:   'वैरीस्पीड पिच',
+        sr:      '48 kHz की पठन दर',
+        runtime: 'फ़िल्म की अवधि',
+        note:    'कॉपी करने के लिए किसी मान पर क्लिक करें।',
+        copied:  'कॉपी हो गया',
+        close:   'बंद करें',
     },
 };
 

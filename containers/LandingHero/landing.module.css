@@ -621,7 +621,6 @@
     letter-spacing: 0.02em;
     color: var(--fg-soft);
 }
-.copiedNoteFar { left: 134px; }   /* pe WORK: după iconițe (nav-r − 60) */
 .copiedNoteText {
     display: block;
     animation: copiedNote 2.6s ease forwards;
@@ -1006,34 +1005,29 @@
 }
 .workContacts p { margin: 0 0 1.1em; }
 .workContacts p:last-child { margin-bottom: 0; }
-/* 03.11, 13:26: Diana la 6 px sub Ștefan (y = 186), Locations la y = 264 */
-.workContacts p:nth-child(1) { margin-bottom: 6px; }
-.workContacts p:nth-child(2) { margin-bottom: 28px; }
-/* mailul, separat (03.11, 13:26: −301 px): x = col-r − 108, y = 236
-   (pe 1728: 1173), 8 px la stânga lui WORK */
-.workContacts.workMail { top: 236px; left: calc(var(--col-r) - 108px); }
-/* iconițele (03.11, 13:26): în dreapta lui CONTACT, la 13 px după cuvânt,
-   12 px între ele (pe 1728: 1560 și 1584), y = 80 (media celor două cue-uri,
-   76 și 83 — aliniate pe același rând) */
-.workSocial {
-    position: fixed;
-    top: 80px;
-    left: calc(var(--nav-r) - 108px);
-    z-index: 40;
-    display: flex;
+/* 03.11, 13:26: Diana la 6 px sub Ștefan (y = 186), Locations la y = 264;
+   13:49: mailul înapoi între ele, la câte 6 px (y = 242) */
+.workContacts p { margin-bottom: 6px; }
+/* iconițele (03.11, 13:49: „pe același rând cu CONTACT și puțin mai mari,
+   cum e CONTACT”): imediat după cuvânt, la 13 px, 12 px între ele; 15 px,
+   cât literele mari ale meniului, centrate pe ele */
+.navSocial {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
     gap: 12px;
-    color: var(--fg-faint);
+    margin-left: 13px;
+    color: var(--fg);
 }
-.workSocial .socialIcon:hover { color: var(--fg); }
 .workContacts a { color: inherit; }
 .workContacts a:hover { color: var(--fg); }
 /* Instagram / LinkedIn (03.11, 11:33): iconițele de pe site-ul vechi
    (public/assets/logos/icon-*-mask.png), folosite ca mască — iau culoarea
    textului (stinsă), plină la hover; în dreapta cuvântului, pe același rând */
-.workSocial .socialIcon {
+.navSocial .socialIcon {
     display: block;
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
     background: currentColor;
     -webkit-mask: var(--icon) center / contain no-repeat;
             mask: var(--icon) center / contain no-repeat;
@@ -2020,3 +2014,57 @@
     .filmList { left: 24px; }
     .sideRight { width: 140px; }
 }
+.navSocial .socialIcon:hover { opacity: 0.5; }
+
+/* ── LIMBA (03.11.2026, 13:49) — lista limbilor, deschisă în sus din butonul
+   din bara de jos; stilul căsuței GEAR (fundalul paginii, contur negru) ── */
+.langWrap { position: relative; display: inline-flex; }
+.langBtnOn { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.langMenu {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    min-width: 172px;
+    padding: 8px 0;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+.langItem {
+    appearance: none;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    width: 100%;
+    margin: 0;
+    padding: 6px 16px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12.75px;
+    line-height: 1.5;
+    color: var(--fg);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.langItem:hover { background: var(--fg); color: var(--bg); }
+.langItemCode { width: 2.2ch; flex: none; letter-spacing: 0.12em; color: var(--fg-faint); }
+.langItem:hover .langItemCode { color: inherit; }
+.langItemOn .langItemName {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+}
+
+/* scrierile fără majuscule / cu semne legate (03.11.2026, 13:49): fără
+   spațierea literelor — în hindi ar rupe linia de sus a cuvintelor, în thai
+   desparte vocalele de consoane. Fontul: JetBrains Mono nu are aceste
+   litere, deci browserul ia singur fontul sistemului pentru ele (pe Mac: Thonburi,
+   PingFang SC, Kohinoor Devanagari) — chineza o alege corect pentru că
+   pagina are lang="zh-Hans". */
+:global(html:lang(th)) .page *,
+:global(html:lang(hi)) .page * { letter-spacing: 0 !important; }
