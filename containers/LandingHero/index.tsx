@@ -1459,6 +1459,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* BARA DE JOS — fixă, mereu vizibilă: limba + cofinanțarea */}
             <Cofinance
+                lang={lang}
                 langLabel={LANG_LABEL[LANG_NEXT[lang]]}
                 onToggleLang={() => setLang(LANG_NEXT[lang])}
             />

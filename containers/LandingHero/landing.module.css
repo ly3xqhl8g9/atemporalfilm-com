@@ -757,15 +757,215 @@
 }
 .langBtnArrow { font-size: 9px; opacity: 0.7; }
 
-/* ENCODER (03.11.2026, 10:40, nota Regie 11): în bara de jos, în golul dintre
-   ADR Nord-Est (se termină la col-r + 108) și Shanghai / Buenos Aires,
-   centrat în el; arată ca butonul de limbă. Unde golul e prea mic, se ascunde. */
+/* TIME CALCULATOR (03.11.2026; până atunci ENCODER, 10:40, nota Regie 11): în
+   bara de jos, în golul dintre ADR Nord-Est (se termină la col-r + 108) și
+   Shanghai / Buenos Aires, centrat în el; arată ca butonul de limbă, dar pe două
+   rânduri (TIME / CALCULATOR) — pe un rând nu încape în gol (~124 px pe 1728).
+   Unde golul e prea mic, se ascunde. */
 .cofinanceEncoder {
     left: calc((var(--col-r) + 108px + max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px))) / 2);
-    transform: translate(-50%, -2px);
+    /* centrat fără transform (lățime 0, butonul iese egal în ambele părți),
+       ca să poată căsuța să se așeze `fixed`, pe coloanele paginii */
+    width: 0;
+    justify-content: center;
+    top: -2px;
+    bottom: 2px;
 }
-@media (max-width: 1679px) {
+@media (max-width: 1699px) {   /* sub 1700 golul are sub ~7 px de o parte și de alta */
     .cofinance .cofinanceEncoder { display: none; }   /* peste `.cofinance > *` */
+}
+.tcBtn {
+    flex-direction: column;
+    gap: 1px;
+    flex: none;
+    padding: 5px 8px 4px;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+}
+.tcBtnOn { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* căsuța: ca la GEAR (.gearBox), dar se deschide în sus, deasupra butonului,
+   începe pe verticala creditului (col-r − 119; pe 1728: 1158 în panou) */
+/* .gearNote în căsuță: mai aproape */
+.tcBox .gearNote { margin-top: 8px; }
+.tcBox {
+    position: fixed;
+    top: auto;
+    bottom: 57px;
+    left: calc(var(--col-r) - 119px);
+    right: auto;
+    width: 448px;
+    padding: 18px 22px 16px;
+    cursor: default;
+    animation-name: tcIn;
+}
+@keyframes tcIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: none; }
+}
+.tcTitle { margin: 0 26px 1px 0; text-transform: uppercase; letter-spacing: 0.12em; }
+.tcLead  { margin: 0 0 12px; font-size: 11px; color: var(--fg-soft); }
+.tcLabel {
+    font-size: 10px;
+    line-height: 1.35;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-soft);
+}
+.tcUnit { text-transform: none; }
+.tcRateRow, .tcWaveRow, .tcRow, .tcRatio {
+    display: grid;
+    grid-template-columns: 136px 1fr;
+    align-items: center;
+}
+.tcChips { display: flex; align-items: center; gap: 3px; }
+.tcChip, .tcOther {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 0;
+    padding: 2px 5px 1px;
+    font: inherit;
+    font-size: 11.5px;
+    color: var(--fg-soft);
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+}
+.tcChip:hover { color: var(--fg); }
+.tcOther {
+    width: 6ch;
+    box-sizing: content-box;
+    text-align: center;
+    cursor: text;
+    border-bottom-color: var(--rule);
+    outline: none;
+}
+.tcOther::placeholder { color: var(--fg-faint); opacity: 1; }
+.tcOther:focus { border-bottom-color: var(--fg); }
+.tcChip.tcChipOn, .tcOther.tcChipOn { border-color: var(--fg); color: var(--fg); }
+.tcSwap {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    margin: -1px 0 -1px 136px;
+    padding: 0 5px;
+    background: none;
+    border: 0;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.05;
+    color: var(--fg-soft);
+    cursor: pointer;
+}
+.tcSwap:hover { color: var(--fg); }
+
+/* întinderea, desenată: aceeași undă la durata veche (stinsă) și la cea nouă */
+.tcWaves {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 12px 0 11px;
+    padding: 9px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+}
+.tcWaveFps { font-size: 10px; letter-spacing: 0.06em; color: var(--fg-soft); }
+.tcWaveFps::after { content: ' fps'; color: var(--fg-faint); }
+.tcTrack { position: relative; height: 18px; }
+.tcWave {
+    height: 100%;
+    color: var(--fg);
+    transform-origin: left center;
+    transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tcWave::after {          /* capătul clipului */
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -3px;
+    bottom: -3px;
+    border-right: 1px solid currentColor;
+}
+.tcWaveSrc { color: var(--fg-faint); }
+.tcWaveSvg { display: block; width: 100%; height: 100%; fill: currentColor; }
+
+/* raportul, mare */
+.tcRatio {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    width: 100%;
+    margin: 0 0 9px;
+    padding: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    color: var(--fg);
+    text-align: left;
+    cursor: copy;
+    align-items: baseline;
+    grid-template-columns: 136px auto 1fr;
+}
+.tcRatioNum {
+    font-size: 30px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+.tcRatioFrac { justify-self: end; color: var(--fg-soft); font-variant-numeric: tabular-nums; }
+.tcRatio:hover .tcRatioNum { opacity: 0.55; }
+.tcRatio .tcCopied { position: absolute; right: 0; top: -14px; }
+
+.tcRows { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.tcRow { align-items: baseline; }
+.tcRow dd {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0;
+    white-space: nowrap;
+}
+.tcValue {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--fg);
+    cursor: copy;
+    font-variant-numeric: tabular-nums;
+}
+.tcValue:hover { opacity: 0.55; }
+.tcSep, .tcArrow { color: var(--fg-faint); }
+.tcCopied {
+    font-size: 10.5px;
+    color: var(--fg-soft);
+    pointer-events: none;
+    animation: copiedNote 1.6s ease forwards;
+}
+.tcRowRuntime { margin-top: 7px; }
+.tcRuntimeIn {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 11.5ch;
+    padding: 1px 0 2px;
+    border: 0;
+    border-bottom: 1px solid var(--fg-soft);
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--fg);
+    outline: none;
+    font-variant-numeric: tabular-nums;
+}
+.tcRuntimeIn:focus { border-bottom-color: var(--fg); }
+.tcRuntimeIn[aria-invalid='true'] { border-bottom-style: dashed; }
+@media (prefers-reduced-motion: reduce) {
+    .tcWave { transition: none; }
+    .tcBox, .tcCopied { animation: none; }
 }
 
 /* WORK — contactele sub CONTACT (03.11.2026, 10:40, nota Regie 06), scrise mic,

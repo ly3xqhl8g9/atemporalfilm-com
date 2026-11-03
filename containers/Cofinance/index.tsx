@@ -1,6 +1,7 @@
 'use client';
 
 import styles from '@/containers/LandingHero/landing.module.css';
+import TimeCalculator from '@/containers/LandingHero/TimeCalculator';
 
 
 
@@ -19,11 +20,12 @@ import styles from '@/containers/LandingHero/landing.module.css';
    ============================================================ */
 
 interface CofinanceProps {
+    lang:         'ro' | 'en' | 'fr';   // limba paginii (pentru Time Calculator)
     langLabel:    string;       // limba spre care comută butonul (ex. „EN”)
     onToggleLang: () => void;
 }
 
-export default function Cofinance({ langLabel, onToggleLang }: CofinanceProps) {
+export default function Cofinance({ lang, langLabel, onToggleLang }: CofinanceProps) {
     return (
         <footer className={styles.cofinance}>
 
@@ -52,12 +54,11 @@ export default function Cofinance({ langLabel, onToggleLang }: CofinanceProps) {
                 <div className={`${styles.cfLogo} ${styles.cfLogoRegio}`}>Regio</div>
             </div>
 
-            {/* ENCODER (03.11.2026, nota Regie 11): între ADR Nord-Est și
-                Shanghai / Buenos Aires — deocamdată nu face nimic */}
+            {/* TIME CALCULATOR (03.11.2026; până atunci ENCODER, nota Regie 11):
+                între ADR Nord-Est și Shanghai / Buenos Aires. Click → căsuța cu
+                calculatorul de time stretch (TimeCalculator.tsx) */}
             <div className={styles.cofinanceEncoder}>
-                <button type="button" className={styles.langBtn} title="Encoder">
-                    Encoder
-                </button>
+                <TimeCalculator lang={lang} />
             </div>
 
             {/* dreapta: site-urile aliniate cu creditul și meniul (--col-r),
