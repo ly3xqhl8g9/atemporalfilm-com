@@ -106,10 +106,14 @@ function hms(z: Zone, now: Date): string {
     return hmsFormat[z.tz].format(now);
 }
 
-/** „EET 15:54:21:11” — ore:minute:secunde:cadre, 24 de cadre pe secundă. */
-function timecode(z: Zone, now: Date): string {
+/** „EET 15:54:21:11” — ore:minute:secunde:cadre, 24 de cadre pe secundă.
+    În trei bucăți (03.11.2026, 18:20): „EET 15:54” · „:21” · „:11”, ca pe
+    ecranele unde nu e loc să se poată scoate secundele și cadrele (CSS:
+    `.tcSec`, `.tcFrm`) — Ștefan: „acolo unde nu ai loc scoate parțial timecode-ul”. */
+function timecodeParts(z: Zone, now: Date): [string, string, string] {
     const frame = Math.floor((now.getMilliseconds() / 1000) * FPS);
-    return `${abbrFor(z, now)} ${hms(z, now)}:${String(frame).padStart(2, '0')}`;
+    const t = hms(z, now);
+    return [`${abbrFor(z, now)} ${t.slice(0, 5)}`, t.slice(5), `:${String(frame).padStart(2, '0')}`];
 }
 
 
@@ -127,7 +131,12 @@ function useTimecodes(zones: Zone[]) {
                 lastFrame = f;
                 zones.forEach((z, i) => {
                     const el = refs.current[i];
-                    if (el) el.textContent = timecode(z, d);
+                    if (!el || el.children.length < 3) return;
+                    const parts = timecodeParts(z, d);
+                    for (let k = 0; k < 3; k++) {
+                        const c = el.children[k];
+                        if (c.textContent !== parts[k]) c.textContent = parts[k];
+                    }
                 });
             }
             raf = requestAnimationFrame(tick);
@@ -145,7 +154,9 @@ function useTimecodes(zones: Zone[]) {
                 className={`${styles.hdClock} ${styles.hdTimecode} ${extraClass}`}
                 title={`Timecode 24 fps · ${z.city}`}
             >
-                {' '}
+                <span className={styles.tcHm} />
+                <span className={styles.tcSec} />
+                <span className={styles.tcFrm} />
             </span>
         );
     };
@@ -153,18 +164,64 @@ function useTimecodes(zones: Zone[]) {
 }
 
 
-/** Antetul: București cu ● REC, sus în dreapta, deasupra lui CONTACT. */
-export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }) {
+/** Antetul: București cu ● REC, sus în dreapta, deasupra lui CONTACT.
+    Pe telefon / tabletă (03.11.2026, 18:30) ceasul stă sub meniu și e un
+    buton: deschide fișa TIMECODE (`onOpen`); pe desktop nu face nimic. */
+export default function HeaderClocks({ recLabel = 'REC', onOpen }: { recLabel?: string; onOpen?: () => void }) {
     const tc = useTimecodes(HOME);
+    const inner = HOME.map((z) => (
+        <span key={z.tz} className={styles.hdTimecodeGroup}>
+            {tc(z)}
+            <span className={styles.hdRec}>{recLabel}</span>
+        </span>
+    ));
+    if (onOpen) {
+        return (
+            <button type="button" className={`${styles.hdClocks} ${styles.hdClocksBtn}`} onClick={onOpen} aria-haspopup="dialog">
+                {inner}
+            </button>
+        );
+    }
+    return <div className={styles.hdClocks}>{inner}</div>;
+}
+
+
+/* Fișa TIMECODE de pe telefon (03.11.2026, 18:30): toate cele nouă ceasuri,
+   cu orașul scris, timecode-ul întreg și starea — București și Madrid
+   (acasă) întâi, apoi restul lumii de la vest la est. */
+const SHEET_LIST: [Zone, Transport][] = [
+    [BUCHAREST,    'rec'],
+    [MADRID,       'rec'],
+    [LOS_ANGELES,  'play'],
+    [NEW_YORK,     'play'],
+    [BUENOS_AIRES, 'stop'],
+    [JOHANNESBURG, 'stop'],
+    [MUMBAI,       'play'],
+    [BANGKOK,      'play'],
+    [SHANGHAI,     'play'],
+];
+const SHEET_ZONES: Zone[] = SHEET_LIST.map(([z]) => z);
+
+export function ClockSheetList({
+    playbackLabel = 'PLAYBACK',
+    stopLabel = 'STOP',
+    recLabel = 'REC',
+}: { playbackLabel?: string; stopLabel?: string; recLabel?: string }) {
+    const tc = useTimecodes(SHEET_ZONES);
+    const status = (state: Transport) =>
+        state === 'rec'  ? <span className={styles.hdRec}>{recLabel}</span>
+        : state === 'play' ? <span className={styles.hdPlay}>{playbackLabel}</span>
+        : <span className={styles.hdStop}>{stopLabel}</span>;
     return (
-        <div className={styles.hdClocks}>
-            {HOME.map((z) => (
-                <span key={z.tz} className={styles.hdTimecodeGroup}>
+        <ul className={styles.sheetClocks}>
+            {SHEET_LIST.map(([z, state]) => (
+                <li key={z.tz} className={styles.sheetClock}>
+                    <span className={styles.sheetCity}>{z.city}</span>
                     {tc(z)}
-                    <span className={styles.hdRec}>{recLabel}</span>
-                </span>
+                    {status(state)}
+                </li>
             ))}
-        </div>
+        </ul>
     );
 }
 

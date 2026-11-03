@@ -2202,8 +2202,11 @@
     max-width: calc(100% - var(--nav-r) + 194px - 12px);
     white-space: normal;
 }
+/* 03.11, 18:20: pe ecranele scunde (sub 760 px, ex. 1280 × 720) nu se mai
+   ascund: rândurile mai strânse, ca blocul să se oprească deasupra creditului */
 @media (max-height: 759px) {
-    .workContacts { display: none; }
+    .workContacts { line-height: 1.32; }
+    .workContacts p { margin-bottom: 4px; }
 }
 /* ABOUT pe ecranele scunde (ex. 1280 × 720): textele nu mai ies sus peste logo
    și jos peste bară — rămân centrate pe ramă, iar dacă nu încap se derulează */
@@ -2272,10 +2275,11 @@
     .backlight { top: var(--band-mid); }
     .galleryPad { height: max(0px, calc((100dvh - var(--band-top) - var(--band-bot)) / 2 - var(--slot-h) / 2)); }
 
-    /* ce nu încape: lista de filme, ceasurile, contactele scrise, TIME CALCULATOR */
+    /* ce nu încape în pagină: lista de filme, ceasurile, contactele scrise,
+       TIME CALCULATOR — din 03.11, 18:30 se deschid în fișe (PhoneSheet.tsx);
+       ceasul București rămâne în antet, sub meniu (vezi „FIȘELE” la sfârșit) */
     .filmList,
     .worldClocks,
-    .hdClocks,
     .workContacts { display: none !important; }
 
     /* ANTETUL: logo-ul și rola în stânga-sus */
@@ -2529,12 +2533,7 @@
 
 /* unde nu încap nici așa (sub ~1370 px New York ar ajunge pe peliculă, sub
    1310 px TIME CALCULATOR n-ar mai avea loc între ADR și Shanghai): ascunse */
-@media (min-width: 1280px) and (max-width: 1359px) {   /* 17:46: de la 1360 (laptopurile de 1366 × 768) încap, la ≥ 12 px de peliculă */
-    .page .wcBottomLeft { display: none; }
-}
-@media (min-width: 1280px) and (max-width: 1309px) {
-    .cofinance .cofinanceEncoder { display: none; }
-}
+/* 03.11, 18:20: sub 1370 px nu se mai ascund — vezi „WORK, 1280 – 1369 px” la sfârșit */
 
 /* 1690–1699 px: de când ADR a venit cu 30 px spre stânga (13:26), TIME
    CALCULATOR încape și aici, la mărimea normală */
@@ -2674,4 +2673,318 @@
    și New York vin cu 32 px spre stânga */
 @media (min-width: 2200px) and (min-height: 1250px) {
     .page:not(.pageAbout) { --lang-x: max(calc(var(--list-x) + 129px), calc(var(--home-x) + var(--home-w) + 6px)); }
+}
+
+/* timecode-ul în trei bucăți (HeaderClocks: „EET 15:54” · „:21” · „:11”) */
+.tcSec, .tcFrm { display: inline; }
+
+/* WORK, 1280 – 1369 px (03.11, 18:20 — Ștefan: „butonul de time calculator
+   rămâne, acolo unde nu ai loc scoate parțial timecode-ul”): timecode-urile
+   din bara de jos rămân doar cu ora și minutul („EST 11:05 ▶”), fără
+   secunde și cadre; așa încap toate: Bangkok, Madrid, butonul de limbă,
+   UE + Regio, New York / Johannesburg în stânga, TIME CALCULATOR între ADR
+   și Shanghai în dreapta. Butonul de limbă se strânge spre Madrid (nu mai
+   stă pe verticala listei de filme). București (antet) rămâne întreg. */
+@media (min-width: 1280px) and (max-width: 1369px) {   /* până la 1369: New York la ≥ 12 px de peliculă */
+    .page:not(.pageAbout) .worldClocks .tcSec,
+    .page:not(.pageAbout) .worldClocks .tcFrm { display: none; }
+    .page:not(.pageAbout) .worldClocks .hdTimecode { min-width: 0; }
+    .page:not(.pageAbout) {
+        --home-x:      calc(var(--wc-far-x) + 64px + 14px);   /* Bangkok scurt ~64 px */
+        --lang-x:      calc(var(--home-x) + 66px + 12px);     /* Madrid scurt ~66 px */
+        --cf-logos-x2: calc(var(--lang-x) + 70px);
+        --sh-x:        min(calc(100% - 18px - 70px),
+                           max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px), calc(var(--col-r) + 168px)));
+    }
+    .page:not(.pageAbout) .wcBottomLeft { display: flex; }
+    .page:not(.pageAbout) .cofinance .cofinanceEncoder { display: flex; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIȘELE DE PE TELEFON / TABLETĂ (03.11.2026, 18:30 — varianta aleasă de
+   Ștefan: „fișe care urcă de jos”). Pe ecranele sub 1280 px:
+   – ceasul București stă în antet, sub meniu → fișa TIMECODE (cele 9
+     ceasuri + TIME CALCULATOR);
+   – CONTACT copiază mailul și deschide fișa cu contactele (telefoanele se
+     apasă = apel), Instagram, LinkedIn;
+   – titlul filmului de sub peliculă (cu ≡) → lista filmelor;
+   – site-urile Regio înapoi în bara de jos (pe telefon: două rânduri mici
+     sub logo-uri; pe telefonul întors: lângă ADR, ca pe tabletă).
+   ══════════════════════════════════════════════════════════════════════ */
+.hdClocksBtn {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+button.capTitle {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+.capListIcon { margin-left: 0.55em; opacity: 0.5; font-weight: 400; }
+
+.sheetWrap { position: fixed; inset: 0; z-index: 300; }
+@media (min-width: 1280px) {
+    .sheetWrap { display: none; }
+}
+.sheetBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.28);
+    animation: sheetFade 0.22s ease both;
+}
+.sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: min(100%, 600px);
+    margin: 0 auto;
+    max-height: 84dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--fg);
+    border-bottom: 0;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    padding-bottom: env(safe-area-inset-bottom);
+    outline: none;
+    animation: sheetUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (max-width: 600px) {
+    .sheet { border-left: 0; border-right: 0; }
+}
+/* fără transform (altfel calculatorul, `fixed`, s-ar așeza față de fișă, nu de ecran) */
+@keyframes sheetUp   { from { bottom: -40dvh; opacity: 0; } to { bottom: 0; opacity: 1; } }
+@keyframes sheetFade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+    .sheet, .sheetBackdrop { animation: none; }
+}
+.sheetHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 10px 18px;
+    border-bottom: 0.5px solid var(--rule);
+}
+.sheetTitle {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+.sheetClose {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 4px 8px;
+    font: inherit;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--fg);
+    cursor: pointer;
+    opacity: 0.6;
+}
+.sheetClose:hover { opacity: 1; }
+.sheetBody {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 18px 24px;
+}
+
+/* TIMECODE: cele 9 ceasuri, pe două coloane */
+.sheetClocks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+}
+@media (max-width: 359px) {
+    .sheetClocks { grid-template-columns: 1fr; }
+}
+.sheetClock {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    font-size: 10.5px;
+    line-height: 14px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+.sheetCity {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-soft);
+}
+.sheetClock .hdTimecode { min-width: 0; }
+.sheetClock .hdRec, .sheetClock .hdPlay, .sheetClock .hdStop { font-size: 9px; }
+.sheetTc {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 0.5px solid var(--rule);
+    display: flex;
+}
+.sheetTc .tcBtn {
+    flex-direction: row;
+    gap: 0.6em;
+    width: 100%;
+    justify-content: center;
+    padding: 11px 12px;
+    font-size: 11px;
+}
+/* calculatorul: o fișă peste fișă, pe toată lățimea (cel mult 600 px) */
+.sheetTc .tcBox {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: min(100%, 600px);
+    margin: 0 auto;
+    max-height: 90dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    border-bottom: 0;
+    z-index: 10;
+}
+
+/* CONTACT */
+.sheetContacts {
+    margin: 0;
+    font-style: normal;
+    font-size: 13px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: var(--fg);
+}
+.sheetContacts p { margin: 0 0 14px; }
+.sheetContacts a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 0.5px; }
+.sheetSocial { display: flex; gap: 22px; margin-top: 4px; color: var(--fg); }
+.sheetSocial .socialIcon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    background: currentColor;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+            mask: var(--icon) center / contain no-repeat;
+}
+
+/* LISTA FILMELOR */
+.sheetFilms { list-style: none; margin: 0; padding: 0; }
+.sheetFilmBtn {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 0.5px solid var(--rule);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 0;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--fg-soft);
+    cursor: pointer;
+}
+.sheetFilmBtn[aria-current="true"] { color: var(--fg); font-weight: 600; }
+.sheetFilmYear { flex: none; font-size: 10px; color: var(--fg-faint); font-weight: 400; }
+
+@media (max-width: 1279px) {
+    /* ceasul București: sub meniu, aliniat la dreapta cu el */
+    .hdClocks {
+        left: auto;
+        right: var(--logo-x);
+        top: 86px;
+        font-size: 9px;
+        line-height: 12px;
+    }
+}
+@media (max-width: 767px) {
+    .hdClocks { top: 76px; }
+    /* bara de jos: logo-urile sus, site-urile Regio dedesubt, pe două rânduri mici */
+    .page { --bar-h: 82px; }
+    .cofinanceLeft,
+    .cofinanceLogos { bottom: 26px; }
+    .cofinanceRight {
+        left: var(--logo-x);
+        right: var(--logo-x);
+        display: block;
+        transform: none;
+    }
+    .cofinanceRight .cfLogoAdr {
+        position: absolute;
+        right: 0;
+        top: calc((100% - 26px) / 2);
+        transform: translateY(-50%);
+    }
+    .cofinance .cofinanceLinks {
+        display: flex;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 8px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        column-gap: 14px;
+        row-gap: 0;
+        font-size: 7.5px;
+        line-height: 1.55;
+    }
+    .cofinanceLinks a { white-space: nowrap; }
+}
+/* telefonul întors: site-urile lângă ADR, pe patru rânduri, ca pe tabletă */
+@media (max-width: 1279px) and (max-height: 560px) and (orientation: landscape) {
+    .hdClocks { top: 74px; }
+    .pageAbout .aboutRead { top: 104px; }   /* sub ceas */
+    .page { --bar-h: 50px; }
+    .cofinanceLeft,
+    .cofinanceLogos { bottom: 0; }
+    .cofinanceRight {
+        left: auto;
+        right: var(--logo-x);
+        display: flex;
+        gap: 14px;
+    }
+    .cofinanceRight .cfLogoAdr { position: static; transform: none; }
+    .cofinance .cofinanceLinks {
+        display: flex;
+        position: static;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        font-size: 7.5px;
+        line-height: 1.4;
+    }
+}
+/* calculatorul pe ecranul îngust: coloana etichetelor mai îngustă, cadențele pot trece pe al doilea rând */
+.sheetTc .tcRateRow, .sheetTc .tcWaveRow, .sheetTc .tcRow, .sheetTc .tcRatio { grid-template-columns: 92px 1fr; }
+.sheetTc .tcSwap  { margin-left: 92px; }
+.sheetTc .tcChips { flex-wrap: wrap; row-gap: 3px; }
+/* ceasul din antet: zona de apăsare mai mare decât rândul (12 px) */
+@media (max-width: 1279px) {
+    .hdClocksBtn { padding: 3px 0 10px 10px; margin: -3px 0 0 -10px; }
 }

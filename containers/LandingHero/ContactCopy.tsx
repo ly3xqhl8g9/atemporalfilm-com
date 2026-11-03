@@ -72,7 +72,9 @@ async function copyContact(): Promise<boolean> {
 /** `social` (03.11, 13:49): pe WORK, iconițele Instagram / LinkedIn stau pe
     rândul lui CONTACT, imediat după cuvânt (îl urmează oricât de lung e în
     altă limbă); confirmarea „Email copied” apare după ele */
-export default function ContactCopy({ lang, label, social = false }: { lang: Lang; label: string; social?: boolean }) {
+/** `onOpenSheet` (03.11.2026, 18:30): pe telefon / tabletă CONTACT copiază
+    mailul și deschide și fișa cu contactele (vezi PhoneSheet.tsx) */
+export default function ContactCopy({ lang, label, social = false, onOpenSheet }: { lang: Lang; label: string; social?: boolean; onOpenSheet?: () => void }) {
     const [note, setNote] = useState<null | 'ok' | 'fail'>(null);
     const [tick, setTick] = useState(0);   // repornește animația la fiecare click
 
@@ -83,6 +85,7 @@ export default function ContactCopy({ lang, label, social = false }: { lang: Lan
     }, [note, tick]);
 
     const onClick = async () => {
+        onOpenSheet?.();
         const ok = await copyContact();
         setNote(ok ? 'ok' : 'fail');
         setTick((n) => n + 1);
@@ -121,12 +124,12 @@ export default function ContactCopy({ lang, label, social = false }: { lang: Lan
    icon-*-mask.png, făcute din logo-*.png (doar desenul, ca pe site-ul vechi:
    Instagram contur, LinkedIn cerc plin cu „in” decupat).
    (Butonul CONTACT copiază doar adresa comună — din 03.11, 11:06.) */
-export function WorkContacts() {
+export function WorkContacts({ className = styles.workContacts }: { className?: string }) {
     /* 03.11.2026, 13:49: Instagram și LinkedIn au trecut pe rândul lui CONTACT
        (în ContactCopy, `social`); mailul a revenit între telefonul Dianei și
        Locations */
     return (
-        <address className={styles.workContacts}>
+        <address className={className}>
             <p>
                 ȘTEFAN AZAHARIOAIE<br />
                 sound designer, editor<br />
@@ -152,5 +155,18 @@ export function WorkContacts() {
                 <span className={styles.wcChunk}>Vasile Lascar 23-25</span>
             </p>
         </address>
+    );
+}
+
+
+/** Instagram / LinkedIn, pentru fișa CONTACT de pe telefon (aceleași linkuri ca în meniu) */
+export function SocialLinks({ className }: { className?: string }) {
+    return (
+        <span className={className}>
+            <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/icon-instagram-mask.png")' } as React.CSSProperties}
+               href="https://www.instagram.com/atemporalfilm" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" />
+            <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/icon-linkedin-mask.png")' } as React.CSSProperties}
+               href="https://www.linkedin.com/company/atemporal-film" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" />
+        </span>
     );
 }

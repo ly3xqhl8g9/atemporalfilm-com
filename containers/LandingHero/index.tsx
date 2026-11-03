@@ -11,15 +11,17 @@ import { usePathname } from 'next/navigation';
 
 import Cofinance from '@/containers/Cofinance';
 import FilmDetail from '@/containers/FilmDetail';
-import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
+import HeaderClocks, { ClockSheetList, WorldClocks } from '@/containers/HeaderClocks';
 
-import ContactCopy, { WorkContacts } from './ContactCopy';
+import ContactCopy, { SocialLinks, WorkContacts } from './ContactCopy';
 import GearRequest from './GearRequest';
 import { HTML_LANG, LANG_STORE, isLang, type Lang } from './i18n';
 import {
     BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, exposureFilter, filmK,
 } from './filmStrip';
 import IntroReel from './IntroReel';
+import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
+import TimeCalculator from './TimeCalculator';
 import LogoReel from './LogoReel';
 import SetStrip, { type StripImage } from './SetStrip';
 import styles from './landing.module.css';
@@ -1526,6 +1528,19 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     }, [expandedIdx, glideTo, arrive, reel]);
 
 
+    /* FIȘELE DE PE TELEFON (03.11.2026, 18:30; vezi PhoneSheet.tsx): sub
+       1280 px ceasul din antet, CONTACT și titlul filmului deschid fișe */
+    const [sheet, setSheet]   = useState<null | 'time' | 'contact' | 'films'>(null);
+    const [narrow, setNarrow] = useState(false);
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 1279px)');
+        const on = () => { setNarrow(mq.matches); if (!mq.matches) setSheet(null); };
+        on();
+        mq.addEventListener('change', on);
+        return () => mq.removeEventListener('change', on);
+    }, []);
+    const closeSheet = useCallback(() => setSheet(null), []);
+
     const { SLOTS, filmOf, isHome, items } = reel;
     /** lista „o singură dată”: click pe un nume → cel mai apropiat cadru cu omul respectiv */
     const slotForItem = (i: number) => {
@@ -1583,7 +1598,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 </Link>
 
                 {/* ceasurile + timecode 24 fps + REC — urcate din bara de jos (30.10, seria a treia) */}
-                <HeaderClocks recLabel={t.rec} />
+                <HeaderClocks recLabel={t.rec} onOpen={narrow ? () => setSheet('time') : undefined} />
             </header>
 
 
@@ -1610,7 +1625,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                     <span className={`${styles.navItem} ${styles.navComma} ${styles.navCommaAbout}`} aria-hidden="true">,</span>
                 </span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
-                <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work'} />
+                <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work'}
+                             onOpenSheet={() => { if (isNarrowScreen()) setSheet('contact'); }} />
             </nav>
 
 
@@ -1676,7 +1692,11 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             {!isAbout && (
             <aside className={`${styles.side} ${styles.sideRight}`} style={fadeStyle}>
                 {/* titlul filmului: doar pe ecranele înguste, unde lista din stânga nu încape */}
-                <div className={styles.capTitle} aria-hidden="true">{projTitle}</div>
+                {/* 03.11, 18:30: pe telefon titlul e un buton — deschide lista filmelor (≡) */}
+                <button type="button" className={styles.capTitle} onClick={() => setSheet('films')}
+                        aria-haspopup="dialog" tabIndex={narrow ? 0 : -1} aria-hidden={narrow ? undefined : true}>
+                    {projTitle}<span className={styles.capListIcon} aria-hidden="true">≡</span>
+                </button>
                 <div className={styles.sideEyebrow}>{projWork}</div>
                 {/* anul filmului, pe rândul creditului, în dreapta (02.11, 23:03) */}
                 {pickYear(proj) && <div className={styles.sideYear}>{pickYear(proj)}</div>}
@@ -1807,6 +1827,35 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* BARA DE JOS — fixă, mereu vizibilă: limba + cofinanțarea */}
             <Cofinance lang={lang} onLang={setLang} />
+
+            {/* FIȘELE DE PE TELEFON (doar sub 1280 px) */}
+            <PhoneSheet open={sheet === 'time'} title="Timecode" lang={lang} onClose={closeSheet}>
+                <ClockSheetList recLabel={t.rec} />
+                <div className={styles.sheetTc}><TimeCalculator lang={lang} /></div>
+            </PhoneSheet>
+            <PhoneSheet open={sheet === 'contact'} title={t.nav.contact} lang={lang} onClose={closeSheet}>
+                <WorkContacts className={styles.sheetContacts} />
+                <SocialLinks className={styles.sheetSocial} />
+            </PhoneSheet>
+            {!isAbout && (
+                <PhoneSheet open={sheet === 'films'} title={t.films} lang={lang} onClose={closeSheet}>
+                    <ol className={styles.sheetFilms}>
+                        {items.map((p, i) => (
+                            <li key={i}>
+                                <button
+                                    type="button"
+                                    className={styles.sheetFilmBtn}
+                                    aria-current={i === film ? 'true' : undefined}
+                                    onClick={() => { setSheet(null); goTo(slotForItem(i)); }}
+                                >
+                                    <span>{pickTitle(p, lang)}</span>
+                                    <span className={styles.sheetFilmYear}>{pickYear(p)}</span>
+                                </button>
+                            </li>
+                        ))}
+                    </ol>
+                </PhoneSheet>
+            )}
 
 
             {/* INTRO „masa luminată” — doar pe homepage, cu /?intro (03.11.2026) */}
