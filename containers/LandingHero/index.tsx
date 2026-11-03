@@ -67,6 +67,9 @@ interface Project {
     meta?:   string;
     metaRo?: string;
     metaFr?: string;
+    // ABOUT (03.11.2026, 12:41): descrierea omului, în stânga peliculei —
+    // rândul cu funcțiile (role) și paragrafele (text), în fiecare limbă
+    bio?: Record<Lang, { role: string; text: string[] }>;
 
     image: string;   // /assets/entities/...
 }
@@ -604,10 +607,36 @@ const PEOPLE: Project[] = [
         workEn:      'Distribution, festivals, producing',
         workFr:      'Distribution, festivals, production',
         meta:        'COO, Atemporal Film',
+        bio: {
+            en: {
+                role: 'Manager | Theatrical Distribution Coordinator',
+                text: [
+                    'Diana Smeu studied Screenwriting and Film Studies at the National University of Theatre and Film “I.L. Caragiale” (UNATC) in Bucharest. She has coordinated several film festivals and events, including Les Films de Cannes à Bucarest and the American Independent Film Festival.',
+                    'Her academic background also includes studies in Philosophy, Politics and Economics in Bucharest, as well as Philosophy of Asia at the Complutense University of Madrid.',
+                    'At Atemporal, Diana oversees strategic planning and organisational development. She is responsible for developing funding proposals and coordinating the theatrical distribution of Romanian films across cinemas in Romania.',
+                ],
+            },
+            ro: {
+                role: 'Manager | Coordonatoare distribuție în cinematografe',
+                text: [
+                    'Diana Smeu a studiat Scenaristică și Studii cinematografice la Universitatea Națională de Artă Teatrală și Cinematografică „I.L. Caragiale” (UNATC) din București. A coordonat mai multe festivaluri și evenimente de film, între care Les Films de Cannes à Bucarest și American Independent Film Festival.',
+                    'A studiat, de asemenea, Filosofie, Politică și Economie la București și Filosofie asiatică la Universitatea Complutense din Madrid.',
+                    'La Atemporal, Diana se ocupă de planificarea strategică și de dezvoltarea organizațională. Scrie propunerile de finanțare și coordonează distribuția filmelor românești în cinematografele din România.',
+                ],
+            },
+            fr: {
+                role: 'Manager | Coordinatrice de la distribution en salles',
+                text: [
+                    'Diana Smeu a étudié le scénario et les études cinématographiques à l’Université nationale d’art théâtral et cinématographique « I.L. Caragiale » (UNATC) de Bucarest. Elle a coordonné plusieurs festivals et événements de cinéma, dont Les Films de Cannes à Bucarest et l’American Independent Film Festival.',
+                    'Son parcours universitaire comprend également des études de philosophie, politique et économie à Bucarest, ainsi que de philosophie de l’Asie à l’Université Complutense de Madrid.',
+                    'Chez Atemporal, Diana est en charge de la planification stratégique et du développement de la structure. Elle élabore les dossiers de financement et coordonne la distribution en salles de films roumains dans les cinémas de Roumanie.',
+                ],
+            },
+        },
         image:       '/assets/entities/people/diana-smeu.webp',
     },
     {
-        title:       'Stefan Azaharioaie',
+        title:       'Ștefan Azaharioaie',   // 03.11, 12:41: cu diacritice și în EN (cum l-a scris Ștefan)
         titleRo:     'Ștefan Azaharioaie',
         year:        '',
         director:    '',
@@ -621,6 +650,26 @@ const PEOPLE: Project[] = [
         meta:        'Sound designer, editor',
         metaRo:      'Sound designer, montaj',
         metaFr:      'Sound designer, monteur',
+        bio: {
+            en: {
+                role: 'Founder | Sound Designer • Production Sound Mixing • Editor • Foley Artist',
+                text: [
+                    'With over a decade of experience, Ștefan has shaped audio for productions in Romania, the UK, UAE, Saudi Arabia, Turkey, Zambia and Zimbabwe. He holds both a BA and an MA in Editing & Sound Design and is currently pursuing a PhD. When he’s not capturing sound on set, you’ll find him in the studio fine-tuning every detail.',
+                ],
+            },
+            ro: {
+                role: 'Fondator | Sound designer • Sunet de platou • Montaj • Foley',
+                text: [
+                    'Cu peste zece ani de experiență, Ștefan a lucrat sunetul unor producții din România, Marea Britanie, Emiratele Arabe Unite, Arabia Saudită, Turcia, Zambia și Zimbabwe. Are licența și masteratul în Montaj și Sound Design și face acum doctoratul. Când nu înregistrează sunet pe platou, e în studio, unde lucrează fiecare detaliu.',
+                ],
+            },
+            fr: {
+                role: 'Fondateur | Sound designer • Ingénieur du son plateau • Monteur • Bruiteur',
+                text: [
+                    'Fort de plus de dix ans d’expérience, Ștefan a façonné le son de productions en Roumanie, au Royaume-Uni, aux Émirats arabes unis, en Arabie saoudite, en Turquie, en Zambie et au Zimbabwe. Titulaire d’une licence et d’un master en montage et sound design, il prépare actuellement un doctorat. Quand il n’enregistre pas le son sur un plateau, il est en studio, à peaufiner chaque détail.',
+                ],
+            },
+        },
         image:       '/assets/entities/people/stefan-azaharioaie.webp',
     },
     {
@@ -639,51 +688,46 @@ const PEOPLE: Project[] = [
         meta:        'Studio cat, Atemporal Film',
         metaRo:      'Pisica studioului, Atemporal Film',
         metaFr:      'Chat du studio, Atemporal Film',
+        bio: {
+            en: { role: 'Technical Inspector, Guardian Angel, Wise Advisor', text: [] },
+            ro: { role: 'Inspector tehnic, înger păzitor, sfătuitor înțelept', text: [] },
+            fr: { role: 'Inspecteur technique, ange gardien, sage conseiller', text: [] },
+        },
         image:       '/assets/entities/people/fram.webp',
     },
 ];
 
 /* ============================================================
-   ABOUT (03.11.2026): aceeași pagină ca WORK și PEOPLE — pelicula, rama,
-   lampa — cu pozele de pe platou trimise de Ștefan (13, decupate la 2:3,
-   public/assets/entities/about/set-NN.webp). Lista din stânga și creditul
-   din dreapta nu apar; în locul lor, textul paginii, sub meniu, unde l-a
-   cerut nota Regie 11 din 02.11, 22:52 (x = col-r − 119, y = 179).
+   ABOUT (03.11.2026, 12:41): PEOPLE și ABOUT sunt o singură pagină (/about).
+   Pe peliculă: fețele celor trei din PEOPLE (pozele de pe platou nu mai
+   apar; fișierele rămân în public/assets/entities/about/). În stânga
+   peliculei: descrierea omului din ramă (PEOPLE → bio). În dreapta, mereu
+   aceeași: descrierea Atemporal Film (trimisă de Ștefan în chat; RO și FR
+   traduse de Claude).
    ============================================================ */
-const ABOUT_SET: Project[] = Array.from({ length: 13 }, (_, k) => ({
-    title:       'On set',
-    titleRo:     'Pe platou',
-    titleFr:     'Sur le plateau',
-    year:        '',
-    director:    '',
-    production:  'Atemporal Film',
-    description: '',
-    awards:      '',
-    people:      '',
-    image:       `/assets/entities/about/set-${String(k + 1).padStart(2, '0')}.webp`,
-}));
-
-/** textul paginii ABOUT (03.11.2026, trimis de Ștefan în chat; RO și FR traduse de Claude) */
 const ABOUT_TEXT: Record<Lang, string[]> = {
     en: [
-        'Atemporal Film is a concept-driven design studio founded by Stefan Azaharioaie in 2018 and based in Bucharest, Piatra Neamț and Madrid.',
-        'Rooted in modernist design principles and graphic design tradition, our work combines typography, grid systems and motion to create digital experiences that balance clarity, usability and bold visual expression.',
-        'Our team remains intentionally small, under 10 people, which allows creative direction to stay personal and decisions to stay sharp. Every project is led closely by the founders. No layers. No dilution.',
+        'Atemporal is a film production and post-production company based in Bucharest, Romania, with an active presence in Piatra Neamț and Madrid, Spain.',
+        'Founded in 2018, the company has provided post-production and location sound recording services for feature films, short films, documentaries and TV series, collaborating on productions from around the world.',
+        'Led by Diana Smeu and Ștefan Azaharioaie, Atemporal is drawn to unconventional, bold and audacious projects.',
+        'Our team is fluent in English and has extensive experience working across diverse international settings, including Romania, the United Kingdom, Spain, the United Arab Emirates, Saudi Arabia, Turkey, Zambia and Zimbabwe.',
     ],
     ro: [
-        'Atemporal Film este un studio de design construit în jurul conceptului, fondat de Ștefan Azaharioaie în 2018, cu sediul în București, Piatra Neamț și Madrid.',
-        'Pornind de la principiile designului modernist și de la tradiția designului grafic, lucrările noastre îmbină tipografia, sistemele de grilă și mișcarea, pentru a crea experiențe digitale care echilibrează claritatea, ușurința în folosire și expresia vizuală îndrăzneață.',
-        'Echipa noastră rămâne în mod intenționat mică, sub 10 oameni, ca direcția creativă să rămână personală și deciziile limpezi. Fiecare proiect e condus îndeaproape de fondatori. Fără straturi. Fără diluare.',
+        'Atemporal este o companie de producție și postproducție de film cu sediul în București, prezentă activ și la Piatra Neamț și la Madrid, în Spania.',
+        'Fondată în 2018, compania a oferit servicii de postproducție și de înregistrare a sunetului pe platou pentru lungmetraje, scurtmetraje, documentare și seriale TV, colaborând cu producții din întreaga lume.',
+        'Condusă de Diana Smeu și Ștefan Azaharioaie, Atemporal caută proiectele neconvenționale, curajoase și îndrăznețe.',
+        'Echipa noastră vorbește fluent engleza și are o experiență bogată de lucru în contexte internaționale diverse, între care România, Regatul Unit, Spania, Emiratele Arabe Unite, Arabia Saudită, Turcia, Zambia și Zimbabwe.',
     ],
     fr: [
-        'Atemporal Film est un studio de design guidé par le concept, fondé par Stefan Azaharioaie en 2018 et basé à Bucarest, Piatra Neamț et Madrid.',
-        'Ancré dans les principes du design moderniste et la tradition du graphisme, notre travail associe typographie, systèmes de grille et mouvement pour créer des expériences numériques qui équilibrent clarté, facilité d’usage et expression visuelle affirmée.',
-        'Notre équipe reste volontairement petite, moins de 10 personnes, ce qui permet à la direction créative de rester personnelle et aux décisions de rester nettes. Chaque projet est mené de près par les fondateurs. Pas d’intermédiaires. Pas de dilution.',
+        'Atemporal est une société de production et de postproduction cinématographique basée à Bucarest, en Roumanie, également active à Piatra Neamț et à Madrid, en Espagne.',
+        'Fondée en 2018, elle assure des services de postproduction et de prise de son sur le tournage pour des longs métrages, des courts métrages, des documentaires et des séries télévisées, en collaboration avec des productions du monde entier.',
+        'Dirigée par Diana Smeu et Ștefan Azaharioaie, Atemporal est attirée par les projets non conventionnels, audacieux et osés.',
+        'Notre équipe parle couramment l’anglais et possède une solide expérience dans des contextes internationaux variés, notamment en Roumanie, au Royaume-Uni, en Espagne, aux Émirats arabes unis, en Arabie saoudite, en Turquie, en Zambie et au Zimbabwe.',
     ],
 };
 
-type Kind = 'work' | 'people' | 'about';
-const ITEMS: Record<Kind, Project[]> = { work: PROJECTS, people: PEOPLE, about: ABOUT_SET };
+type Kind = 'work' | 'about';
+const ITEMS: Record<Kind, Project[]> = { work: PROJECTS, about: PEOPLE };
 
 function pickMeta(p: Project, lang: Lang): string | undefined {
     const v = lang === 'ro' ? p.metaRo : lang === 'fr' ? p.metaFr : undefined;
@@ -724,8 +768,7 @@ function makeReel(items: Project[], once = false) {
 }
 const REELS: Record<Kind, ReturnType<typeof makeReel>> = {
     work:   makeReel(ITEMS.work),
-    people: makeReel(ITEMS.people, true),
-    about:  makeReel(ITEMS.about),   // 13 poze → 3 copii (39 de cadre)
+    about:  makeReel(ITEMS.about, true),   // 3 oameni → 11 copii (33 de cadre)
 };
 const IDLE_MS  = 140;      // derularea s-a oprit dacă nu mai vine niciun eveniment
 /** derularea continuă (02.11.2026, 15:34): cât timp rotița se mișcă, galeria
@@ -1210,7 +1253,6 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         }
         return Math.min(SLOTS.length - 1, Math.max(0, best));
     };
-    const isPeople        = kind === 'people';
     const isAbout         = kind === 'about';
     const film            = filmOf(active);
     const proj            = items[film];
@@ -1267,13 +1309,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 apare înaintea lui ABOUT, CONTACT stă mai departe; PEOPLE și GEAR
                 au trecut în stânga, pe același rând, după timecode-urile din antet. Pagina deschisă e subliniată. */}
             <nav className={styles.navRow} aria-label="Main navigation">
-                {/* 02.11, 23:37 (Modul Regie): PEOPLE rămâne singur în stânga, 53 px
-                    mai la dreapta; GEAR trece în dreapta, înaintea lui CONTACT;
-                    CONTACT 114 px mai la dreapta. PEOPLE duce la /people. */}
-                <span className={`${styles.navItemAt} ${styles.navPeople}`}>
-                    <NavLink href="/people">{t.nav.people}</NavLink>
-                    <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
-                </span>
+                {/* 03.11, 12:41: PEOPLE s-a unit cu ABOUT (o singură pagină, /about);
+                    GEAR a trecut în dreapta, înaintea lui CONTACT: „GEAR, CONTACT” */}
                 {/* 03.11: GEAR deschide căsuța pentru mail → descarcă lista de echipament */}
                 <GearRequest lang={lang} label={t.nav.gear} />
                 <span className={`${styles.navItemAt} ${styles.navWork}`}>
@@ -1292,7 +1329,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 merge la filmul respectiv. (Modul Regie, 30.10.2026, seria a treia:
                 descrierea, anul, premiile și „unde am fost” scoase de pe homepage.) */}
             {!isAbout && (
-            <nav className={styles.filmList} aria-label={isPeople ? t.nav.people : t.films}>
+            <nav className={styles.filmList} aria-label={t.films}>
                 <ol className={styles.filmListTrack} ref={listTrackRef}>
                     {(reel.once ? items.map((_, k) => k) : SLOTS).map((i) => {
                         const p = items[filmOf(i)];
@@ -1323,10 +1360,18 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             </nav>
             )}
 
+            {/* ABOUT (03.11.2026, 12:41): în stânga peliculei, descrierea omului din ramă */}
+            {isAbout && proj.bio && (
+                <section className={styles.personText} style={fadeStyle} aria-live="polite">
+                    <h2 className={styles.personName}>{pickTitle(proj, lang)}</h2>
+                    <p className={styles.personRole}>{proj.bio[lang].role}</p>
+                    {proj.bio[lang].text.map((para, k) => <p key={k}>{para}</p>)}
+                </section>
+            )}
+
             {/* DREAPTA — creditul: ce a făcut echipa la film + cine.
                 Mutat mai aproape de ramă; lista de oameni scoasă (30.10, seria a treia). */}
-            {/* ABOUT (03.11.2026): în locul creditului, textul paginii, sub meniu
-                (nota Regie 11 din 02.11, 22:52: „aici vreau să intre textul”) */}
+            {/* ABOUT (03.11.2026): în locul creditului, descrierea Atemporal Film, mereu aceeași */}
             {isAbout ? (
                 <section className={styles.aboutText} aria-label={t.nav.about}>
                     {ABOUT_TEXT[lang].map((para, k) => <p key={k}>{para}</p>)}

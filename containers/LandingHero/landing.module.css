@@ -544,6 +544,11 @@
    stânga, după „PEOPLE,” (x = 579, y = 92) */
 .navContact { left: calc(var(--nav-r) - 194px); }
 .navGear    { left: calc(var(--people-x) + 81px); top: 34px; }   /* 58 + 34 = 92 */
+/* 03.11, 12:41 (nota Regie, pe 1728×1032: GEAR +832 px, 6 px ↑, „pune virgula
+   după gear”): GEAR trece în dreapta, înaintea lui CONTACT, pe rândul meniului
+   (y = 85) — „GEAR, CONTACT”, cu același pas ca „WORK, ABOUT” (21 px de la
+   sfârșitul cuvântului la următorul); pe 1728: x = 1415 (cue: 1411) */
+.navRow .navGear { left: auto; right: calc(100% - var(--nav-r) + 215px); top: 27px; }
 /* virgula după PEOPLE și după WORK (11:06, notele 06 și 08): nu e subliniată
    și nu mută cuvântul (stă în afara lui) */
 .navItemAt .navComma {
@@ -624,6 +629,11 @@
     75%  { opacity: 1; }
     100% { opacity: 0; }
 }
+
+/* 03.11, 12:41: GEAR stă înaintea lui CONTACT — căsuța se termină la --nav-r
+   (215 px după GEAR), ca să nu intre peste peliculă pe ecranele înguste;
+   pe 1728: 1296–1668 × 122–305 */
+.navRow .gearBox { right: -215px; }
 
 /* GEAR → căsuța pentru mail (03.11.2026). În coloana din dreapta, sub meniu:
    începe unde începe creditul / textul ABOUT (col-r − 119; pe 1382: x = 967)
@@ -1172,6 +1182,46 @@
 .aboutText p { margin: 0 0 1.1em; }
 .aboutText p:last-child { margin-bottom: 0; }
 
+/* ── ABOUT — descrierea omului din ramă (03.11.2026, 12:41) ──
+   în stânga peliculei, în oglindă cu textul din dreapta: textul din dreapta
+   începe la centrul peliculei + 208 px (col-r − 119), descrierea se termină
+   la centrul peliculei − 208 px (pe 1728: 368–752); centrată pe verticală pe
+   ramă, ca textul din dreapta. Se schimbă (cu stingere) când alt om intră în ramă. */
+.personText {
+    position: fixed;
+    right: calc(50% - var(--reel-x) + 208px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(384px, calc(50% + var(--reel-x) - 208px - 32px));
+    z-index: 40;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12.75px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+    text-wrap: pretty;
+}
+.personText p { margin: 0 0 1.1em; }
+.personText p:last-child { margin-bottom: 0; }
+.personName {
+    margin: 0 0 4px;
+    font: inherit;
+    font-size: 18.6px;          /* ca titlul din ramă în lista de filme (12,75 × 1,46) */
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+.personText .personRole {
+    margin-bottom: 18px;
+    font-size: 10.5px;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+}
+.personText .personRole:last-child { margin-bottom: 0; }
+
 
 /* ── VIEWFINDER — four corners + REC + frame counter ── */
 .viewfinder {
@@ -1480,6 +1530,7 @@
 .notReady .gallery,
 .notReady .filmList,
 .notReady .sideRight,
+.notReady .personText,
 .notReady .soundtrack { opacity: 0 !important; }
 .filmList { transition: opacity 0.6s ease; }
 

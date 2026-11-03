@@ -157,8 +157,10 @@ export default function GearRequest({ lang, label }: { lang: Lang; label: string
                 >
                     {label}
                 </button>
+                {/* 03.11, 12:41 (nota Regie): virgula după GEAR — „GEAR, CONTACT” */}
+                <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
 
-            {/* 03.11, 11:06: căsuța e în același loc cu GEAR (sub el, aliniată la dreapta lui) */}
+            {/* 03.11, 12:41: căsuța stă sub „GEAR, CONTACT”, cu marginea dreaptă la --nav-r */}
             {open && (
                 <div
                     id="gear-request"

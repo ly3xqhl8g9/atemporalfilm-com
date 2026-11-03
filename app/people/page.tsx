@@ -1,17 +1,9 @@
-import type { Metadata } from 'next';
-
-import LandingHero from '@/containers/LandingHero';
+import { redirect } from 'next/navigation';
 
 
 
-/* PEOPLE (02.11.2026): aceeași pagină ca WORK (homepage-ul) — pelicula, rama,
-   lista din stânga, creditul din dreapta — cu oamenii în locul afișelor. */
-export const metadata: Metadata = {
-    title: 'People — Atemporal Film',
-};
-
+/* PEOPLE (03.11.2026, 12:41): s-a unit cu ABOUT — oamenii sunt acum pe /about
+   (fețele pe peliculă, descrierea fiecăruia în stânga). Adresa veche duce acolo. */
 export default function People() {
-    return (
-        <LandingHero kind="people" />
-    );
+    redirect('/about');
 }
