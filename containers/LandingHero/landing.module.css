@@ -2068,3 +2068,88 @@
    pagina are lang="zh-Hans". */
 :global(html:lang(th)) .page *,
 :global(html:lang(hi)) .page * { letter-spacing: 0 !important; }
+
+
+/* ── INTRO „MASA LUMINATĂ” — varianta /?intro (03.11.2026) ──
+   IntroReel.tsx + intro.ts. Starea stă pe <html> (data-intro*), pusă de
+   scriptul din app/layout.tsx înaintea primului cadru.
+   1. pagina goală: doar masa (fundalul), grain-ul și rola mare */
+:global(html[data-intro-ui]) .page > :not(.gallery):not(.soundtrack):not(.grain):not(.siteHeader):not(.introLayer):not(.viewfinder):not(.lamp):not(.backlight),
+:global(html[data-intro-ui]) .siteHeader > :not(.logoReel):not(.logo) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+:global(html[data-intro-ui]) .logoReelBtn { visibility: hidden; }
+:global(html[data-intro]) .logoReel[data-state='wait'] ~ .logo { animation: none; }
+
+/* 2. banda de pe masă = galeria (și pista ei), dezvăluită de sus în jos */
+:global(html[data-intro-ui]) .gallery,
+:global(html[data-intro-ui]) .soundtrack {
+    clip-path: inset(0 0 max(0px, calc(100% - var(--intro-y, 0px))) 0);
+}
+
+/* 3. rama și lampa: stinse până se oprește banda; apoi rama se lasă pe
+   fotogramă ca o lupă pe masa luminată, iar lampa pornește (pâlpâie o dată) */
+:global(html[data-intro-ui]:not([data-intro-light])) .viewfinder,
+:global(html[data-intro-ui]:not([data-intro-light])) .lamp,
+:global(html[data-intro-ui]:not([data-intro-light])) .backlight { opacity: 0 !important; }
+:global(html[data-intro-light]) .viewfinder { animation: introLoupe 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+:global(html[data-intro-light]) .lamp {
+    animation: shutter24 0.5s steps(1, end) infinite, introStrike 0.75s linear 0.28s both;
+}
+:global(html[data-intro-light]) .backlight { animation: introStrike 0.75s linear 0.28s both; }
+@keyframes introLoupe {
+    from { opacity: 0; scale: 1.08; filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.28)); }
+    to   { opacity: 1; scale: 1;    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0)); }
+}
+/* becul: color-dodge / screen cu negru = stins, deci pâlpâirea se face din luminozitate */
+@keyframes introStrike {
+    0%   { filter: brightness(0); }
+    14%  { filter: brightness(1.25); }
+    22%  { filter: brightness(0.2); }
+    34%  { filter: brightness(1.1); }
+    44%  { filter: brightness(0.55); }
+    62%  { filter: brightness(1); }
+    100% { filter: brightness(1); }
+}
+
+/* 4. rola a ajuns la logo: restul paginii apare */
+:global(html[data-intro='logo']) .page > *,
+:global(html[data-intro='logo']) .siteHeader > * { transition: opacity 1.1s ease 0.15s !important; }
+
+/* stratul animației: peste galerie și ramă, sub antet */
+.introLayer { display: none; }
+:global(html[data-intro-ui]) .introLayer {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    pointer-events: none;
+}
+/* masa se aprinde: ca un tub fluorescent, două pâlpâiri și lumina plină */
+.introDim {
+    position: absolute;
+    inset: 0;
+    background: #17140f;
+    opacity: 0;
+    animation: introTableOn 0.8s linear both;
+}
+@keyframes introTableOn {
+    0%   { opacity: 0.8;  }
+    20%  { opacity: 0.8;  }
+    24%  { opacity: 0.15; }
+    30%  { opacity: 0.65; }
+    42%  { opacity: 0.05; }
+    48%  { opacity: 0.35; }
+    62%  { opacity: 0;    }
+    100% { opacity: 0;    }
+}
+/* pelicula și rola sunt în aer, deasupra mesei: umbră moale */
+.introSvg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 9px 14px rgba(0, 0, 0, 0.24));
+}

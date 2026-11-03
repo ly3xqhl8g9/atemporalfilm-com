@@ -16,6 +16,7 @@ import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 import ContactCopy, { WorkContacts } from './ContactCopy';
 import GearRequest from './GearRequest';
 import { HTML_LANG, LANG_STORE, isLang, type Lang } from './i18n';
+import IntroReel from './IntroReel';
 import LogoReel from './LogoReel';
 import styles from './landing.module.css';
 
@@ -1773,6 +1774,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* BARA DE JOS — fixă, mereu vizibilă: limba + cofinanțarea */}
             <Cofinance lang={lang} onLang={setLang} />
+
+
+            {/* INTRO „masa luminată” — doar pe homepage, cu /?intro (03.11.2026) */}
+            {kind === 'work' && <IntroReel galleryRef={galleryRef} ready={ready} />}
 
 
             {/* DETAIL OVERLAY — apare când dai click pe afișul activ */}

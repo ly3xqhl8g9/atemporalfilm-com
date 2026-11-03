@@ -11,6 +11,7 @@ import {
 import './globals.css';
 
 import AppWrapper from '@/containers/AppWrapper';
+import { INTRO_BOOT } from '@/containers/LandingHero/intro';
 
 
 
@@ -83,7 +84,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
+            <head>
+                {/* /?intro: ascunde pagina înaintea primului cadru (intro „masa luminată”) */}
+                <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
+            </head>
             <body className={`${font.className} ${fontSerif.variable} ${fontMono.variable} ${fontHand.variable} max-w-[2560px] min-h-screen mx-auto`}>
                 <AppWrapper>
                     {children}

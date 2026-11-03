@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './landing.module.css';
+import { INTRO_LOGO_EVENT, introPending } from './intro';
 import { LOGO_WORDS } from './logoGlyphs';
 
 
@@ -29,7 +30,7 @@ const NS = 'http://www.w3.org/2000/svg';
 
 /** rola: centrul și raza, în px, în coordonatele logo-ului (colțul lui din stânga-sus) */
 const REEL = { cx: 160, cy: 20, r: 16 };
-const WOUND_FULL  = 14;    // raza peliculei înfășurate, la început
+export const WOUND_FULL  = 14;    // raza peliculei înfășurate, la început
 const WOUND_EMPTY = 4.6;   // butucul — rola goală
 const HOLE_R      = 3.7;   // cele cinci ferestre din flanșă
 const HOLE_AT     = 9.4;
@@ -45,7 +46,7 @@ const T = {
 };
 const END = T.draw + Math.max(T.pull, 220 + T.fill, 300 + T.fade) + 40;
 
-const FILM_COLOR = '#15110d';
+export const FILM_COLOR = '#15110d';
 const FILM_W     = 2.1;
 
 /** o singură dată pe încărcarea paginii (variabila modulului supraviețuiește
@@ -121,7 +122,7 @@ function flangePath(): string {
     }
     return d;
 }
-const FLANGE = flangePath();
+export const FLANGE = flangePath();
 
 
 export default function LogoReel({ label }: { label: string }) {
@@ -231,12 +232,19 @@ export default function LogoReel({ label }: { label: string }) {
     };
 
     useEffect(() => {
+        // varianta /?intro (IntroReel): rola mare zboară până aici și abia
+        // atunci pornește încâlceala
+        const onIntro = () => play();
+        window.addEventListener(INTRO_LOGO_EVENT, onIntro);
         if (initial === 'wait') {
             autoplayed = true;
             const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (reduce) finish(); else play();
+            if (!introPending()) { if (reduce) finish(); else play(); }
         }
-        return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+        return () => {
+            window.removeEventListener(INTRO_LOGO_EVENT, onIntro);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
         // o singură dată, la montare
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -260,6 +268,7 @@ export default function LogoReel({ label }: { label: string }) {
             <button
                 type="button"
                 className={styles.logoReelBtn}
+                data-logo-reel-btn=""
                 onClick={play}
                 aria-label={label}
                 title={label}
