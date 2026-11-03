@@ -101,18 +101,25 @@ export default function ContactCopy({ lang, label }: { lang: Lang; label: string
 
 /* WORK — contactele scrise sub CONTACT (Modul Regie, 03.11.2026, 10:40, nota 06):
    textul exact cum l-a trimis Ștefan, mic, ca „by Stefan Azaharioaie”.
+   03.11, 11:33: butoanele Instagram și LinkedIn de pe site-ul vechi
+   (data/constants.ts → socialLinks), Instagram în dreptul lui „editor”,
+   LinkedIn în dreptul lui „manager”.
    (Butonul CONTACT copiază doar adresa comună — din 03.11, 11:06.) */
 export function WorkContacts() {
     return (
         <address className={styles.workContacts}>
             <p>
                 ȘTEFAN AZAHARIOAIE<br />
-                sound designer, editor<br />
+                sound designer, editor
+                <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/logo-instagram.png")' } as React.CSSProperties}
+                   href="https://www.instagram.com/atemporalfilm" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" /><br />
                 <a href="tel:+40743343800">+40 743 343 800</a>
             </p>
             <p>
                 DIANA SMEU<br />
-                distribution, manager<br />
+                distribution, manager
+                <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/logo-linkedin.png")' } as React.CSSProperties}
+                   href="https://www.linkedin.com/company/atemporal-film" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" /><br />
                 <a href="tel:+40770789376">+40 770 789 376</a>
             </p>
             <p>

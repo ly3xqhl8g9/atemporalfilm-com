@@ -720,10 +720,13 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const q = new URLSearchParams(window.location.search).get('rama');
         setRama(q === 'fina' || q === 'paranteze' ? q : 'groasa');
         setLuminaNeutra(new URLSearchParams(window.location.search).get('lumina') === 'neutra');
+        setCuFade(new URLSearchParams(window.location.search).has('fade'));
     }, []);
     // lumina din spatele fotogramei (02.11, 17:40): caldă, ca în referință;
     // /?lumina=neutra — aceeași cădere, fără căldura becului
     const [luminaNeutra, setLuminaNeutra]   = useState(false);
+    // 03.11, 11:33: pelicula fără stingere sus și jos; /?fade — varianta veche
+    const [cuFade, setCuFade]               = useState(false);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -1158,6 +1161,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             rama === 'fina' ? styles.ramaFina : '',
             rama === 'paranteze' ? styles.ramaParanteze : '',
             luminaNeutra ? styles.luminaNeutra : '',
+            cuFade ? styles.cuFade : '',
         ].join(' ')}>
 
             {/* GRAIN overlay — peste tot */}

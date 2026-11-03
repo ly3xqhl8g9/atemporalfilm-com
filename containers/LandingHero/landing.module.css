@@ -133,6 +133,12 @@
        Shanghai / Buenos Aires (pe verticala lui GEAR). */
     --nav-r:       min(calc(var(--col-r) + 387px), calc(100% - 40px));
 
+    /* 03.11.2026, 11:33 (Ștefan: „fără fade sus și jos, să vedem dacă e mai
+       bine”): pelicula, afișele și pista nu se mai sting spre marginile de sus
+       și de jos ale ecranului — rămân la 88% până la capăt. Varianta veche,
+       cu stingerea: /?fade (atunci --edge-fade = transparent). */
+    --edge-fade:   rgba(0, 0, 0, 0.88);
+
     /* 03.11.2026, 11:06 (Modul Regie, pe 1728×1032): PEOPLE, GEAR în stânga,
        pe același rând (y = 92) — PEOPLE la logo-x + 434 (pe 1728: 498), GEAR
        după virgulă (+81: 579). Pe ecranele înguste grupul se oprește la 189 px
@@ -733,6 +739,20 @@
 .workContacts p:last-child { margin-bottom: 0; }
 .workContacts a { color: inherit; }
 .workContacts a:hover { color: var(--fg); }
+/* Instagram / LinkedIn (03.11, 11:33): iconițele de pe site-ul vechi
+   (public/assets/logos/logo-*.png, albe), folosite ca mască — iau culoarea
+   textului (stinsă), plină la hover; în dreapta cuvântului, pe același rând */
+.workContacts .socialIcon {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    margin-left: 10px;
+    vertical-align: -1px;
+    background: currentColor;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+            mask: var(--icon) center / contain no-repeat;
+    transition: color 0.2s ease;
+}
 
 
 /* ── SIDE TEXTS — fixed; content swaps with fade ─────── */
@@ -935,10 +955,10 @@
 .ramaFina .gallery {
     -webkit-mask-image:
         url("/assets/ui/vizor-mask-F.webp?v=1"),
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        linear-gradient(to bottom, var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
             mask-image:
         url("/assets/ui/vizor-mask-F.webp?v=1"),
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        linear-gradient(to bottom, var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
 }
 
 
@@ -962,13 +982,13 @@
             transparent calc(50% - var(--img-h) / 2 - 14px), black calc(50% - var(--img-h) / 2 + 2px),
             black calc(50% + var(--img-h) / 2 - 2px), transparent calc(50% + var(--img-h) / 2 + 14px))
             center / var(--frame-w) 100% no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        linear-gradient(to bottom, var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
             mask:
         linear-gradient(to bottom,
             transparent calc(50% - var(--img-h) / 2 - 14px), black calc(50% - var(--img-h) / 2 + 2px),
             black calc(50% + var(--img-h) / 2 - 2px), transparent calc(50% + var(--img-h) / 2 + 14px))
             center / var(--frame-w) 100% no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        linear-gradient(to bottom, var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
 }
 .brackets {
     position: fixed;
@@ -1079,6 +1099,7 @@
 
 /* varianta de comparație /?lumina=neutra: aceeași cădere a luminii, fără
    căldura becului (cum era lampa înainte de 02.11, 17:40) */
+.cuFade { --edge-fade: transparent; }   /* /?fade — stingerea veche, sus și jos */
 .luminaNeutra .lamp {
     background: radial-gradient(ellipse 72% 62% at 50% 50%,
         rgb(185, 185, 185) 0%, rgb(181, 181, 181) 30%, rgb(175, 175, 175) 62%, rgb(169, 169, 169) 100%);
@@ -1122,15 +1143,15 @@
     pointer-events: none;
     transition: opacity 0.6s ease;
     -webkit-mask-image: linear-gradient(to bottom,
-        transparent 0, rgba(0, 0, 0, 0.88) 8%,
+        var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%,
         rgba(0, 0, 0, 0.88) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
         black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.88) calc(var(--gate-bot) + 40px),
-        rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
             mask-image: linear-gradient(to bottom,
-        transparent 0, rgba(0, 0, 0, 0.88) 8%,
+        var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%,
         rgba(0, 0, 0, 0.88) calc(var(--gate-top) - 40px), black calc(var(--gate-top) + 16px),
         black calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.88) calc(var(--gate-bot) + 40px),
-        rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
 }
 /* subexpunerea din afara ramei: albul pistei devine gri */
 .soundtrack::after {
@@ -1196,10 +1217,10 @@
        și jos se stinge. Două straturi de mască, adunate: geamul + restul. */
     -webkit-mask:
         url("/assets/ui/vizor-mask.webp?v=8") center / var(--vf-w) var(--vf-h) no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        linear-gradient(to bottom, var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
             mask:
         url("/assets/ui/vizor-mask.webp?v=8") center / var(--vf-w) var(--vf-h) no-repeat,
-        linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, transparent 100%);
+        linear-gradient(to bottom, var(--edge-fade) 0, rgba(0, 0, 0, 0.88) 8%, rgba(0, 0, 0, 0.88) 92%, var(--edge-fade) 100%);
 }
 .gallery::-webkit-scrollbar { display: none; }
 
