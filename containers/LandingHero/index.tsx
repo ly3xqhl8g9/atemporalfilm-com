@@ -13,7 +13,7 @@ import Cofinance from '@/containers/Cofinance';
 import FilmDetail from '@/containers/FilmDetail';
 import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 
-import ContactCopy from './ContactCopy';
+import ContactCopy, { WorkContacts } from './ContactCopy';
 import GearRequest from './GearRequest';
 import styles from './landing.module.css';
 
@@ -1234,7 +1234,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* timecode-urile lumii, în coloana din dreapta: sub meniu și sub credit,
                 fiecare cu ▶ PLAYBACK sau ■ STOP (Modul Regie, 02.11.2026, a doua serie) */}
-            <WorldClocks />
+            <WorldClocks recLabel={t.rec} />
+
+            {/* WORK: contactele sub CONTACT (03.11.2026, nota Regie 06) */}
+            {kind === 'work' && <WorkContacts />}
 
 
             {/* VIZOR — rama de geam mat (din poza lui Ștefan, 30.10.2026), fixă peste

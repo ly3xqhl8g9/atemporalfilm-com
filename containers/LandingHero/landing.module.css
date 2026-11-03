@@ -114,13 +114,32 @@
        Bangkok / Los Angeles la x = 79 (15 px după marginea listei), apoi
        butonul de limbă la 225, apoi UE + Regio (cel puțin 15 px după buton),
        apoi Mumbai / New York (cel puțin 24 px după logo-uri). */
-    --wc-far-x:    calc(var(--list-x) + 15px);
-    --lang-x:      calc(var(--list-x) + 161px);
+    /* 03.11.2026, 10:40 (Modul Regie, pe 1728×1032): Bangkok / Los Angeles
+       în colț (x = 18); Madrid (● REC) și sub el Mumbai (▶ PLAYBACK) la
+       x = 159 (Madrid a coborât din antet); butonul de limbă rămâne la
+       list-x + 161, dar nu mai aproape de 6 px după blocul Madrid / Mumbai. */
+    --wc-far-x:    18px;
+    --home-x:      159px;
+    --home-w:      176px;   /* Mumbai cu ▶ PLAYBACK (sub 1600 px: Madrid cu REC, 142) */
+    --lang-x:      max(calc(var(--list-x) + 161px), calc(var(--home-x) + var(--home-w) + 6px));
     --cf-logos-x2: max(var(--cf-logos-x), calc(var(--lang-x) + 72px));
     --wc-bl-x2:    max(var(--wc-bl-x), calc(var(--cf-logos-x2) + 190px));
+
+    /* 03.11.2026, 10:40 (Modul Regie, pe 1728×1032): grupul din dreapta-sus
+       s-a dus spre marginea ecranului — --nav-r = marginea dreaptă a lui
+       CONTACT (pe 1728: 1668 = col-r + 387); pe ecranele mai înguste se
+       oprește la 40 px de margine. De la ea se măsoară GEAR, CONTACT,
+       București (antet), căsuța GEAR, contactele de pe WORK și
+       Shanghai / Buenos Aires (pe verticala lui GEAR). */
+    --nav-r:       min(calc(var(--col-r) + 387px), calc(100% - 40px));
 }
 @media (max-width: 1599px) {
-    .page { --wc-bl-w: 112px; }   /* stările rămân doar semne */
+    .page { --wc-bl-w: 112px; --home-w: 112px; }   /* stările rămân doar semne (și la Madrid: doar bulina) */
+}
+/* pe ecranele cele mai înguste (1280), Madrid / Mumbai se strâng spre
+   Bangkok, ca UE + Regio să nu ajungă pe peliculă */
+@media (max-width: 1339px) {
+    .page { --home-x: 146px; }
 }
 
 .page * { box-sizing: border-box; }
@@ -229,14 +248,15 @@
    pe orice ecran — două rânduri, la y = 62 și 79 (3 px între ele). */
 .hdClocks {
     position: absolute;
-    left: calc(var(--logo-x) + 165px);
+    /* 03.11.2026, 10:40 (Modul Regie, pe 1728×1032): în antet rămâne doar
+       București (EET ● REC), mutat sus în dreapta, deasupra lui CONTACT
+       (pe 1728: x = 1532 = nav-r − 136); Madrid a coborât în stânga-jos */
+    left: calc(var(--nav-r) - 136px);
     top: 62px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     row-gap: 3px;
-    /* nu intră peste afișele din galerie */
-    max-width: calc(50vw + var(--reel-x) - var(--strip-w) / 2 - var(--logo-x) - 165px - 12px);
     font-family: var(--font-mono), monospace;
     font-size: 9.5px;
     line-height: 14px;
@@ -353,6 +373,16 @@
     row-gap: 9px;
     z-index: 61;
 }
+/* 03.11.2026, 10:40: Madrid ● REC (coborât din antet) și sub el
+   Mumbai ▶ PLAYBACK, în stânga-jos, după Bangkok / Los Angeles */
+.wcBottomHome {
+    top: auto;
+    bottom: 16px;
+    left: var(--home-x);
+    flex-direction: column;
+    row-gap: 9px;
+    z-index: 61;
+}
 /* doar semnele (▶ / ■), pe orice ecran — așa le-a așezat Ștefan, și numai
    așa încap înaintea butonului de limbă */
 .wcBottomFar .wcLabel { display: none; }
@@ -362,7 +392,9 @@
 .wcBottomRight {
     top: auto;
     bottom: 16px;
-    left: calc(var(--col-r) + 136px);   /* 02.11, 22:52: −25 px */
+    /* 03.11, 10:40: +97 px, pe verticala lui GEAR (pe 1728: x = 1514);
+       pe ecranele înguste nu mai aproape de site-uri decât înainte */
+    left: max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px));
     flex-direction: column;
     row-gap: 9px;
     z-index: 61;
@@ -376,9 +408,10 @@
     /* 02.11, 22:52: la Shanghai / Buenos Aires semnul stă la 12 px */
     .wcBottomRight .wcRow { gap: 12px; }
 }
-/* unde Mumbai / New York nu mai încap între UE + Regio și peliculă
-   (sub ~1376 px lățime), blocul lor se ascunde — se reface pe telefon/tabletă (faza 2b) */
-@media (max-width: 1375px) {
+/* unde New York nu mai încape între UE + Regio și peliculă (sub ~1690 px,
+   de când butonul de limbă stă după Madrid / Mumbai), se ascunde — se reface
+   pe telefon/tabletă (faza 2b) */
+@media (max-width: 1689px) {
     .wcBottomLeft { display: none; }
 }
 
@@ -432,9 +465,11 @@
     display: inline-flex;
 }
 .navItemAt .navItem { font-size: 15.4px; }
-.navAbout   { left: calc(var(--col-r) - 42px); }
-.navContact { left: calc(var(--col-r) + 180px); }   /* 02.11, 23:37: +114 px (pe 1382: x = 1266) */
-.navGear    { left: calc(var(--col-r) + 127px); }   /* 02.11, 23:37: din stânga, înaintea lui CONTACT (pe 1382: x = 1213) */
+.navAbout   { left: calc(var(--col-r) - 15px); }   /* 03.11, 10:40: +27 px (pe 1728: x = 1266) */
+/* 03.11, 10:40 (pe 1728×1032): CONTACT +134 px (x = 1595, marginea lui = --nav-r),
+   GEAR +106 px (x = 1514) */
+.navContact { right: calc(100% - var(--nav-r)); }
+.navGear    { left: calc(var(--nav-r) - 154px); }
 .navWork    { right: calc(100% - var(--col-r) + 58px); }
 /* PEOPLE · GEAR — în stânga, pe rândul meniului (02.11, 23:03: pe 1382×867
    la x = 405, după timecode-urile din antet); pe ecranele foarte înguste
@@ -442,7 +477,10 @@
 .navPeople {
     /* 02.11, 23:37: +53 px, singur (GEAR a trecut în dreapta) — pe 1382: x = 458;
        03.11, 00:11: încă +84 px, după ce Madrid a trecut sub București (pe 1728: x = 542) */
-    left: min(calc(var(--logo-x) + 478px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 80px));
+    /* 03.11, 10:40: −277 px și 8 px mai jos, în locul ceasurilor din antet —
+       pe 1728: x = 265, y = 93 (marginea de jos a cuvântului = a logo-ului) */
+    left: min(calc(var(--logo-x) + 201px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 80px));
+    top: 35px;            /* 58 + 35 = 93 */
     column-gap: 16px;
 }
 /* pagina deschisă: subliniată */
@@ -508,8 +546,9 @@
 .gearBox {
     position: absolute;
     top: 54px;            /* 58 + 54 = 112 */
-    left: calc(var(--col-r) - 119px);
-    width: min(372px, calc(100vw - var(--col-r) + 119px - 32px));
+    /* 03.11, 10:40: aliniată la dreapta cu CONTACT (care s-a mutat) */
+    left: calc(var(--nav-r) - 372px);
+    width: 372px;
     box-sizing: border-box;
     padding: 18px 20px 16px;
     background: var(--bg);
@@ -631,6 +670,39 @@
     border-color: var(--fg);
 }
 .langBtnArrow { font-size: 9px; opacity: 0.7; }
+
+/* ENCODER (03.11.2026, 10:40, nota Regie 11): în bara de jos, în golul dintre
+   ADR Nord-Est (se termină la col-r + 108) și Shanghai / Buenos Aires,
+   centrat în el; arată ca butonul de limbă. Unde golul e prea mic, se ascunde. */
+.cofinanceEncoder {
+    left: calc((var(--col-r) + 108px + max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px))) / 2);
+    transform: translate(-50%, -2px);
+}
+@media (max-width: 1679px) {
+    .cofinance .cofinanceEncoder { display: none; }   /* peste `.cofinance > *` */
+}
+
+/* WORK — contactele sub CONTACT (03.11.2026, 10:40, nota Regie 06), scrise mic,
+   ca „by Stefan Azaharioaie”; aliniate la dreapta cu CONTACT. Locul e provizoriu
+   (Ștefan le repoziționează din Modul Regie). */
+.workContacts {
+    position: fixed;
+    top: 140px;
+    right: calc(100% - var(--nav-r));
+    z-index: 40;
+    margin: 0;
+    font-family: var(--font-mono), monospace;
+    font-style: normal;
+    font-size: 10.5px;
+    line-height: 1.6;
+    letter-spacing: 0.06em;
+    color: var(--fg-faint);
+    white-space: nowrap;
+}
+.workContacts p { margin: 0 0 1.1em; }
+.workContacts p:last-child { margin-bottom: 0; }
+.workContacts a { color: inherit; }
+.workContacts a:hover { color: var(--fg); }
 
 
 /* ── SIDE TEXTS — fixed; content swaps with fade ─────── */

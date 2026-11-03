@@ -52,6 +52,14 @@ export default function Cofinance({ langLabel, onToggleLang }: CofinanceProps) {
                 <div className={`${styles.cfLogo} ${styles.cfLogoRegio}`}>Regio</div>
             </div>
 
+            {/* ENCODER (03.11.2026, nota Regie 11): între ADR Nord-Est și
+                Shanghai / Buenos Aires — deocamdată nu face nimic */}
+            <div className={styles.cofinanceEncoder}>
+                <button type="button" className={styles.langBtn} title="Encoder">
+                    Encoder
+                </button>
+            </div>
+
             {/* dreapta: site-urile aliniate cu creditul și meniul (--col-r),
                 ADR Nord-Est după ele (Modul Regie, seria a patra) */}
             <div className={styles.cofinanceRight}>

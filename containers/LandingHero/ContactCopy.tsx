@@ -131,3 +131,33 @@ export default function ContactCopy({ lang, label }: { lang: Lang; label: string
         </span>
     );
 }
+
+
+/* WORK — contactele scrise sub CONTACT (Modul Regie, 03.11.2026, 10:40, nota 06):
+   textul exact cum l-a trimis Ștefan, mic, ca „by Stefan Azaharioaie”.
+   (Lista copiată de butonul CONTACT e cea de mai sus, neschimbată.) */
+export function WorkContacts() {
+    return (
+        <address className={styles.workContacts}>
+            <p>
+                ȘTEFAN AZAHARIOAIE<br />
+                sound designer, editor<br />
+                <a href="tel:+40743343800">+40 743 343 800</a>
+            </p>
+            <p>
+                DIANA SMEU<br />
+                distribution, manager<br />
+                <a href="tel:+40770789376">+40 770 789 376</a>
+            </p>
+            <p>
+                <a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>
+            </p>
+            <p>
+                Locations<br />
+                Piatra-Neamt, Progresului 71<br />
+                Bucharest, Vasile Lascar 23-25<br />
+                Romania
+            </p>
+        </address>
+    );
+}

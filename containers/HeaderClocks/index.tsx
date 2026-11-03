@@ -39,7 +39,7 @@ const MUMBAI:       Zone = { city: 'Mumbai',       tz: 'Asia/Kolkata',          
 const BANGKOK:      Zone = { city: 'Bangkok',      tz: 'Asia/Bangkok',                   abbr: { '7': 'ICT' } };
 const SHANGHAI:     Zone = { city: 'Shanghai',     tz: 'Asia/Shanghai',                  abbr: { '8': 'CST' } };
 
-type Transport = 'play' | 'stop';
+type Transport = 'play' | 'stop' | 'rec';
 
 /** Timecode-urile lumii (Modul Regie, 02.11.2026, 16:25), în trei locuri:
     sus în dreapta, pe un rând — Los Angeles ▶ PLAYBACK · Bangkok ▶ PLAYBACK;
@@ -52,17 +52,23 @@ const BOTTOM_FAR: [Zone, Transport][] = [
     [BANGKOK,      'play'],
     [LOS_ANGELES,  'play'],
 ];
+/* 03.11.2026, 10:40 (Modul Regie, pe 1728×1032): Madrid coboară din antet
+   în stânga-jos, după Bangkok / Los Angeles, cu ● REC; sub el Mumbai, acum
+   ▶ PLAYBACK. New York rămâne singur, după UE + Regio. */
+const BOTTOM_HOME: [Zone, Transport][] = [
+    [MADRID, 'rec'],
+    [MUMBAI, 'play'],
+];
 const BOTTOM_LEFT: [Zone, Transport][] = [
-    [MUMBAI,   'stop'],
     [NEW_YORK, 'play'],
 ];
 const BOTTOM_RIGHT: [Zone, Transport][] = [
     [SHANGHAI,     'play'],
     [BUENOS_AIRES, 'stop'],     // 02.11, 16:25: sub Shanghai
 ];
-const WORLD: Zone[] = [...BOTTOM_FAR, ...BOTTOM_LEFT, ...BOTTOM_RIGHT].map(([z]) => z);
-/** antetul: București și Madrid cu ● REC (Bangkok a trecut sus în dreapta, 02.11, 16:25) */
-const HOME:  Zone[] = [BUCHAREST, MADRID];
+const WORLD: Zone[] = [...BOTTOM_FAR, ...BOTTOM_HOME, ...BOTTOM_LEFT, ...BOTTOM_RIGHT].map(([z]) => z);
+/** antetul: doar București cu ● REC, sus în dreapta (03.11.2026, 10:40; Madrid a coborât în stânga-jos) */
+const HOME:  Zone[] = [BUCHAREST];
 
 const FPS = 24;
 
@@ -143,7 +149,7 @@ function useTimecodes(zones: Zone[]) {
 }
 
 
-/** Antetul: București și Madrid, fiecare cu ● REC, imediat după logo. */
+/** Antetul: București cu ● REC, sus în dreapta, deasupra lui CONTACT. */
 export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }) {
     const tc = useTimecodes(HOME);
     return (
@@ -165,10 +171,12 @@ export default function HeaderClocks({ recLabel = 'REC' }: { recLabel?: string }
 export function WorldClocks({
     playbackLabel = 'PLAYBACK',
     stopLabel = 'STOP',
-}: { playbackLabel?: string; stopLabel?: string }) {
+    recLabel = 'REC',
+}: { playbackLabel?: string; stopLabel?: string; recLabel?: string }) {
     const tc = useTimecodes(WORLD);
-    const status = (state: Transport) => state === 'play'
-        ? <span className={styles.hdPlay}><span className={styles.wcLabel}>{playbackLabel}</span></span>
+    const status = (state: Transport) =>
+        state === 'rec'  ? <span className={styles.hdRec}><span className={styles.wcLabel}>{recLabel}</span></span>
+        : state === 'play' ? <span className={styles.hdPlay}><span className={styles.wcLabel}>{playbackLabel}</span></span>
         : <span className={styles.hdStop}><span className={styles.wcLabel}>{stopLabel}</span></span>;
     const rows = (list: [Zone, Transport][]) => list.map(([z, state]) => (
         <span key={z.tz} className={styles.wcRow}>
@@ -179,6 +187,7 @@ export function WorldClocks({
     return (
         <>
             <div className={`${styles.worldClocks} ${styles.wcBottomFar}`}>{rows(BOTTOM_FAR)}</div>
+            <div className={`${styles.worldClocks} ${styles.wcBottomHome}`}>{rows(BOTTOM_HOME)}</div>
             <div className={`${styles.worldClocks} ${styles.wcBottomLeft}`}>{rows(BOTTOM_LEFT)}</div>
             <div className={`${styles.worldClocks} ${styles.wcBottomRight}`}>{rows(BOTTOM_RIGHT)}</div>
         </>
