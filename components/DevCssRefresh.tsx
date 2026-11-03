@@ -16,12 +16,14 @@ import { useEffect } from 'react';
 export default function DevCssRefresh() {
     useEffect(() => {
         const seen = new Map<string, string>();      // adresa de bază → semnătura
+        const missing = new Map<string, number>();   // adresa de bază → de câte ori a dat 404
         const base = (href: string) => href.split('?')[0];
         let busy = false;
 
         const sig = async (url: string) => {
             const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
-            if (!r.ok) return null;
+            if (r.status === 404) return null;    // foaia nu mai există
+            if (!r.ok) return 'eroare';           // ex. compilare în curs — nu atingem nimic
             return `${r.headers.get('etag') ?? ''}|${r.headers.get('last-modified') ?? ''}|${r.headers.get('content-length') ?? ''}`;
         };
 
@@ -32,8 +34,21 @@ export default function DevCssRefresh() {
                 const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href*="/_next/static/css/"]')];
                 for (const link of links) {
                     const b = base(link.href);
-                    const s = await sig(b).catch(() => null);
-                    if (!s) continue;
+                    const s = await sig(b).catch(() => 'eroare');
+                    /* 03.11, 19:30: o foaie care nu mai există pe server (404 de
+                       două ori la rând) e o rămășiță veche — o oprim, ca regulile
+                       ei să nu mai acopere foaia nouă (TIME CALCULATOR lipsea
+                       din nou pe WORK în fila cu Modul Regie). Dacă reapare,
+                       o pornim la loc. */
+                    if (s === null) {
+                        const n = (missing.get(b) ?? 0) + 1;
+                        missing.set(b, n);
+                        if (n >= 2 && link.media !== 'not all') link.media = 'not all';
+                        continue;
+                    }
+                    missing.delete(b);
+                    if (link.media === 'not all') link.media = '';
+                    if (s === 'eroare') continue;
                     const prev = seen.get(b);
                     seen.set(b, s);
                     if (prev !== undefined && prev !== s) {

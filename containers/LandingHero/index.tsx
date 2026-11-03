@@ -1010,9 +1010,12 @@ type Rama = 'groasa' | 'fina' | 'paranteze';
    (.lamp, color-dodge, ~×3,3 în medie) le aduce la expunerea corectă. */
 /* EXPO_OUT = 0,15, EXPO_IN = 0,30: în filmStrip.ts (exposureFilter) */
 
-/* A DOUA PELICULĂ DE PE ABOUT (03.11.2026): pozele de la filmare de pe pagina
-   ABOUT veche (13 poze, decupate la 2:3), lângă banda cu oamenii — SetStrip.tsx */
-const SET_PHOTOS: StripImage[] = Array.from({ length: 13 }, (_, k) => ({
+/* A DOUA PELICULĂ DE PE ABOUT (03.11.2026): pozele de la filmare, lângă banda
+   cu oamenii — SetStrip.tsx. Din 03.11, 19:30: selecția lui Ștefan („selectie
+   website poze pentru pagina about”, 54 de poze, decupate la 2:3 de
+   scripts/about-set.py — numărul de mai jos = câte fișiere set-NN.webp sunt) */
+const SET_COUNT = 54;
+const SET_PHOTOS: StripImage[] = Array.from({ length: SET_COUNT }, (_, k) => ({
     src: `/assets/entities/about/set-${String(k + 1).padStart(2, '0')}.webp`,
     alt: `Atemporal Film on set — ${k + 1}`,
 }));
