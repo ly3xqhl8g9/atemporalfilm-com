@@ -770,11 +770,19 @@ const REELS: Record<Kind, ReturnType<typeof makeReel>> = {
     work:   makeReel(ITEMS.work),
     about:  makeReel(ITEMS.about, true),   // 3 oameni → 11 copii (33 de cadre)
 };
-const IDLE_MS  = 140;      // derularea s-a oprit dacă nu mai vine niciun eveniment
-/** derularea continuă (02.11.2026, 15:34): cât timp rotița se mișcă, galeria
-    curge liber; când se oprește, se așază pe cadrul următor în direcția în care
-    s-a mișcat — dacă s-a mișcat mai mult de NUDGE din cadru; altfel revine. */
-const NUDGE    = 0.02;     // din pasul unui cadru (351 px → ~7 px)
+/* DERULAREA ANALOGICĂ (03.11.2026, 13:32, cererea lui Ștefan): fără salt pe
+   cadru cât se mișcă rotița. Pelicula are „masă”: urmează rotița cu inerție
+   (WHEEL_TAU) și se oprește oriunde, și între două cadre. Abia după ce rotița
+   e lăsată în pace SETTLE_MS, pelicula alege cadrul cel mai încadrat (cel mai
+   aproape de centrul ramei, acolo unde ar ajunge) și e trasă încet în ramă de
+   un arc amortizat critic (SPRING_W): pornește cu viteza pe care o avea, fără
+   smucitură, și încetinește spre final, ca o peliculă trasă cu mâna pe masa de
+   montaj. Același arc pentru săgețile ↑ ↓ și pentru click pe un titlu. */
+const SETTLE_MS  = 360;    // liniștea după care pelicula alege cadrul
+const WHEEL_TAU  = 0.24;   // s — cât de „grea” e pelicula (cât întârzie după rotiță)
+const WHEEL_GAIN = 1;      // distanța pe o mișcare de rotiță (1 = cât derularea normală)
+const SPRING_W   = 3.6;    // rad/s — arcul care o așază (~1,3 s până aproape de cadru)
+
 /** titlul din dreptul ramei, în lista din stânga (Modul Regie, 02.11, 15:34) */
 const TITLE_GROW  = 0.46;  // ×1,46
 const TITLE_SHIFT = 18;    // px spre dreapta
@@ -858,14 +866,18 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     // dată, direcția ultimei mișcări și poziția de la evenimentul precedent
     const animRef       = useRef<number | null>(null);
     const restRef       = useRef(HOME);
-    const dirRef        = useRef(0);
     const prevTopRef    = useRef(0);
+    /** starea peliculei: liberă (urmează rotița), pe arc (se așază pe `goal`) sau oprită */
+    const motionRef     = useRef({
+        mode: 'idle' as 'idle' | 'free' | 'spring',
+        pos: 0, target: 0, vel: 0, goal: 0, goalTop: 0, last: 0,
+        onDone: null as null | (() => void),
+    });
     // rama (vizorul) și poziția măsurată a cadrului 0 față de ea (02.11, 18:35):
     // ținta derulării se măsoară pe ecran — centrul cadrului pe centrul ramei —
     // nu se mai calculează din 50vh, care în Safari poate diferi de centrul ramei
     const vfRef         = useRef<HTMLDivElement | null>(null);
     const originRef     = useRef(0);
-    const keyTargetRef  = useRef<number | null>(null);   // cadrul spre care merge galeria după săgeți
 
     const t = UI[lang];
 
@@ -1054,45 +1066,99 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         prevTopRef.current = gallery.scrollTop;   // și nu contează ca mișcare
         lastActiveRef.current = slot;
         restRef.current = slot;
+        const m = motionRef.current;
+        m.pos = m.target = gallery.scrollTop;
+        m.vel = 0;
         setActive(slot);
         syncList();
     }, [scrollFor, syncList]);
 
+    /** oprește pelicula pe loc (mâna pe ecran / pe galerie) */
     const stopGlide = useCallback(() => {
         if (animRef.current !== null) cancelAnimationFrame(animRef.current);
         animRef.current = null;
+        const m = motionRef.current;
+        const gallery = galleryRef.current;
+        m.mode = 'idle';
+        m.vel = 0;
+        m.onDone = null;
+        if (gallery) m.pos = m.target = gallery.scrollTop;
     }, []);
 
-    /** dusă lin până la un cadru: încetinește spre final, ca o peliculă care
-        se oprește în fereastra proiectorului; durata crește cu distanța */
+    /** un pas al peliculei (rAF): liberă → se apropie de țintă cu inerție;
+        pe arc → arc amortizat critic spre cadrul ales */
+    const runMotion = useCallback(() => {
+        if (animRef.current !== null) return;
+        const m = motionRef.current;
+        m.last = performance.now();
+        const step = (now: number) => {
+            const gallery = galleryRef.current;
+            if (!gallery) { animRef.current = null; return; }
+            const dt = Math.min(0.05, Math.max(0.001, (now - m.last) / 1000));
+            m.last = now;
+            let done = false;
+            if (m.mode === 'free') {
+                const np = m.pos + (m.target - m.pos) * (1 - Math.exp(-dt / WHEEL_TAU));
+                m.vel = (np - m.pos) / dt;
+                m.pos = np;
+                if (Math.abs(m.target - m.pos) < 0.25) { m.pos = m.target; m.vel = 0; done = true; }
+            } else if (m.mode === 'spring') {
+                const x = m.pos - m.goalTop;
+                m.vel += (-SPRING_W * SPRING_W * x - 2 * SPRING_W * m.vel) * dt;
+                m.pos += m.vel * dt;
+                if (Math.abs(m.pos - m.goalTop) < 0.4 && Math.abs(m.vel) < 8) {
+                    m.pos = m.target = m.goalTop;
+                    m.vel = 0;
+                    done = true;
+                }
+            } else {
+                done = true;
+            }
+            gallery.scrollTop = m.pos;
+            if (!done) {
+                animRef.current = requestAnimationFrame(step);
+                return;
+            }
+            animRef.current = null;
+            if (m.mode === 'spring') {
+                m.mode = 'idle';
+                const cb = m.onDone;
+                m.onDone = null;
+                cb?.();
+            }
+        };
+        animRef.current = requestAnimationFrame(step);
+    }, []);
+
+    /** dusă lin până la un cadru, pe arc: pornește cu viteza pe care o are
+        pelicula și încetinește spre final */
     const glideTo = useCallback((slot: number, onDone?: () => void) => {
         const gallery = galleryRef.current;
         if (!gallery) return;
-        stopGlide();
-        const pitch = slotPitch();
-        const from  = gallery.scrollTop;
+        const m = motionRef.current;
+        if (m.mode === 'idle' || animRef.current === null) {
+            m.pos = gallery.scrollTop;
+            if (m.mode === 'idle') m.vel = 0;
+        }
         const to    = scrollFor(slot);
-        const dist  = to - from;
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (Math.abs(dist) < 0.5 || still) {
+        m.goal    = slot;
+        m.goalTop = to;
+        m.onDone  = onDone ?? null;
+        if (still || (Math.abs(to - m.pos) < 0.5 && Math.abs(m.vel) < 8)) {
+            if (animRef.current !== null) cancelAnimationFrame(animRef.current);
+            animRef.current = null;
+            m.mode = 'idle';
+            m.pos = m.target = to;
+            m.vel = 0;
+            m.onDone = null;
             gallery.scrollTop = to;
             onDone?.();
             return;
         }
-        const dur = Math.min(900, 240 + 260 * Math.sqrt(Math.abs(dist) / pitch));
-        const t0  = performance.now();
-        const step = (now: number) => {
-            const k = Math.min(1, (now - t0) / dur);
-            gallery.scrollTop = from + dist * (1 - Math.pow(1 - k, 3));   // ease-out
-            if (k < 1) {
-                animRef.current = requestAnimationFrame(step);
-            } else {
-                animRef.current = null;
-                onDone?.();
-            }
-        };
-        animRef.current = requestAnimationFrame(step);
-    }, [slotPitch, scrollFor, stopGlide]);
+        m.mode = 'spring';
+        runMotion();
+    }, [scrollFor, runMotion]);
 
     /** derularea s-a oprit într-o copie de margine → aceeași poziție în copia din mijloc */
     const recenter = useCallback(() => {
@@ -1126,18 +1192,16 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         recenter();
     }, [scrollFor, updateActive, syncList, recenter]);
 
-    /** rotița s-a oprit → galeria se așază pe un cadru: pe următorul în direcția
-        mișcării, dacă s-a mișcat mai mult de NUDGE din cadrul de plecare */
+    /** rotița a fost lăsată → pelicula alege cadrul cel mai încadrat: cel mai
+        aproape de centrul ramei, în locul unde ar ajunge (ținta mișcării) */
     const settle = useCallback(() => {
         const gallery = galleryRef.current;
-        if (!gallery || animRef.current !== null) return;
-        const f    = (gallery.scrollTop - originRef.current) / slotPitch();
+        const m = motionRef.current;
+        if (!gallery || m.mode === 'spring') return;
+        const rest = m.mode === 'free' ? m.target : gallery.scrollTop;
         const last = reel.SLOTS.length - 1;
-        let target = Math.round(f);
-        if (Math.abs(f - target) > 0.001 && Math.abs(f - restRef.current) > NUDGE && dirRef.current !== 0) {
-            target = dirRef.current > 0 ? Math.ceil(f - NUDGE) : Math.floor(f + NUDGE);
-        }
-        target = Math.min(last, Math.max(0, target));
+        const f    = (rest - originRef.current) / slotPitch();
+        const target = Math.min(last, Math.max(0, Math.round(f)));
         glideTo(target, () => arrive(target));
     }, [slotPitch, glideTo, arrive, reel]);
 
@@ -1157,12 +1221,13 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
         let ticking = false;
         let idle    = 0;
+        const scheduleSettle = () => {
+            window.clearTimeout(idle);
+            idle = window.setTimeout(settle, SETTLE_MS);
+        };
         const onScroll = () => {
-            // direcția mișcării făcute de om (nu de animația de așezare)
             const top = gallery.scrollTop;
-            const dy  = top - prevTopRef.current;
             prevTopRef.current = top;
-            if (animRef.current === null && Math.abs(dy) > 0.5) dirRef.current = Math.sign(dy);
             if (!ticking) {
                 requestAnimationFrame(() => {
                     updateActive();
@@ -1171,24 +1236,43 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 });
                 ticking = true;
             }
-            window.clearTimeout(idle);
-            if (animRef.current === null) idle = window.setTimeout(settle, IDLE_MS);
+            // derulare care nu vine de la noi (deget pe ecran, bara de scroll):
+            // pelicula o urmează și se așază după ce se oprește
+            const m = motionRef.current;
+            if (animRef.current === null && Math.abs(top - m.pos) > 1.5) {
+                m.mode = 'idle';
+                m.pos = m.target = top;
+                m.vel = 0;
+                scheduleSettle();
+            }
         };
-        // omul pune mâna pe rotiță / pe ecran → animația de așezare se oprește.
-        // 02.11, 18:35: în Safari, inerția rotiței trimite la final evenimente
-        // „wheel” fără mișcare; ele opreau așezarea la jumătatea drumului și
-        // nimic n-o mai relua (afișul rămânea sub geam, decalat). Acum orice
-        // atingere a rotiței repornește și cronometrul de așezare, iar după
-        // degetul ridicat (touchend / pointerup) galeria se așază din nou.
-        const scheduleSettle = () => {
-            window.clearTimeout(idle);
-            idle = window.setTimeout(settle, IDLE_MS);
+        // rotița / trackpadul: derularea o face pelicula (cu inerție), nu browserul
+        const onWheel = (e: WheelEvent) => {
+            if (e.ctrlKey) return;                       // zoom cu două degete
+            e.preventDefault();
+            const m = motionRef.current;
+            if (m.mode !== 'free') {
+                // preia mișcarea de unde e, cu viteza pe care o avea (fără smucitură)
+                m.pos    = animRef.current !== null ? m.pos : gallery.scrollTop;
+                m.target = m.pos + m.vel * WHEEL_TAU;
+                m.mode   = 'free';
+                m.onDone = null;
+            }
+            const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? gallery.clientHeight : 1;
+            const max  = gallery.scrollHeight - gallery.clientHeight;
+            m.target = Math.min(max, Math.max(0, m.target + e.deltaY * unit * WHEEL_GAIN));
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                m.pos = m.target;
+                gallery.scrollTop = m.pos;
+            } else {
+                runMotion();
+            }
+            scheduleSettle();
         };
-        const onWheel = () => { stopGlide(); scheduleSettle(); };
         const onGrab  = () => { stopGlide(); window.clearTimeout(idle); };
-        const onLift  = () => { if (animRef.current === null) scheduleSettle(); };
+        const onLift  = () => { if (motionRef.current.mode !== 'spring') scheduleSettle(); };
         gallery.addEventListener('scroll', onScroll, { passive: true });
-        gallery.addEventListener('wheel', onWheel, { passive: true });
+        gallery.addEventListener('wheel', onWheel, { passive: false });
         gallery.addEventListener('touchstart', onGrab, { passive: true });
         gallery.addEventListener('pointerdown', onGrab, { passive: true });
         gallery.addEventListener('touchend', onLift, { passive: true });
@@ -1208,7 +1292,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             window.removeEventListener('pointerup', onLift);
             window.removeEventListener('resize', onScroll);
         };
-    }, [updateActive, syncList, jumpTo, settle, stopGlide, reel]);
+    }, [updateActive, syncList, jumpTo, settle, stopGlide, runMotion, reel]);
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
@@ -1226,16 +1310,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             const el = e.target as HTMLElement | null;
             if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
             e.preventDefault();   // fără derularea proprie a browserului
-            const from = animRef.current !== null && keyTargetRef.current !== null
-                ? keyTargetRef.current
-                : lastActiveRef.current;
+            // apăsările repetate se adună: pornesc de la cadrul spre care merge deja pelicula
+            const m    = motionRef.current;
+            const from = m.mode === 'spring' ? m.goal : lastActiveRef.current;
             const last   = reel.SLOTS.length - 1;
             const target = Math.min(last, Math.max(0, from + (e.key === 'ArrowDown' ? 1 : -1)));
-            keyTargetRef.current = target;
-            glideTo(target, () => {
-                keyTargetRef.current = null;
-                arrive(target);
-            });
+            glideTo(target, () => arrive(target));
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
@@ -1319,7 +1399,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 </span>
                 <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
-                <ContactCopy lang={lang} label={t.nav.contact} />
+                <ContactCopy lang={lang} label={t.nav.contact} farNote={kind === 'work'} />
             </nav>
 
 

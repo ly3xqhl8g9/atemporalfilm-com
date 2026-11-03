@@ -321,6 +321,8 @@
        CONTACT și cu contactele de pe WORK (pe 1728: x = 1474, y = 63) */
     left: calc(var(--nav-r) - 194px);
     top: 63px;
+    /* 03.11.2026, 13:26 (Modul Regie): 47 px mai jos, sub CONTACT (y = 110) */
+    top: 110px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -619,6 +621,7 @@
     letter-spacing: 0.02em;
     color: var(--fg-soft);
 }
+.copiedNoteFar { left: 134px; }   /* pe WORK: după iconițe (nav-r − 60) */
 .copiedNoteText {
     display: block;
     animation: copiedNote 2.6s ease forwards;
@@ -773,9 +776,11 @@
    rânduri (TIME / CALCULATOR) — pe un rând nu încape în gol (~124 px pe 1728).
    Unde golul e prea mic, se ascunde. */
 .cofinanceEncoder {
-    left: calc((var(--col-r) + 108px + max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px))) / 2);
+    left: calc((var(--col-r) + 78px + max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px))) / 2);
     /* centrat fără transform (lățime 0, butonul iese egal în ambele părți),
        ca să poată căsuța să se așeze `fixed`, pe coloanele paginii */
+    /* 03.11, 13:26: ADR a venit cu 30 px spre stânga → marginea golului e la
+       col-r + 78, butonul rămâne centrat (−15 px; cue-ul: −16) */
     width: 0;
     justify-content: center;
     top: -2px;
@@ -986,6 +991,8 @@
     /* 03.11, 11:06: +13 px, 25 px mai sus — începe pe verticala lui CONTACT
        (pe 1728: x = 1473, y = 115) */
     top: 115px;
+    /* 03.11, 13:26: 15 px mai jos, sub București (pe 1728: y = 130) */
+    top: 130px;
     left: calc(var(--nav-r) - 194px);
     z-index: 40;
     margin: 0;
@@ -999,17 +1006,34 @@
 }
 .workContacts p { margin: 0 0 1.1em; }
 .workContacts p:last-child { margin-bottom: 0; }
+/* 03.11, 13:26: Diana la 6 px sub Ștefan (y = 186), Locations la y = 264 */
+.workContacts p:nth-child(1) { margin-bottom: 6px; }
+.workContacts p:nth-child(2) { margin-bottom: 28px; }
+/* mailul, separat (03.11, 13:26: −301 px): x = col-r − 108, y = 236
+   (pe 1728: 1173), 8 px la stânga lui WORK */
+.workContacts.workMail { top: 236px; left: calc(var(--col-r) - 108px); }
+/* iconițele (03.11, 13:26): în dreapta lui CONTACT, la 13 px după cuvânt,
+   12 px între ele (pe 1728: 1560 și 1584), y = 80 (media celor două cue-uri,
+   76 și 83 — aliniate pe același rând) */
+.workSocial {
+    position: fixed;
+    top: 80px;
+    left: calc(var(--nav-r) - 108px);
+    z-index: 40;
+    display: flex;
+    gap: 12px;
+    color: var(--fg-faint);
+}
+.workSocial .socialIcon:hover { color: var(--fg); }
 .workContacts a { color: inherit; }
 .workContacts a:hover { color: var(--fg); }
 /* Instagram / LinkedIn (03.11, 11:33): iconițele de pe site-ul vechi
    (public/assets/logos/icon-*-mask.png), folosite ca mască — iau culoarea
    textului (stinsă), plină la hover; în dreapta cuvântului, pe același rând */
-.workContacts .socialIcon {
-    display: inline-block;
+.workSocial .socialIcon {
+    display: block;
     width: 12px;
     height: 12px;
-    margin-left: 10px;
-    vertical-align: -1px;
     background: currentColor;
     -webkit-mask: var(--icon) center / contain no-repeat;
             mask: var(--icon) center / contain no-repeat;
@@ -1642,6 +1666,7 @@
 .cofinanceLeft  { left: var(--lang-x); transform: translateY(-2px); }        /* 02.11, 23:03: +141 px */
 .cofinanceLogos { left: var(--cf-logos-x2); gap: 20px; transform: translateY(-2px); }  /* 02.11, 15:34: +31 px */
 .cofinanceRight { left: calc(var(--col-r) - 121px); gap: 26px; transform: translateY(-3px); }   /* 02.11, 22:52: −25 px */
+.cofinanceRight { left: calc(var(--col-r) - 151px); }   /* 03.11, 13:26: −30 px */
 
 .cfLogo {
     font-family: var(--font-mono), monospace;

@@ -66,7 +66,9 @@ async function copyContact(): Promise<boolean> {
 }
 
 
-export default function ContactCopy({ lang, label }: { lang: Lang; label: string }) {
+/** `farNote` (03.11, 13:26): pe WORK, iconițele Instagram / LinkedIn stau în
+    dreapta lui CONTACT, deci confirmarea „Email copied” trece după ele */
+export default function ContactCopy({ lang, label, farNote = false }: { lang: Lang; label: string; farNote?: boolean }) {
     const [note, setNote] = useState<null | 'ok' | 'fail'>(null);
     const [tick, setTick] = useState(0);   // repornește animația la fiecare click
 
@@ -91,7 +93,7 @@ export default function ContactCopy({ lang, label }: { lang: Lang; label: string
             >
                 {label}
             </button>
-            <span className={styles.copiedNote} role="status" aria-live="polite">
+            <span className={farNote ? `${styles.copiedNote} ${styles.copiedNoteFar}` : styles.copiedNote} role="status" aria-live="polite">
                 {note && <span key={tick} className={styles.copiedNoteText}>{NOTE[lang][note]}</span>}
             </span>
         </span>
@@ -108,31 +110,38 @@ export default function ContactCopy({ lang, label }: { lang: Lang; label: string
    Instagram contur, LinkedIn cerc plin cu „in” decupat).
    (Butonul CONTACT copiază doar adresa comună — din 03.11, 11:06.) */
 export function WorkContacts() {
+    /* 03.11.2026, 13:26 (Modul Regie, pe 1728×1032): iconițele Instagram și
+       LinkedIn urcă în dreapta lui CONTACT, pe rândul meniului; mailul iese din
+       bloc, spre stânga, la x-ul lui WORK (vezi .workSocial, .workMail) */
     return (
-        <address className={styles.workContacts}>
-            <p>
-                ȘTEFAN AZAHARIOAIE<br />
-                sound designer, editor
+        <>
+            <div className={styles.workSocial}>
                 <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/icon-instagram-mask.png")' } as React.CSSProperties}
-                   href="https://www.instagram.com/atemporalfilm" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" /><br />
-                <a href="tel:+40743343800">+40 743 343 800</a>
-            </p>
-            <p>
-                DIANA SMEU<br />
-                distribution, manager
+                   href="https://www.instagram.com/atemporalfilm" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" />
                 <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/icon-linkedin-mask.png")' } as React.CSSProperties}
-                   href="https://www.linkedin.com/company/atemporal-film" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" /><br />
-                <a href="tel:+40770789376">+40 770 789 376</a>
-            </p>
-            <p>
+                   href="https://www.linkedin.com/company/atemporal-film" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" />
+            </div>
+            <address className={styles.workContacts}>
+                <p>
+                    ȘTEFAN AZAHARIOAIE<br />
+                    sound designer, editor<br />
+                    <a href="tel:+40743343800">+40 743 343 800</a>
+                </p>
+                <p>
+                    DIANA SMEU<br />
+                    distribution, manager<br />
+                    <a href="tel:+40770789376">+40 770 789 376</a>
+                </p>
+                <p>
+                    Locations<br />
+                    Piatra-Neamt, Progresului 71<br />
+                    Bucharest, Vasile Lascar 23-25<br />
+                    Romania
+                </p>
+            </address>
+            <address className={`${styles.workContacts} ${styles.workMail}`}>
                 <a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>
-            </p>
-            <p>
-                Locations<br />
-                Piatra-Neamt, Progresului 71<br />
-                Bucharest, Vasile Lascar 23-25<br />
-                Romania
-            </p>
-        </address>
+            </address>
+        </>
     );
 }
