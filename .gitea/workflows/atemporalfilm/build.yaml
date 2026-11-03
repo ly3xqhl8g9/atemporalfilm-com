@@ -76,11 +76,14 @@ jobs:
             obs="$(kubectl -n "$ns" get "$dep" -o jsonpath='{.status.observedGeneration}' 2>/dev/null || true)"
             upd="$(kubectl -n "$ns" get "$dep" -o jsonpath='{.status.updatedReplicas}' 2>/dev/null || true)"
             rdy="$(kubectl -n "$ns" get "$dep" -o jsonpath='{.status.readyReplicas}' 2>/dev/null || true)"
-            if [ "${obs:-0}" -ge "$gen" ] && [ "${upd:-0}" -eq "$replicas" ] && [ "${rdy:-0}" -eq "$replicas" ]; then
+            total="$(kubectl -n "$ns" get "$dep" -o jsonpath='{.status.replicas}' 2>/dev/null || true)"
+            # During a surge, the sole Ready replica may still be the old pod.
+            # Wait for old replicas to disappear before counting readiness as success.
+            if [ "${obs:-0}" -ge "$gen" ] && [ "${upd:-0}" -eq "$replicas" ] && [ "${rdy:-0}" -eq "$replicas" ] && [ "${total:-0}" -eq "$replicas" ]; then
               echo "rollout complete: ${want}, generation ${obs}, ${rdy}/${replicas} ready"
               exit 0
             fi
-            echo "generation ${obs:-0}/${gen}, updated ${upd:-0}, ready ${rdy:-0}/${replicas}"
+            echo "generation ${obs:-0}/${gen}, updated ${upd:-0}, ready ${rdy:-0}/${replicas}, total ${total:-0}"
             sleep 5
           done
           echo "rollout did not complete within 8 minutes"
