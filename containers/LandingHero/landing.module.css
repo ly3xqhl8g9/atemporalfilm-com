@@ -2469,3 +2469,98 @@
         transform: none;
     }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   03.11.2026, 17:25 — Ștefan (pe 1382 × 867): pe WORK, New York /
+   Johannesburg (după Regio) și TIME CALCULATOR trebuie să se vadă și pe
+   ecranele lui mai înguste. Fuseseră ascunse sub 1690 / 1700 px (seriile
+   de la 1728 px, 10:40 și 12:28), pentru că nu încăpeau. Acum, între
+   1280 și 1689 px, bara de jos se strânge ca să încapă tot:
+   – stânga: Madrid / Mumbai la 14 px după Bangkok, butonul de limbă la
+     12 px, UE la 12 px, Regio la 14 px după UE, New York la 14 px după Regio;
+   – dreapta: ADR la 12 px după site-uri; Shanghai / Buenos Aires se dau
+     spre margine (cel mult la 18 px de ea, ca Bangkok în stânga) cât să
+     încapă TIME CALCULATOR, scris puțin mai mic, centrat între ADR și
+     Shanghai;
+   – timecode-urile de jos la 9 px, stările doar semne.
+   Peste 1690 px nu se schimbă nimic. Pe ABOUT, New York / Johannesburg
+   rămân scoase (loc pentru a doua peliculă).
+   ══════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1280px) and (max-width: 1689px) {
+    .page {
+        --home-x:      calc(var(--wc-far-x) + 113px);          /* Bangkok ~99 px + 14 */
+        --home-w:      105px;                                   /* Madrid ~99 px + 6 → limba la +12 */
+        --cf-logos-x2: calc(var(--lang-x) + 70px);              /* butonul de limbă ~58 px + 12 */
+        /* Shanghai: unde era (nav-r − 154), dar destul de departe de ADR cât
+           să încapă TIME CALCULATOR (ADR se termină la col-r + 65; butonul
+           ~79 px, câte 12 px de o parte și de alta); cel mult până la 18 px
+           de marginea ecranului */
+        --sh-x:        min(calc(100% - 18px - 105px),
+                           max(calc(var(--nav-r) - 154px), calc(var(--col-r) + 136px), calc(var(--col-r) + 168px)));
+    }
+    /* timecode-urile de jos: 9 px (în loc de 9,5), literele puțin mai strânse */
+    .wcBottomFar, .wcBottomHome, .wcBottomLeft, .wcBottomRight {
+        font-size: 9px;
+        letter-spacing: 0.04em;
+    }
+    .cofinanceLogos { gap: 12px; }
+    .page .wcBottomLeft {
+        display: flex;
+        left: calc(var(--cf-logos-x2) + 158px + 12px);          /* UE 117 + 12 + Regio 29, + 12 */
+    }
+    .page:is(.pageAbout) .wcBottomLeft { display: none; }
+    .wcBottomRight { left: var(--sh-x); }
+    .cofinanceRight { gap: 12px; }
+    .cofinance .cofinanceEncoder {
+        display: flex;
+        left: calc((var(--col-r) - 151px + 158px + 12px + 46px + var(--sh-x)) / 2);
+    }
+    /* ca sub 1600 px: stările doar semne (▶ / ■ / bulina), altfel nu încap */
+    .worldClocks .wcLabel { display: none; }
+    .worldClocks .wcRow   { gap: 6px; }
+    .wcBottomRight .wcRow { gap: 12px; }
+    .tcBtn { font-size: 9.5px; letter-spacing: 0.08em; padding: 5px 6px 4px; }
+    /* căsuța nu iese din ecran: cel mult până la 12 px de margine */
+    .tcBox {
+        left: min(calc(var(--col-r) - 119px), calc(100% - 448px - 12px));
+    }
+}
+
+/* unde nu încap nici așa (sub ~1370 px New York ar ajunge pe peliculă, sub
+   1310 px TIME CALCULATOR n-ar mai avea loc între ADR și Shanghai): ascunse */
+@media (min-width: 1280px) and (max-width: 1369px) {
+    .page .wcBottomLeft { display: none; }
+}
+@media (min-width: 1280px) and (max-width: 1309px) {
+    .cofinance .cofinanceEncoder { display: none; }
+}
+
+/* 1690–1699 px: de când ADR a venit cu 30 px spre stânga (13:26), TIME
+   CALCULATOR încape și aici, la mărimea normală */
+@media (min-width: 1690px) and (max-width: 1699px) {
+    .cofinance .cofinanceEncoder { display: flex; }
+}
+
+/* 03.11.2026, 17:24 (Modul Regie, pe 1382 × 867, pagina ABOUT): ambele
+   pelicule mutate împreună cu 84 px spre dreapta, ca să încapă descrierea
+   Atemporal în stânga; peliculele merg până jos, ca pe WORK (fără tăietura
+   de deasupra barei). Doar pe ABOUT, doar pe desktop. */
+@media (min-width: 1280px) {
+    .pageAbout {
+        --about-shift: 84px;
+        --bar-clip:    0px;
+    }
+    /* acum peliculele trec prin bara de jos: Regio și site-urile Regio s-ar
+       suprapune cu ele → scoase, doar pe ABOUT (Ștefan: „dacă nu ai loc jos
+       poți șterge regio … doar pe pagina about”). UE și ADR rămân. */
+    .pageAbout .cfLogoRegio,
+    .pageAbout .cofinanceLinks { visibility: hidden; }   /* ADR rămâne pe loc */
+    /* descrierea Atemporal are acum mai mult loc: câte 24 px față de logo și
+       de pelicule (înainte, pe 1280–1499, doar 12) */
+    .pageAbout .aboutText { width: min(384px, calc(var(--pair-l) - var(--logo-x) - 48px)); }
+}
+/* pe 1280–1339 px peliculele ajung și peste UE → pe ABOUT tot blocul UE + Regio scos */
+@media (min-width: 1280px) and (max-width: 1339px) {
+    .pageAbout .cofinanceLogos { visibility: hidden; }
+}
