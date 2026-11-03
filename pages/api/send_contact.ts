@@ -7,12 +7,6 @@ import Mailjet from 'node-mailjet';
 
 
 
-const mailjet = new Mailjet({
-    apiKey: process.env.MJ_API_KEY || '',
-    apiSecret: process.env.MJ_API_SECRET || '',
-});
-
-
 const composeHTML = (data: {
     name: string;
     phone?: string;
@@ -110,6 +104,11 @@ export default async function handler(
     switch (req.method) {
         case 'POST':
             try {
+                // Kubernetes supplies credentials at runtime, never during the image build.
+                const mailjet = new Mailjet({
+                    apiKey: process.env.MJ_API_KEY || '',
+                    apiSecret: process.env.MJ_API_SECRET || '',
+                });
                 const data = req.body;
 
                 const request = mailjet
