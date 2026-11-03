@@ -103,7 +103,9 @@ export default function ContactCopy({ lang, label }: { lang: Lang; label: string
    textul exact cum l-a trimis Ștefan, mic, ca „by Stefan Azaharioaie”.
    03.11, 11:33: butoanele Instagram și LinkedIn de pe site-ul vechi
    (data/constants.ts → socialLinks), Instagram în dreptul lui „editor”,
-   LinkedIn în dreptul lui „manager”.
+   LinkedIn în dreptul lui „manager”. Iconițele: public/assets/logos/
+   icon-*-mask.png, făcute din logo-*.png (doar desenul, ca pe site-ul vechi:
+   Instagram contur, LinkedIn cerc plin cu „in” decupat).
    (Butonul CONTACT copiază doar adresa comună — din 03.11, 11:06.) */
 export function WorkContacts() {
     return (
@@ -111,14 +113,14 @@ export function WorkContacts() {
             <p>
                 ȘTEFAN AZAHARIOAIE<br />
                 sound designer, editor
-                <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/logo-instagram.png")' } as React.CSSProperties}
+                <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/icon-instagram-mask.png")' } as React.CSSProperties}
                    href="https://www.instagram.com/atemporalfilm" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" /><br />
                 <a href="tel:+40743343800">+40 743 343 800</a>
             </p>
             <p>
                 DIANA SMEU<br />
                 distribution, manager
-                <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/logo-linkedin.png")' } as React.CSSProperties}
+                <a className={styles.socialIcon} style={{ '--icon': 'url("/assets/logos/icon-linkedin-mask.png")' } as React.CSSProperties}
                    href="https://www.linkedin.com/company/atemporal-film" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" /><br />
                 <a href="tel:+40770789376">+40 770 789 376</a>
             </p>

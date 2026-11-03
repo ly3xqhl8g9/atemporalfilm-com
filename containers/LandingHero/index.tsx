@@ -194,6 +194,10 @@ const PROJECTS: Project[] = [
         description: 'Sound design pentru o animație scurtă de iarnă. Descriere temporară — de înlocuit ulterior.',
         awards:      '—',
         people:      'Ionuț Alin Ionescu (sound)\nEmy-Mirel Ivașcă (regie, animație)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sound designer',
+        workEn: 'Sound designer',
+        workFr: 'Concepteur sonore',
         image:       '/assets/entities/posters/on-saint-nicholas-eve.webp',
     },
     {
@@ -205,6 +209,10 @@ const PROJECTS: Project[] = [
         description: 'Post-producție sunet pentru un scurtmetraj de ficțiune. Descriere temporară.',
         awards:      'Warsaw Film Festival 2024 · Best Live Action Short',
         people:      'Ionuț Alin Ionescu (sound)\nAndrei Redinciuc (regie)\ncu Coca Bloos, Cezar Antal, Alexandru Pavel, Angela Ioan',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sound designer',
+        workEn: 'Sound designer',
+        workFr: 'Concepteur sonore',
         image:       '/assets/entities/posters/tot-ce-ramane.webp',
     },
     {
@@ -216,6 +224,10 @@ const PROJECTS: Project[] = [
         description: 'Post-producție sunet pentru un scurtmetraj intim. Descriere temporară.',
         awards:      '—',
         people:      'Ionuț Alin Ionescu (sound)\nAndreea Lăcătuș (regie)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sunet',
+        workEn: 'Sound',
+        workFr: 'Son',
         image:       '/assets/entities/posters/between-the-edges-of-the-day.webp',
     },
     {
@@ -227,6 +239,10 @@ const PROJECTS: Project[] = [
         description: 'Contribuție la post-producția sunet pentru distribuția locală. Descriere temporară — de detaliat ulterior.',
         awards:      'distribuție internațională',
         people:      'Ionuț Alin Ionescu (sound)\nCorin Hardy (regie)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Departamentul de montaj',
+        workEn: 'Editorial department',
+        workFr: 'Département montage',
         image:       '/assets/entities/posters/the-nun.webp',
     },
     {
@@ -238,6 +254,10 @@ const PROJECTS: Project[] = [
         description: 'Sound design și post-producție audio pentru un scurtmetraj atmosferic. Descriere temporară.',
         awards:      '—',
         people:      'Ionuț Alin Ionescu (sound)\nAna-Maria Comănescu (regie)\ncu Dana Marineci, Robi Urs, Cristiana Luca',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Înregistrare sunet',
+        workEn: 'Sound recordist',
+        workFr: 'Preneur de son',
         image:       '/assets/entities/posters/cat-funeral.webp',
     },
     {
@@ -249,6 +269,10 @@ const PROJECTS: Project[] = [
         description: 'Sound design pentru un lungmetraj de ficțiune contemplativ. Descriere temporară.',
         awards:      '—',
         people:      'Ionuț Alin Ionescu (sound)\nAndreea Cristina Borțun (regie, scenariu)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sunet de platou',
+        workEn: 'Production sound mixer',
+        workFr: 'Chef opérateur du son',
         image:       '/assets/entities/posters/a-rivers-gaze.webp',
     },
     {
@@ -263,6 +287,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'Premiere: Cinema City AFI Brașov, 2025 · Cinepub',
         people:        'Irina Malcea-Cândea (regie, producător)\ncu Vicky & Kastelanii\nCarmen Tofeni (imagine)\nLetiția Ștefănescu (montaj)\nClaudiu Doagă (colorizare)\nFlorin Tăbăcaru, Stefan Azaharioaie, Victor Miu (sunet)',
         peopleEn:      'Irina Malcea-Cândea (director, producer)\nwith Vicky & Kastelanii\nCarmen Tofeni (cinematography)\nLetiția Ștefănescu (editing)\nClaudiu Doagă (colour grading)\nFlorin Tăbăcaru, Stefan Azaharioaie, Victor Miu (sound)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sunet de platou',
+        workEn: 'Production sound',
+        workFr: 'Son direct',
         image:         '/assets/entities/posters/happy-box.webp',
     },
     {
@@ -277,6 +305,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'Gopo Awards 2021 · Best Short Fiction Film · SEEfest 2021 · Best Short Fiction · TIFF 2020 · Anonimul',
         people:        'Ana Pasti (regie, scenariu)\ncu Gabor Bondi, Ana Pasti, Sergiu Costache, Miriam Rizea\nTudor Platon (imagine)\nAndrei Iancu (montaj)\nAndrei Petre Tatu (sunet)\nIrena Isbășescu, Ana Pasti (producători)\nAdrian Sitaru (producător executiv)',
         peopleEn:      'Ana Pasti (director, writer)\nwith Gabor Bondi, Ana Pasti, Sergiu Costache, Miriam Rizea\nTudor Platon (cinematography)\nAndrei Iancu (editing)\nAndrei Petre Tatu (sound)\nIrena Isbășescu, Ana Pasti (producers)\nAdrian Sitaru (executive producer)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Înregistrare sunet',
+        workEn: 'Sound recordist',
+        workFr: 'Preneur de son',
         image:         '/assets/entities/posters/in-between.webp',
     },
     {
@@ -291,6 +323,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'World premiere: Warsaw Film Festival 2020 · Slamdance 2021',
         people:        'Bogdan Theodor Olteanu (regie, scenariu)\ncu Ioana Bugarin, Maria Popistașu, Ana Maria Guran, Carol Ionescu, Alexandru Ion\nAna Drăghici (imagine)\nTudor D. Popescu (montaj)\nDragoș Cătărău, Răzvan Ionescu (sunet)\nAlex Bălă (muzica)\nAnamaria Antoci, Anda Ionescu (producători)',
         peopleEn:      'Bogdan Theodor Olteanu (director, writer)\nwith Ioana Bugarin, Maria Popistașu, Ana Maria Guran, Carol Ionescu, Alexandru Ion\nAna Drăghici (cinematography)\nTudor D. Popescu (editing)\nDragoș Cătărău, Răzvan Ionescu (sound)\nAlex Bălă (music)\nAnamaria Antoci, Anda Ionescu (producers)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Inginer de sunet',
+        workEn: 'Sound mixer',
+        workFr: 'Ingénieur du son',
         image:         '/assets/entities/posters/mia-misses-her-revenge.webp',
     },
     {
@@ -305,6 +341,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'Locarno 2019 · Special Jury Prize, Filmmakers of the Present · Sarajevo FF 2019',
         people:        'Ivana Mladenović (regie, scenariu, rolul principal)\nAdrian Schiop (scenariu)\ncu Luka Gramić, Gordana Mladenović, Miodrag Mladenović, Andrei Dinescu, Anca Pop\nCarmen Tofeni (imagine)\nPatricia Chelaru, Cătălin Cristuțiu (montaj)\nAlexandru Dumitru (design de sunet)\nAda Solomon, Ivana Mladenović (producători)',
         peopleEn:      'Ivana Mladenović (director, writer, lead role)\nAdrian Schiop (writer)\nwith Luka Gramić, Gordana Mladenović, Miodrag Mladenović, Andrei Dinescu, Anca Pop\nCarmen Tofeni (cinematography)\nPatricia Chelaru, Cătălin Cristuțiu (editing)\nAlexandru Dumitru (sound design)\nAda Solomon, Ivana Mladenović (producers)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Înregistrare sunet',
+        workEn: 'Sound recordist',
+        workFr: 'Preneur de son',
         image:         '/assets/entities/posters/ivana-the-terrible.webp',
     },
     {
@@ -392,6 +432,10 @@ const PROJECTS: Project[] = [
         description: 'Field recording și post-production sound pentru un lung-metraj internațional. Imagine de Rogier Stoffers.',
         awards:      'în lucru — premiere 2025',
         people:      'Ionuț Alin Ionescu (co-producător, sound)\nMark Freiburger (regie)\nRogier Stoffers (imagine)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sunet de platou',
+        workEn: 'Production sound mixer',
+        workFr: 'Chef opérateur du son',
         image:       '/assets/entities/2025-beyond-borders-hero.jpg',
     },
     {
@@ -403,6 +447,10 @@ const PROJECTS: Project[] = [
         description: 'Documentar despre Ilie Năstase. Sound design cinematografic care țese împreună arhive de epocă cu materialul nou.',
         awards:      'Cannes Film Festival 2024 · selecție oficială',
         people:      'Ionuț Alin Ionescu (sound design)\nTudor Giurgiu (regie)\nLibra Film (producție)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Înregistrare sunet',
+        workEn: 'Sound recordist',
+        workFr: 'Preneur de son',
         image:       '/assets/entities/2024-nasty-hero.jpg',
     },
     {
@@ -414,6 +462,10 @@ const PROJECTS: Project[] = [
         description: 'Reconstituirea evenimentelor din decembrie ’89. Sound design construit pe straturi de arhivă și recreări de teren.',
         awards:      'distribuție națională · selecții festivaluri internaționale',
         people:      'Ionuț Alin Ionescu (sound)\nSergiu Prodan (regie)\nCarmen Tripăduș (producător)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sunet, sound designer',
+        workEn: 'Sound, sound designer',
+        workFr: 'Son, concepteur sonore',
         image:       '/assets/entities/2022-eroii-de-la-podul-jiului-hero.jpg',
     },
     {
@@ -425,6 +477,10 @@ const PROJECTS: Project[] = [
         description: 'Dramă morală cu o construcție sonoră austeră. Tăceri lungi, voci joase, spațiu acustic disecat cu precizie.',
         awards:      'IndieLisboa · Göteborg · Ghent · Hamburg · Warsaw IFF · Calgary · TIFF',
         people:      'Ionuț Alin Ionescu (sound design)\nCătălin Rotaru (regie)\nGabi Suciu (producător)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Montaj dialog, foley, sound designer',
+        workEn: 'Dialogue editor, foley artist, sound designer',
+        workFr: 'Montage dialogues, bruitage, concepteur sonore',
         image:       '/assets/entities/2018-thou-shalt-not-kill-hero.jpg',
     },
     {
@@ -436,6 +492,10 @@ const PROJECTS: Project[] = [
         description: 'Documentar de observație. Sunet capturat în timp real, fără procesare excesivă — un microfon discret în mijlocul familiei.',
         awards:      'Sarajevo Film Festival 2020 · TIFF 2020',
         people:      'Ionuț Alin Ionescu (sound)\nTudor Platon (regie)\nCarla Fotea (producător)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sunet, sound designer',
+        workEn: 'Sound, sound designer',
+        workFr: 'Son, concepteur sonore',
         image:       '/assets/entities/2020-house-of-dolls-hero.jpg',
     },
     {
@@ -447,6 +507,10 @@ const PROJECTS: Project[] = [
         description: 'Scurtmetraj filmat în Delta Dunării. Field recording extensiv — păsări, apă, vânt construite în peisaje sonore.',
         awards:      'Trieste FF · TIFF · Anonimul · ESTE FILM · Cyprus ISFF · GOPO 2024',
         people:      'Ionuț Alin Ionescu (sound design)\nVlad Buzăianu (regie)\nAnamaria Antoci, Ana Voicu (producători)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Înregistrare sunet',
+        workEn: 'Sound recordist',
+        workFr: 'Preneur de son',
         image:       '/assets/entities/2023-acolo-unde-barcile-nu-ajung-hero.jpg',
     },
     {
@@ -458,6 +522,10 @@ const PROJECTS: Project[] = [
         description: 'Animație scurtă. Sound design construit de la zero — fiecare zgomot e fabricat în studio și pus în corespondență cu imaginea.',
         awards:      'Havana FF 2021 · Oberhausen ISFF 2021',
         people:      'Ionuț Alin Ionescu (sound design)\nIoana Păsărin (regie, animație)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sound designer',
+        workEn: 'Sound designer',
+        workFr: 'Concepteur sonore',
         image:       '/assets/entities/2021-a-fish-on-a-ladder-hero.jpg',
     },
     {
@@ -469,6 +537,10 @@ const PROJECTS: Project[] = [
         description: 'Comedie absurdă cu un strat sonor jucăuș. Foley artizanal și o coloană sonoră aproape muzicală a obiectelor de bucătărie.',
         awards:      'Brno FF · Goa SFF · Short Stop IFF · TIFF 2022 · Anonimul 2022 · Filmul de Piatra',
         people:      'Ionuț Alin Ionescu (sound)\nAndrei Redinciuc (regie)\nCarol Ionescu (producător)',
+        // 03.11.2026: creditul de pe IMDb (nm6847202)
+        work:   'Sound designer',
+        workEn: 'Sound designer',
+        workFr: 'Concepteur sonore',
         image:       '/assets/entities/2021-extravaganzia-mare-hero.jpg',
     },
     {
@@ -720,13 +792,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const q = new URLSearchParams(window.location.search).get('rama');
         setRama(q === 'fina' || q === 'paranteze' ? q : 'groasa');
         setLuminaNeutra(new URLSearchParams(window.location.search).get('lumina') === 'neutra');
-        setCuFade(new URLSearchParams(window.location.search).has('fade'));
     }, []);
     // lumina din spatele fotogramei (02.11, 17:40): caldă, ca în referință;
     // /?lumina=neutra — aceeași cădere, fără căldura becului
     const [luminaNeutra, setLuminaNeutra]   = useState(false);
-    // 03.11, 11:33: pelicula fără stingere sus și jos; /?fade — varianta veche
-    const [cuFade, setCuFade]               = useState(false);
     const galleryRef    = useRef<HTMLDivElement | null>(null);
     const slotRefs      = useRef<(HTMLDivElement | null)[]>([]);
     const lastActiveRef = useRef(HOME);
@@ -1161,7 +1230,6 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             rama === 'fina' ? styles.ramaFina : '',
             rama === 'paranteze' ? styles.ramaParanteze : '',
             luminaNeutra ? styles.luminaNeutra : '',
-            cuFade ? styles.cuFade : '',
         ].join(' ')}>
 
             {/* GRAIN overlay — peste tot */}
