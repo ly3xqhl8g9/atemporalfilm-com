@@ -1162,14 +1162,14 @@
    pe verticală pe ramă. Lățimea: până la anul filmului (col-r + 228) și puțin peste,
    cel mult 384 px; pe ecranele înguste se oprește la 32 px de margine. */
 .aboutText {
+    /* 03.11, 13:00 (Ștefan): textul Atemporal trece în STÂNGA, centrat între
+       verticala logo-ului (--logo-x) și marginea peliculei (perforația);
+       în dreapta, în locul lui, stă descrierea omului din ramă (.personText). */
     position: fixed;
-    left: calc(var(--col-r) - 119px);
-    /* 03.11, 01:10 (Ștefan: „se potrivește mai bine în partea dreaptă a
-       peliculei”): nu mai stă sub meniu, ci lângă ramă — centrat pe
-       verticală pe ea (rama e centrată la 50%), la x-ul creditului */
+    left: calc((var(--logo-x) + 50% + var(--reel-x) - var(--strip-w) / 2) / 2);
     top: 50%;
-    transform: translateY(-50%);
-    width: min(384px, calc(100vw - var(--col-r) + 119px - 32px));
+    transform: translate(-50%, -50%);
+    width: min(384px, calc(50% + var(--reel-x) - var(--strip-w) / 2 - var(--logo-x) - 48px));
     z-index: 40;
     font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: 12.75px;
@@ -1189,10 +1189,11 @@
    ramă, ca textul din dreapta. Se schimbă (cu stingere) când alt om intră în ramă. */
 .personText {
     position: fixed;
-    right: calc(50% - var(--reel-x) + 208px);
+    /* 03.11, 13:00: în dreapta, la x-ul creditului (locul vechi al textului Atemporal) */
+    left: calc(var(--col-r) - 119px);
     top: 50%;
     transform: translateY(-50%);
-    width: min(384px, calc(50% + var(--reel-x) - 208px - 32px));
+    width: min(384px, calc(100vw - var(--col-r) + 119px - 32px));
     z-index: 40;
     font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: 12.75px;
