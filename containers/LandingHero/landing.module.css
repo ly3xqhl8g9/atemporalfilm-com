@@ -250,6 +250,59 @@
 .logoWord1 { font-size: 38px; transform: rotate(-2deg); }
 .logoWord2 { font-size: 32px; margin-left: 38px; margin-top: -2px; transform: rotate(-1deg); }
 
+/* ── ROLA DE LÂNGĂ LOGO (03.11.2026) — LogoReel.tsx ──
+   Colțul logo-ului e originea: rola la (160, 20), pelicula și literele SVG
+   în aceleași coordonate. Cât se desenează (data-state wait / play), textul
+   HTML al logo-ului e ascuns; dacă JS-ul nu pornește, reapare după 4 s. */
+.logoReel {
+    position: absolute;
+    left: var(--logo-x);
+    top: 58px;
+    width: 0;
+    height: 0;
+    z-index: 2;
+}
+.logoReel[data-state='wait'] ~ .logo {
+    visibility: hidden;
+    animation: logoFallback 0s linear 4s forwards;
+}
+.logoReel[data-state='play'] ~ .logo { visibility: hidden; }
+@keyframes logoFallback { to { visibility: visible; } }
+.logoReelFilm {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: visible;
+    pointer-events: none;
+}
+.logoReelFill { fill: var(--fg); }
+.logoReelBtn {
+    position: absolute;
+    left: 143px;          /* 160 − 17 */
+    top: 3px;             /*  20 − 17 */
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: transform 0.35s ease;
+}
+.logoReelBtn svg { display: block; overflow: visible; }
+.logoReelBtn:hover { transform: rotate(-24deg); }
+.logoReelBtn:focus-visible { outline: 1px solid var(--fg); outline-offset: 2px; border-radius: 50%; }
+.logoReelFlange {
+    fill: oklch(0.86 0.006 80);     /* flanșa: metal deschis, puțin mai închis decât fundalul */
+    stroke: #15110d;
+    stroke-width: 1.1;
+}
+.logoReelSpindle { fill: var(--bg); }
+
 /* ── TIMECODE ÎN ANTET ──
    Modul Regie, 02.11.2026, 16:25: rândul urcă la y = 62; București (EET) + REC
    la x = 357, Madrid (CET) + REC mutat spre dreapta, la x = 602. Bangkok a
@@ -1685,6 +1738,7 @@
         --gallery-w: 240px;
     }
     .siteHeader { padding: 24px 28px 0; }
+    .logoReel { left: 28px; top: 24px; }
     /* telefonul se rezolvă în faza 2b */
     .filmList { left: 24px; }
     .sideRight { width: 140px; }

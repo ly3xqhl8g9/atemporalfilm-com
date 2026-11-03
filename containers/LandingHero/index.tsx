@@ -15,6 +15,7 @@ import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 
 import ContactCopy, { WorkContacts } from './ContactCopy';
 import GearRequest from './GearRequest';
+import LogoReel from './LogoReel';
 import styles from './landing.module.css';
 
 
@@ -91,6 +92,7 @@ interface UITexts {
     films: string;   // eticheta listei de filme (doar pentru cititoarele de ecran)
     by:    string;
     rec:   string;
+    replay: string;   // rola de lângă logo (03.11.2026): pornește din nou animația
 }
 
 const UI: Record<Lang, UITexts> = {
@@ -107,6 +109,7 @@ const UI: Record<Lang, UITexts> = {
         films: 'Filme',
         by:    'by',
         rec:   'REC',
+        replay: 'Derulează din nou',
     },
     en: {
         nav: {
@@ -121,6 +124,7 @@ const UI: Record<Lang, UITexts> = {
         films: 'Films',
         by:    'by',
         rec:   'REC',
+        replay: 'Play again',
     },
     fr: {
         nav: {
@@ -135,6 +139,7 @@ const UI: Record<Lang, UITexts> = {
         films: 'Films',
         by:    'by',
         rec:   'REC',
+        replay: 'Rejouer',
     },
 };
 
@@ -224,10 +229,10 @@ const PROJECTS: Project[] = [
         description: 'Post-producție sunet pentru un scurtmetraj intim. Descriere temporară.',
         awards:      '—',
         people:      'Ionuț Alin Ionescu (sound)\nAndreea Lăcătuș (regie)',
-        // 03.11.2026: creditul de pe IMDb (nm6847202)
-        work:   'Sunet',
-        workEn: 'Sound',
-        workFr: 'Son',
+        // 03.11.2026: creditul de pe IMDb (nm6847202); 11:57, Ștefan: „Sound Recording”
+        work:   'Înregistrare sunet',
+        workEn: 'Sound recording',
+        workFr: 'Prise de son',
         image:       '/assets/entities/posters/between-the-edges-of-the-day.webp',
     },
     {
@@ -1241,6 +1246,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* HEADER fix */}
             <header className={styles.siteHeader}>
+                {/* 03.11.2026: rola de lângă logo — pelicula iese din ea, se încâlcește
+                    și din încâlceală rămâne scris logo-ul; click pe rolă = din nou.
+                    Stă înaintea logo-ului în cod (îl ascunde cât se desenează: ~ .logo) */}
+                <LogoReel label={t.replay} />
                 <Link href="/" className={styles.logo} aria-label="Atemporal Film">
                     <span className={`${styles.logoWord} ${styles.logoWord1}`}>Atemporal</span>
                     <span className={`${styles.logoWord} ${styles.logoWord2}`}>Film</span>
@@ -1327,7 +1336,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 <div className={styles.sideEyebrow}>{projWork}</div>
                 {/* anul filmului, pe rândul creditului, în dreapta (02.11, 23:03) */}
                 {pickYear(proj) && <div className={styles.sideYear}>{pickYear(proj)}</div>}
-                <div className={styles.sideMeta}>{projMeta ?? `${t.by} ${projBy}`}</div>
+                <div className={styles.sideMeta}>{projMeta ?? projBy}</div>
             </aside>
             )}
 
