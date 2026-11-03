@@ -1565,6 +1565,116 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         transition: 'opacity 0.35s ease',
     };
 
+    /* ABOUT, desktop (03.11.2026, 18:40 — Ștefan: „nu mai apar aici pe această
+       pagină decât dacă intră între Regio și peliculă”): timecode-urile care
+       pe ABOUT nu au loc la locul lor din bara de jos (New York / Johannesburg
+       și, pe unele ecrane, Bangkok / Los Angeles) nu mai urcă sub București.
+       Stau în golul dintre Regio și prima peliculă, pe rândurile bării de jos,
+       centrate în gol: întâi întregi, apoi doar cu ora și minutul („EST 11:05 ▶”,
+       ca pe WORK la 1280–1369 px); ce nu încape nici așa nu apare pe ABOUT.
+       Măsurat pe ecran (nu din CSS), ca să fie la fel în Safari.
+       Tot aici: lățimea textului Atemporal, din poziția reală a peliculei. */
+    useEffect(() => {
+        if (!isAbout) return;
+        const MARGIN = 8;    // cel puțin atât față de Regio și de peliculă
+        const BETWEEN = 16;  // între două grupuri
+        const groups = () => [styles.wcBottomLeft, styles.wcBottomFar]
+            .map((c) => document.querySelector<HTMLElement>(`.${styles.page} .${c}`))
+            .filter((el): el is HTMLElement => !!el);
+        const reset = (el: HTMLElement) => {
+            el.style.removeProperty('display');
+            el.style.removeProperty('left');
+            el.style.removeProperty('top');
+            el.style.removeProperty('bottom');
+            el.style.removeProperty('row-gap');
+            el.classList.remove(styles.wcSigns, styles.wcShort);
+        };
+        /* trei trepte: întregi · doar semnele (▶ / ■, ca Bangkok) · ora și minutul */
+        const MODES = ['', styles.wcSigns, `${styles.wcSigns} ${styles.wcShort}`];
+        const setMode = (el: HTMLElement, m: string) => {
+            el.classList.remove(styles.wcSigns, styles.wcShort);
+            if (m) el.classList.add(...m.split(' '));
+        };
+        const place = () => {
+            const all = groups();
+            all.forEach(reset);
+            const text = document.querySelector<HTMLElement>(`.${styles.page} .${styles.aboutText}`);
+            text?.style.removeProperty('width');
+            text?.style.removeProperty('left');
+            if (window.innerWidth < 1280) return;
+
+            const regio = document.querySelector<HTMLElement>(`.${styles.cfLogoRegio}`);
+            const stripEls = [...document.querySelectorAll<HTMLElement>(`.${styles.page} .${styles.viewfinder}, .${styles.page} .${styles.gallery}`)];
+            if (!regio || !stripEls.length) return;
+            const stripL = Math.min(...stripEls.map((el) => el.getBoundingClientRect().left));
+
+            // textul Atemporal: de la verticala listei de filme până la 32 px de
+            // peliculă, cel mult 384 px. Unde lista e prea aproape de peliculă
+            // (ecranele foarte late, pelicula ×1,3), textul pornește mai la
+            // stânga, dar nu înaintea logo-ului
+            if (text) {
+                const listX = text.getBoundingClientRect().left;
+                const probe = document.createElement('div');
+                probe.style.cssText = 'position:fixed;top:0;width:0;height:0;left:var(--logo-x)';
+                text.parentElement?.appendChild(probe);
+                const logoX = probe.getBoundingClientRect().left;
+                probe.remove();
+                const x = Math.max(logoX, Math.min(listX, stripL - 32 - 384));
+                if (x !== listX) text.style.left = `${Math.round(x)}px`;
+                text.style.width = `${Math.round(Math.max(200, Math.min(384, stripL - x - 32)))}px`;
+            }
+
+            // doar grupurile pe care CSS-ul de pe ABOUT le-ar urca în antet
+            const moved = all.filter((el) => {
+                if (getComputedStyle(el).display === 'none') return false;
+                return el.getBoundingClientRect().top < window.innerHeight / 2;   // urcat sus
+            });
+            if (!moved.length) return;
+            const homeBottom = getComputedStyle(document.querySelector<HTMLElement>(`.${styles.wcBottomHome}`) ?? moved[0]).bottom;
+            const regioR = regio.getBoundingClientRect().right;
+            const room = stripL - regioR - 2 * MARGIN;
+
+            const widths = (list: HTMLElement[], m: string) => list.map((el) => {
+                setMode(el, m);
+                return el.getBoundingClientRect().width;
+            });
+            const total = (w: number[]) => w.reduce((a, b) => a + b, 0) + BETWEEN * (w.length - 1);
+
+            let chosen: HTMLElement[] = [];
+            let mode = '';
+            outer: for (let k = moved.length; k >= 1; k--) {
+                for (const m of MODES) {
+                    const list = moved.slice(0, k);
+                    if (total(widths(list, m)) <= room) { chosen = list; mode = m; break outer; }
+                }
+            }
+            moved.forEach((el) => setMode(el, ''));
+            moved.filter((el) => !chosen.includes(el)).forEach((el) => { el.style.display = 'none'; });
+            if (!chosen.length) return;
+
+            const w = widths(chosen, mode);
+            let x = regioR + MARGIN + (room - total(w)) / 2;
+            chosen.forEach((el, i) => {
+                el.style.top = 'auto';
+                el.style.bottom = homeBottom;
+                el.style.rowGap = '9px';
+                el.style.left = `${Math.round(x)}px`;
+                x += w[i] + BETWEEN;
+            });
+        };
+        place();
+        const t1 = window.setTimeout(place, 300);
+        const t2 = window.setTimeout(place, 1500);
+        document.fonts?.ready.then(place).catch(() => {});
+        window.addEventListener('resize', place);
+        return () => {
+            window.clearTimeout(t1);
+            window.clearTimeout(t2);
+            window.removeEventListener('resize', place);
+            groups().forEach(reset);
+        };
+    }, [isAbout, lang]);
+
 
     /* -------------------------------------------------- *
      *                      RENDER
@@ -1625,7 +1735,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                     <span className={`${styles.navItem} ${styles.navComma} ${styles.navCommaAbout}`} aria-hidden="true">,</span>
                 </span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
-                <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work'}
+                <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work' || kind === 'about'}
                              onOpenSheet={() => { if (isNarrowScreen()) setSheet('contact'); }} />
             </nav>
 

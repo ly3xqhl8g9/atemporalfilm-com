@@ -2988,3 +2988,32 @@ button.capTitle {
 @media (max-width: 1279px) {
     .hdClocksBtn { padding: 3px 0 10px 10px; margin: -3px 0 0 -10px; }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   03.11.2026, 18:40 (Ștefan)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ABOUT — textul Atemporal așezat ca titlurile filmelor de pe WORK: sub
+   logo, la verticala listei (--list-x), centrat pe ramă pe verticală.
+   Lățimea: până la 32 px de prima peliculă, cel mult 384 px (o pune JS-ul
+   din poziția reală a peliculei; aici aceeași valoare, pentru prima
+   afișare). Pe telefon / tabletă rămâne în caseta de sub pelicule. */
+@media (min-width: 1280px) {
+    .page.pageAbout .aboutText {
+        left: var(--list-x);
+        transform: translateY(-50%);
+        width: min(384px, calc(var(--pair-l) - var(--list-x) - 32px));
+    }
+    /* timecode-urile nu mai urcă sub București (vezi LandingHero, efectul
+       „ABOUT, desktop”) → descrierea omului are iar tot locul */
+    .page.pageAbout .personText { max-height: calc(100dvh - 2 * 124px); }
+}
+
+/* pe ABOUT, când altfel nu încap între Regio și peliculă: întâi doar
+   semnele (▶ / ■), apoi doar ora și minutul */
+.worldClocks.wcSigns .wcLabel { display: none; }
+.worldClocks.wcSigns .wcRow   { gap: 6px; }
+.wcShort .tcSec,
+.wcShort .tcFrm { display: none; }
+.wcShort .hdTimecode { min-width: 0; }

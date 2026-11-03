@@ -24,6 +24,11 @@ const Regie = process.env.NODE_ENV === 'development'
     ? dynamic(() => import('@/components/Regie'), { ssr: false })
     : null;
 
+// Foile de stil ținute la zi și în Safari (03.11.2026) — tot doar local.
+const DevCssRefresh = process.env.NODE_ENV === 'development'
+    ? dynamic(() => import('@/components/DevCssRefresh'), { ssr: false })
+    : null;
+
 // Modul vizitator (03.11): `/?vizitator` ascunde butonul REGIE pentru tot
 // restul sesiunii din tab (sessionStorage), ca site-ul să se vadă exact ca
 // online. `/?regie` îl aduce înapoi. Doar în previzualizarea locală.
@@ -114,6 +119,7 @@ export default function AppWrapper({
                 )}
 
                 {Regie && !vizitator && <Regie />}
+                {DevCssRefresh && <DevCssRefresh />}
             </LanguageContext.Provider>
         </AppContext.Provider>
     );
