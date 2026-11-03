@@ -38,6 +38,7 @@ const BUCHAREST:    Zone = { city: 'Bucharest',    tz: 'Europe/Bucharest',      
 const MUMBAI:       Zone = { city: 'Mumbai',       tz: 'Asia/Kolkata',                   abbr: { '5.5': 'IST' } };
 const BANGKOK:      Zone = { city: 'Bangkok',      tz: 'Asia/Bangkok',                   abbr: { '7': 'ICT' } };
 const SHANGHAI:     Zone = { city: 'Shanghai',     tz: 'Asia/Shanghai',                  abbr: { '8': 'CST' } };
+const JOHANNESBURG: Zone = { city: 'Johannesburg', tz: 'Africa/Johannesburg',            abbr: { '2': 'SAST' } };
 
 type Transport = 'play' | 'stop' | 'rec';
 
@@ -59,8 +60,11 @@ const BOTTOM_HOME: [Zone, Transport][] = [
     [MADRID, 'rec'],
     [MUMBAI, 'play'],
 ];
+/* 03.11.2026, 11:06 (nota Regie 09): New York urcă pe rândul de sus, dedesubt
+   Africa de Sud — Johannesburg, SAST, cu ■ STOP */
 const BOTTOM_LEFT: [Zone, Transport][] = [
-    [NEW_YORK, 'play'],
+    [NEW_YORK,     'play'],
+    [JOHANNESBURG, 'stop'],
 ];
 const BOTTOM_RIGHT: [Zone, Transport][] = [
     [SHANGHAI,     'play'],

@@ -157,8 +157,8 @@ export default function GearRequest({ lang, label }: { lang: Lang; label: string
                 >
                     {label}
                 </button>
-            </span>
 
+            {/* 03.11, 11:06: căsuța e în același loc cu GEAR (sub el, aliniată la dreapta lui) */}
             {open && (
                 <div
                     id="gear-request"
@@ -204,6 +204,7 @@ export default function GearRequest({ lang, label }: { lang: Lang; label: string
                     </p>
                 </div>
             )}
+            </span>
         </>
     );
 }

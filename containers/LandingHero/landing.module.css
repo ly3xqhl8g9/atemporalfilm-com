@@ -132,6 +132,12 @@
        București (antet), căsuța GEAR, contactele de pe WORK și
        Shanghai / Buenos Aires (pe verticala lui GEAR). */
     --nav-r:       min(calc(var(--col-r) + 387px), calc(100% - 40px));
+
+    /* 03.11.2026, 11:06 (Modul Regie, pe 1728×1032): PEOPLE, GEAR în stânga,
+       pe același rând (y = 92) — PEOPLE la logo-x + 434 (pe 1728: 498), GEAR
+       după virgulă (+81: 579). Pe ecranele înguste grupul se oprește la 189 px
+       de peliculă, dar nu mai la stânga de locul de lângă logo (logo-x + 201). */
+    --people-x:    min(calc(var(--logo-x) + 434px), max(calc(var(--logo-x) + 201px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 312px)));
 }
 @media (max-width: 1599px) {
     .page { --wc-bl-w: 112px; --home-w: 112px; }   /* stările rămân doar semne (și la Madrid: doar bulina) */
@@ -253,6 +259,10 @@
        (pe 1728: x = 1532 = nav-r − 136); Madrid a coborât în stânga-jos */
     left: calc(var(--nav-r) - 136px);
     top: 62px;
+    /* 03.11.2026, 11:06: −58 px, 1 px mai jos — pe aceeași verticală cu
+       CONTACT și cu contactele de pe WORK (pe 1728: x = 1474, y = 63) */
+    left: calc(var(--nav-r) - 194px);
+    top: 63px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -359,6 +369,9 @@
        y = 816 și 838 pe 867 (pas de 22 px) */
     bottom: 16px;
     left: var(--wc-bl-x2);
+    /* 03.11.2026, 11:06: New York urcă pe rândul de sus (+2 px), dedesubt
+       Johannesburg (SAST ■ STOP) */
+    left: calc(var(--wc-bl-x2) + 2px);
     flex-direction: column;
     row-gap: 9px;
     z-index: 61;              /* peste bara de jos */
@@ -465,11 +478,22 @@
     display: inline-flex;
 }
 .navItemAt .navItem { font-size: 15.4px; }
-.navAbout   { left: calc(var(--col-r) - 15px); }   /* 03.11, 10:40: +27 px (pe 1728: x = 1266) */
+.navAbout   { left: calc(var(--col-r) - 37px); }   /* 03.11, 11:06: −22 px (pe 1728: x = 1244; înainte −15) */
 /* 03.11, 10:40 (pe 1728×1032): CONTACT +134 px (x = 1595, marginea lui = --nav-r),
    GEAR +106 px (x = 1514) */
-.navContact { right: calc(100% - var(--nav-r)); }
-.navGear    { left: calc(var(--nav-r) - 154px); }
+/* 03.11, 11:06 (pe 1728×1032): CONTACT −121 px (x = 1473), pe verticala lui
+   București și a contactelor de pe WORK (nav-r − 194); GEAR a trecut în
+   stânga, după „PEOPLE,” (x = 579, y = 92) */
+.navContact { left: calc(var(--nav-r) - 194px); }
+.navGear    { left: calc(var(--people-x) + 81px); top: 34px; }   /* 58 + 34 = 92 */
+/* virgula după PEOPLE și după WORK (11:06, notele 06 și 08): nu e subliniată
+   și nu mută cuvântul (stă în afara lui) */
+.navItemAt .navComma {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    pointer-events: none;
+}
 .navWork    { right: calc(100% - var(--col-r) + 58px); }
 /* PEOPLE · GEAR — în stânga, pe rândul meniului (02.11, 23:03: pe 1382×867
    la x = 405, după timecode-urile din antet); pe ecranele foarte înguste
@@ -479,8 +503,9 @@
        03.11, 00:11: încă +84 px, după ce Madrid a trecut sub București (pe 1728: x = 542) */
     /* 03.11, 10:40: −277 px și 8 px mai jos, în locul ceasurilor din antet —
        pe 1728: x = 265, y = 93 (marginea de jos a cuvântului = a logo-ului) */
-    left: min(calc(var(--logo-x) + 201px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 80px));
-    top: 35px;            /* 58 + 35 = 93 */
+    /* 03.11, 11:06: +233 px, 1 px mai sus — pe 1728: x = 498, y = 92 */
+    left: var(--people-x);
+    top: 34px;            /* 58 + 34 = 92 */
     column-gap: 16px;
 }
 /* pagina deschisă: subliniată */
@@ -517,11 +542,13 @@
     cursor: pointer;
 }
 
-/* CONTACT → confirmarea copierii, sub cuvânt, aliniată la dreapta lui */
+/* CONTACT → confirmarea copierii. 03.11, 11:06: în dreapta cuvântului, pe
+   același rând (dedesubt sunt acum contactele de pe WORK) */
 .copiedNote {
     position: absolute;
-    top: calc(100% + 7px);
-    right: 0;
+    top: 50%;
+    left: calc(100% + 12px);
+    transform: translateY(-50%);
     white-space: nowrap;
     pointer-events: none;
     font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
@@ -545,9 +572,10 @@
    și se termină la marginea dreaptă a lui CONTACT (col-r + 253); y = 112. */
 .gearBox {
     position: absolute;
-    top: 54px;            /* 58 + 54 = 112 */
-    /* 03.11, 10:40: aliniată la dreapta cu CONTACT (care s-a mutat) */
-    left: calc(var(--nav-r) - 372px);
+    /* 03.11, 11:06: GEAR a trecut în stânga — căsuța stă sub el, aliniată la
+       dreapta cu cuvântul (deci se deschide spre logo, nu peste peliculă) */
+    top: calc(100% + 7px);
+    right: 0;
     width: 372px;
     box-sizing: border-box;
     padding: 18px 20px 16px;
@@ -687,8 +715,10 @@
    (Ștefan le repoziționează din Modul Regie). */
 .workContacts {
     position: fixed;
-    top: 140px;
-    right: calc(100% - var(--nav-r));
+    /* 03.11, 11:06: +13 px, 25 px mai sus — începe pe verticala lui CONTACT
+       (pe 1728: x = 1473, y = 115) */
+    top: 115px;
+    left: calc(var(--nav-r) - 194px);
     z-index: 40;
     margin: 0;
     font-family: var(--font-mono), monospace;

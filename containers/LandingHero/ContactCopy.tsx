@@ -8,57 +8,23 @@ import styles from './landing.module.css';
 
 /* ============================================================
    CONTACT din meniu (03.11.2026): nu mai duce la o pagină. Click →
-   datele de contact intră în clipboard (text simplu + HTML cu linkuri
-   tel: / mailto:, ca să rămână clicabile când sunt lipite într-un mail
-   sau într-un document). Sub CONTACT apare scurt confirmarea.
+   adresa atemporalfilm@gmail.com intră în clipboard (text simplu + HTML
+   cu link mailto:, ca să rămână clicabilă când e lipită într-un mail sau
+   document). În dreapta lui CONTACT apare scurt confirmarea.
    ============================================================ */
 
 
 type Lang = 'ro' | 'en' | 'fr';
 
-const CONTACT_PLAIN = [
-    'ȘTEFAN AZAHARIOAIE',
-    'sound designer, editor',
-    '+40 743 343 800',
-    'stefan@atemporalfilm.com',
-    '',
-    'DIANA SMEU',
-    'COO',
-    '+40 770 789 376',
-    'diana@atemporalfilm.com',
-    '',
-    'atemporalfilm@gmail.com',
-    '',
-    'Locations',
-    'Piatra-Neamt, Progresului 71',
-    'Piatra-Neamt, Traian 6',
-    'Bucharest, Vasile Lascar 23-25',
-    'Romania',
-].join('\n');
+/* 03.11.2026, 11:06 (nota Regie 01): CONTACT copiază doar adresa comună */
+const CONTACT_PLAIN = 'atemporalfilm@gmail.com';
+const CONTACT_HTML  = '<a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>';
 
-const CONTACT_HTML = [
-    '<div>',
-    '<b>ȘTEFAN AZAHARIOAIE</b><br>',
-    'sound designer, editor<br>',
-    '<a href="tel:+40743343800">+40 743 343 800</a><br>',
-    '<a href="mailto:stefan@atemporalfilm.com">stefan@atemporalfilm.com</a><br><br>',
-    '<b>DIANA SMEU</b><br>',
-    'COO<br>',
-    '<a href="tel:+40770789376">+40 770 789 376</a><br>',
-    '<a href="mailto:diana@atemporalfilm.com">diana@atemporalfilm.com</a><br><br>',
-    '<a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a><br><br>',
-    'Locations<br>',
-    'Piatra-Neamt, Progresului 71<br>',
-    'Piatra-Neamt, Traian 6<br>',
-    'Bucharest, Vasile Lascar 23-25<br>',
-    'Romania',
-    '</div>',
-].join('');
-
+/* dacă browserul nu lasă copierea, arătăm adresa (încape în dreapta lui CONTACT) */
 const NOTE: Record<Lang, { ok: string; fail: string }> = {
-    en: { ok: 'Contact details copied',  fail: 'Could not copy · atemporalfilm@gmail.com' },
-    ro: { ok: 'Datele de contact au fost copiate', fail: 'Nu s-a putut copia · atemporalfilm@gmail.com' },
-    fr: { ok: 'Coordonnées copiées',     fail: 'Copie impossible · atemporalfilm@gmail.com' },
+    en: { ok: 'Email copied',            fail: 'atemporalfilm@gmail.com' },
+    ro: { ok: 'Mail copiat', fail: 'atemporalfilm@gmail.com' },
+    fr: { ok: 'E-mail copié',            fail: 'atemporalfilm@gmail.com' },
 };
 
 
@@ -135,7 +101,7 @@ export default function ContactCopy({ lang, label }: { lang: Lang; label: string
 
 /* WORK — contactele scrise sub CONTACT (Modul Regie, 03.11.2026, 10:40, nota 06):
    textul exact cum l-a trimis Ștefan, mic, ca „by Stefan Azaharioaie”.
-   (Lista copiată de butonul CONTACT e cea de mai sus, neschimbată.) */
+   (Butonul CONTACT copiază doar adresa comună — din 03.11, 11:06.) */
 export function WorkContacts() {
     return (
         <address className={styles.workContacts}>

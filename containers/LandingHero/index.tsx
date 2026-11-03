@@ -319,6 +319,11 @@ const PROJECTS: Project[] = [
         awardsEn:      'World premiere: Krakow Film Festival 2025 · DocFilmMusic Competition · TIFF 2025 · One World Romania 2025 · Astra Film Festival 2025',
         people:        'Simona Constantin (regie, scenariu)\ncu Gheorghe „Caliu” Anghel\nAndrei Oană, Cosmin Filișan (imagine)\nLigia Popescu (montaj)\nȘtefania Grigorescu (colorizare)\nAndrei Boanță (sunet)\nCristina Badea (producător)',
         peopleEn:      'Simona Constantin (director, writer)\nwith Gheorghe ‘Caliu’ Anghel\nAndrei Oană, Cosmin Filișan (cinematography)\nLigia Popescu (editing)\nȘtefania Grigorescu (colour grading)\nAndrei Boanță (sound)\nCristina Badea (producer)',
+        // 03.11.2026: creditul cerut de Ștefan (11:18)
+        work:   'Distribuție',
+        workEn: 'Distribution',
+        workFr: 'Distribution',
+        by:     'Diana Smeu',
         image:         '/assets/entities/posters/caliu.webp',
     },
     {
@@ -333,6 +338,11 @@ const PROJECTS: Project[] = [
         awardsEn:      'In Romanian cinemas from 16 October 2026 · distributed by Manifest Film',
         people:        'Alina Manolache (regie, scenariu, imagine)\ncu Alina Manolache, Mady Lykeridou\nAlina Manolache, Dragoș Apetri (montaj)\nClaudiu Doagă (colorizare)\nFilip Mureșan (sunet, muzica)\nMonica Lăzurean-Gorgan, Elena Martin (producătoare)',
         peopleEn:      'Alina Manolache (director, writer, cinematography)\nwith Alina Manolache, Mady Lykeridou\nAlina Manolache, Dragoș Apetri (editing)\nClaudiu Doagă (colour grading)\nFilip Mureșan (sound, music)\nMonica Lăzurean-Gorgan, Elena Martin (producers)',
+        // 03.11.2026: creditul cerut de Ștefan (11:18)
+        work:   'Distribuție',
+        workEn: 'Distribution',
+        workFr: 'Distribution',
+        by:     'Diana Smeu',
         image:         '/assets/entities/posters/a-summer-of-nothing.webp',
     },
     {
@@ -347,6 +357,11 @@ const PROJECTS: Project[] = [
         awardsEn:      'World premiere: CPH:DOX 2026 · International Main Competition · Biografilm 2026 · Astra Film Festival 2026 · TIFF 2026',
         people:        'Rachel Tâpârjan (regie, scenariu)\nAndrei Oană (imagine)\nAlice Powell (montaj)\nQuinta (muzica)\nNikola Medic (supervizor montaj sunet)\nMonica Lăzurean-Gorgan, Elena Martin, Aleksandra Bilić (producătoare)',
         peopleEn:      'Rachel Tâpârjan (director, writer)\nAndrei Oană (cinematography)\nAlice Powell (editing)\nQuinta (music)\nNikola Medic (supervising sound editor)\nMonica Lăzurean-Gorgan, Elena Martin, Aleksandra Bilić (producers)',
+        // 03.11.2026: creditul cerut de Ștefan (11:18)
+        work:   'Distribuție',
+        workEn: 'Distribution',
+        workFr: 'Distribution',
+        by:     'Diana Smeu',
         image:         '/assets/entities/posters/something-familiar.webp',
     },
 
@@ -362,6 +377,10 @@ const PROJECTS: Project[] = [
         description: 'Post-production sound. Filmat în Delta Dunării. Travelling între lumi paralele și o căutare interioară prelungită.',
         awards:      'New Horizons IFF · IndieLisboa · Thessaloniki IFF · Transilvania IFF · Reykjavik IFF',
         people:      'Ionuț Alin Ionescu (sound design)\nCătălin Rotaru (regie)\nGabi Suciu (producător)',
+        // 03.11.2026: creditul cerut de Ștefan (11:18)
+        work:   'Montaj, sound designer',
+        workEn: 'Film editor, sound designer',
+        workFr: 'Montage, concepteur sonore',
         image:       '/assets/entities/2024-where-elephants-go-hero.jpg',
     },
     {
@@ -461,6 +480,10 @@ const PROJECTS: Project[] = [
         description: 'Scurtmetraj filmat într-un singur cadru. Sound design al unei după-amieze obișnuite care alunecă spre catastrofă.',
         awards:      'Cannes 2016 · Short Film Palme d’Or — In Competition · LAFF 2017 · Sarajevo FF — Best Short Film',
         people:      'Ionuț Alin Ionescu (sound design)\nCătălin Rotaru (regie)\nAdina Sădeanu (producător)',
+        // 03.11.2026: creditul cerut de Ștefan (11:18)
+        work:   'Sunet, sound designer',
+        workEn: 'Sound, sound designer',
+        workFr: 'Son, concepteur sonore',
         image:       '/assets/entities/2016-end-of-the-world-hero.jpg',
     },
     {
@@ -1168,10 +1191,14 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                     CONTACT 114 px mai la dreapta. PEOPLE duce la /people. */}
                 <span className={`${styles.navItemAt} ${styles.navPeople}`}>
                     <NavLink href="/people">{t.nav.people}</NavLink>
+                    <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
                 </span>
                 {/* 03.11: GEAR deschide căsuța pentru mail → descarcă lista de echipament */}
                 <GearRequest lang={lang} label={t.nav.gear} />
-                <span className={`${styles.navItemAt} ${styles.navWork}`}><NavLink href="/">{t.nav.work}</NavLink></span>
+                <span className={`${styles.navItemAt} ${styles.navWork}`}>
+                    <NavLink href="/">{t.nav.work}</NavLink>
+                    <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
+                </span>
                 <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
                 <ContactCopy lang={lang} label={t.nav.contact} />
