@@ -140,11 +140,16 @@ export function WorkContacts() {
             <p>
                 <a href="mailto:atemporalfilm@gmail.com">atemporalfilm@gmail.com</a>
             </p>
+            {/* 03.11, 17:44 (nota Regie 03): „Locations:” pe același rând cu
+                Piatra-Neamt, rândul „Romania” scos (se înțelege); blocul urcă
+                cu un rând. Unde rândul nu încape (ex. 1382), se rupe doar după
+                virgule — `.wcChunk` ține bucățile întregi. */}
             <p>
-                Locations<br />
-                Piatra-Neamt, Progresului 71<br />
-                Bucharest, Vasile Lascar 23-25<br />
-                Romania
+                <span className={styles.wcChunk}>Locations:</span>{' '}
+                <span className={styles.wcChunk}>Piatra-Neamt,</span>{' '}
+                <span className={styles.wcChunk}>Progresului 71</span><br />
+                <span className={styles.wcChunk}>Bucharest,</span>{' '}
+                <span className={styles.wcChunk}>Vasile Lascar 23-25</span>
             </p>
         </address>
     );

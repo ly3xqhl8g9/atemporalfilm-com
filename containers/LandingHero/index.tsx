@@ -1602,7 +1602,13 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                     <NavLink href="/">{t.nav.work}</NavLink>
                     <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
                 </span>
-                <span className={`${styles.navItemAt} ${styles.navAbout}`}><NavLink href="/about">{t.nav.about}</NavLink></span>
+                <span className={`${styles.navItemAt} ${styles.navAbout}`}>
+                    <NavLink href="/about">{t.nav.about}</NavLink>
+                    {/* 03.11, 17:44 (nota Regie, pe 1382×867): virgula și după ABOUT —
+                        „WORK, ABOUT, GEAR, CONTACT” — acolo unde cele două grupuri
+                        se strâng într-un singur rând (sub 1535 px; vezi CSS) */}
+                    <span className={`${styles.navItem} ${styles.navComma} ${styles.navCommaAbout}`} aria-hidden="true">,</span>
+                </span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
                 <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work'} />
             </nav>

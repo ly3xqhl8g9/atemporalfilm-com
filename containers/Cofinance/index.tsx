@@ -119,7 +119,7 @@ export default function Cofinance({ lang, onLang }: CofinanceProps) {
                 <div className={styles.cofinanceLinks}>
                     <a href="https://mfe.gov.ro" target="_blank" rel="noreferrer">www.mfe.gov.ro</a>
                     <a href="https://regionordest.ro" target="_blank" rel="noreferrer">www.regionordest.ro</a>
-                    <a href="https://www.facebook.com/RegioNordEst.ro" target="_blank" rel="noreferrer">www.facebook.com/RegioNordEst.ro</a>
+                    <a href="https://www.facebook.com/RegioNordEst.ro" target="_blank" rel="noreferrer">www.facebook.com/<wbr />RegioNordEst.ro</a>
                     <a href="https://regionordest.ro" target="_blank" rel="noreferrer">RegioNordEst.ro</a>
                 </div>
                 <div className={`${styles.cfLogo} ${styles.cfLogoAdr}`}>

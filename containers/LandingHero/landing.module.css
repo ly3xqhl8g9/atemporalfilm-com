@@ -2529,7 +2529,7 @@
 
 /* unde nu încap nici așa (sub ~1370 px New York ar ajunge pe peliculă, sub
    1310 px TIME CALCULATOR n-ar mai avea loc între ADR și Shanghai): ascunse */
-@media (min-width: 1280px) and (max-width: 1369px) {
+@media (min-width: 1280px) and (max-width: 1359px) {   /* 17:46: de la 1360 (laptopurile de 1366 × 768) încap, la ≥ 12 px de peliculă */
     .page .wcBottomLeft { display: none; }
 }
 @media (min-width: 1280px) and (max-width: 1309px) {
@@ -2563,4 +2563,115 @@
 /* pe 1280–1339 px peliculele ajung și peste UE → pe ABOUT tot blocul UE + Regio scos */
 @media (min-width: 1280px) and (max-width: 1339px) {
     .pageAbout .cofinanceLogos { visibility: hidden; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   03.11.2026, 17:44 – 17:46 (Modul Regie, pe 1382 × 867)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* MENIUL — virgula după ABOUT („WORK, ABOUT, GEAR, CONTACT”), doar unde
+   cele două grupuri se strâng pe un rând (sub ~1535 px; mai lat, între
+   ABOUT și GEAR rămâne un gol mare și ele se citesc ca două grupuri).
+   Pe 1280 – 1534 cele patru cuvinte au pași aproape egali (pe 1382:
+   ~23 px de la sfârșitul unui cuvânt la următorul): ABOUT +2 px, GEAR −3 px. */
+.navCommaAbout { display: none; }
+@media (min-width: 1280px) and (max-width: 1534px) {
+    .navItemAt .navCommaAbout { display: inline-flex; }
+    .navAbout { left: calc(var(--col-r) - 35px); }
+    .navRow .navGear { right: calc(100% - var(--nav-r) + 218px); }
+}
+
+/* CONTACTELE de pe WORK — bucățile adresei nu se rup la mijloc */
+.wcChunk { white-space: nowrap; }
+
+/* ABOUT — BARA DE JOS (nota Regie 17:46: „adaugă înapoi site-urile, e prea
+   mult spațiu gol, inclusiv butonul TIME CALCULATOR”). Nimic nu mai lipsește
+   de pe ABOUT; ce nu încape în rând își schimbă locul:
+   • dreapta: imediat după pelicule (24 px), în rând: site-urile (pe 5
+     rânduri — adresa Facebook se rupe după „/”, ca blocul să fie îngust),
+     ADR, TIME CALCULATOR, Shanghai / Buenos Aires — golul dintre pelicule
+     și ADR a dispărut;
+   • Regio înapoi lângă UE;
+   • New York / Johannesburg (nu încap jos lângă pelicule pe niciun ecran):
+     sus în dreapta, sub București, pe aceeași verticală;
+   • sub 1440 px și Bangkok / Los Angeles urcă acolo (altfel UE + Regio
+     ar ajunge pe peliculă); Madrid / Mumbai trec în colț. */
+@media (min-width: 1280px) {
+    .pageAbout {
+        --films-r: calc(50% + var(--reel-x) + var(--strip-w) / 2);   /* marginea dreaptă a peliculelor */
+        --tc-w:    102px;   /* TIME CALCULATOR */
+        /* mutarea peliculelor (+84 px, nota Regie 17:24) cât încape: de la
+           ~1500 px peliculele sunt mai mari și ajungeau sub WORK din meniu
+           (meniul e același pe toate paginile, deci nu se mută) — acolo
+           mutarea se oprește la 16 px înainte de WORK (pe 1920, în engleză:
+           +66 px). Cuvântul WORK are altă lungime în fiecare limbă. */
+        --work-w:  42px;
+        --about-shift: clamp(0px, calc(253px - var(--work-w) - var(--strip-w) / 2), 84px);
+        /* butonul de limbă, UE și Regio rămân unde sunt pe WORK, dar nu mai
+           aproape de 16 px de pelicule (pe ecranele foarte late lista de
+           filme împinge butonul spre centru) */
+        --lang-x:      max(calc(var(--home-x) + var(--home-w) + 6px),
+                           min(calc(var(--list-x) + 161px), calc(var(--pair-l) - 254px)));
+        --cf-logos-x2: calc(var(--lang-x) + 72px);
+    }
+    :global(html[lang="ro"]) .pageAbout,
+    :global(html[lang="fr"]) .pageAbout { --work-w: 74px; }
+    :global(html[lang="es"]) .pageAbout { --work-w: 84px; }
+    :global(html[lang="th"]) .pageAbout,
+    :global(html[lang="zh-Hans"]) .pageAbout,
+    :global(html[lang="hi"]) .pageAbout { --work-w: 52px; }
+    .pageAbout .cfLogoRegio,
+    .pageAbout .cofinanceLinks { visibility: visible; }
+    .pageAbout .cofinanceRight { left: calc(var(--films-r) + 24px); gap: 12px; }
+    .pageAbout .cofinanceLinks { width: 19.5ch; line-height: 1.4; }
+    .pageAbout .cofinance .cofinanceEncoder {
+        display: flex;
+        left: calc(var(--films-r) + 24px + 19.5 * 4.8px + 12px + 46px + 12px + var(--tc-w) / 2);
+    }
+    .pageAbout .wcBottomRight { left: calc(var(--films-r) + 24px + 19.5 * 4.8px + 12px + 46px + 12px + var(--tc-w) + 12px); }
+
+    /* New York / Johannesburg: sub București (rândurile antetului: 14 + 3 px) */
+    .pageAbout .wcBottomLeft,
+    .page:is(.pageAbout) .wcBottomLeft {
+        display: flex;
+        top: 127px;
+        bottom: auto;
+        left: calc(var(--nav-r) - 194px);
+        row-gap: 4px;
+    }
+    /* descrierea omului nu urcă peste ele */
+    .pageAbout .personText { max-height: calc(100dvh - 2 * 176px); }
+}
+@media (min-width: 1280px) and (max-width: 1689px) {
+    .pageAbout { --tc-w: 78px; --cf-logos-x2: calc(var(--lang-x) + 70px); }
+}
+/* la fel pe 1690 – 1769 px: acolo Madrid / Mumbai au din nou ● REC /
+   ▶ PLAYBACK scrise (176 px) și Regio ar ajunge pe peliculă */
+@media (min-width: 1280px) and (max-width: 1439px), (min-width: 1690px) and (max-width: 1769px) {
+    .pageAbout {
+        --home-x:      var(--wc-far-x);
+        --lang-x:      calc(var(--wc-far-x) + 100px + 12px);   /* Madrid / Mumbai ~100 px */
+        --cf-logos-x2: calc(var(--lang-x) + 70px);
+    }
+    .pageAbout .cofinanceLogos { visibility: visible; }
+    .pageAbout .wcBottomFar {
+        top: calc(127px + 2 * 17px);
+        bottom: auto;
+        left: calc(var(--nav-r) - 194px);
+        row-gap: 4px;
+    }
+    .pageAbout .personText { max-height: calc(100dvh - 2 * 210px); }
+}
+@media (min-width: 1690px) and (max-width: 1769px) {
+    .pageAbout {
+        --lang-x:      calc(var(--wc-far-x) + 176px + 12px);   /* Madrid / Mumbai cu stările scrise */
+        --cf-logos-x2: calc(var(--lang-x) + 72px);
+    }
+}
+/* ecranele foarte mari (pelicula ×1,3, ex. 2560 × 1440): New York /
+   Johannesburg ajungeau cu 14 px pe peliculă — butonul de limbă, UE + Regio
+   și New York vin cu 32 px spre stânga */
+@media (min-width: 2200px) and (min-height: 1250px) {
+    .page:not(.pageAbout) { --lang-x: max(calc(var(--list-x) + 129px), calc(var(--home-x) + var(--home-w) + 6px)); }
 }
