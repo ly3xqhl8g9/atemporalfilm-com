@@ -5,3 +5,13 @@ npm-debug.log
 README.md
 .next
 .git
+.gitea
+.env
+.env.*
+**/.env
+**/.env.*
+.regie
+.gear
+*.tsbuildinfo
+meta
+scripts

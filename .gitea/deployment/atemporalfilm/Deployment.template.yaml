@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atemporalfilm
+  namespace: craft-atemporalfilm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 480
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: atemporalfilm
+  template:
+    metadata:
+      labels:
+        app: atemporalfilm
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: atemporalfilm
+          image: hypod.cloud/plurid/production/plurid-app-atemporalfilm-com:COMMIT_SHA
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            - name: NODE_ENV
+              value: production
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=384"
+            - name: TZ
+              value: Europe/Bucharest
+            - name: IN_PRODUCTION
+              valueFrom:
+                secretKeyRef:
+                  name: plurid-app-apps-atemporalfilm-com
+                  key: IN_PRODUCTION
+            - name: MJ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: plurid-app-apps-atemporalfilm-com
+                  key: MJ_API_KEY
+            - name: MJ_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: plurid-app-apps-atemporalfilm-com
+                  key: MJ_API_SECRET
+            - name: EMAILER_TO
+              valueFrom:
+                secretKeyRef:
+                  name: plurid-app-apps-atemporalfilm-com
+                  key: EMAILER_TO
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 192Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: next-cache
+              mountPath: /app/.next/cache
+            - name: gear-requests
+              mountPath: /app/.gear
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: next-cache
+          emptyDir: {}
+        - name: gear-requests
+          emptyDir: {}
+      imagePullSecrets:
+        - name: hypod-cloud-registry

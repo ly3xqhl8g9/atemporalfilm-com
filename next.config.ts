@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 
 
 const nextConfig: NextConfig = {
+    output: 'standalone',
     /* config options here */
     // Ascunde butonul rotund „N” al Next.js din previzualizarea locală
     // (acoperea panoul Modului Regie). Nu afectează site-ul public.

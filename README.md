@@ -81,11 +81,13 @@ Projects are defined as an array of `Entity` objects in `data/index.tsx`. Each e
 
 ## Deployment
 
-The project includes a `Dockerfile` for containerised deployment. Build and run with:
+Production delivery uses a GitHub pull mirror and Gitea Actions on Piatra. See [the delivery runbook](.gitea/README.md) for CI secrets, rollout verification, and rollback.
+
+The Dockerfile builds a standalone Next.js server on port 8080, using the committed npm lockfile. Build and run locally with:
 
 ```bash
 docker build -t atemporalfilm-com .
-docker run -p 3000:3000 atemporalfilm-com
+docker run --env-file .env -p 3000:8080 atemporalfilm-com
 ```
 
 ---
