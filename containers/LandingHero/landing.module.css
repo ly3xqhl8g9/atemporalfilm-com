@@ -28,8 +28,12 @@
        dimensiunea afișelor; toate componentele galeriei se recalculează. */
     /* 02.11, 15:00 (Modul Regie, cue-ul 17): tot ansamblul — pelicula, afișele,
        pista, rama — ×0,75: 280 × 420 → 210 × 315 */
-    --img-w:     210px;   /* lățime poster */
-    --img-h:     315px;   /* înălțime poster (2:3) */
+    /* 03.11.2026: MĂRIMEA PELICULEI — tot ansamblul (afiș, pistă, perforație,
+       ramă, pas) se înmulțește cu --film-k: 1 pe desktop, mai mic pe telefon
+       (vezi ECRANE ÎNGUSTE, la sfârșit). JS-ul îl citește (filmStrip.ts › filmK). */
+    --film-k:    1;
+    --img-w:     calc(210px * var(--film-k));   /* lățime poster */
+    --img-h:     calc(315px * var(--film-k));   /* înălțime poster (2:3) */
     /* rama de bază: din ea se calculează coloanele laterale. Fixată la
        valoarea de dinainte de micșorare (280 × 1,1 = 308 px), ca listele,
        creditul, meniul și timecode-urile să rămână unde le-a pus Ștefan. */
@@ -38,7 +42,7 @@
     /* PELICULA (Modul Regie, 02.11.2026) — ca pe 35 mm: afișul și pista sonoră
        lipită de el formează „cadrul”; de o parte și de alta, perforația;
        fundalul peliculei e negru. Dimensiunile urmează ideea, nu milimetrii. */
-    --band-w:     27px;                                      /* pista sonoră (36 × 0,75) */
+    --band-w:     calc(27px * var(--film-k));                                      /* pista sonoră (36 × 0,75) */
     --frame-w:    calc(var(--img-w) + var(--band-w));        /* afiș + pistă = 237 px */
     /* 02.11, 15:10: pista trece în stânga afișului → afișul se mută spre dreapta
        cu jumătate de pistă; afișul + pista rămân centrate împreună */
@@ -49,7 +53,7 @@
        și perforatie-dr.webp (scripts/perforatie.py). 02.11, 15:00: mai subțire
        și cu mai multe găuri — 26 px, 16 găuri pe cadru (înainte 55 px, 10 găuri).
        Poza e o previzualizare Adobe Stock: de licențiat înainte de publicare. */
-    --perf-band:  26px;
+    --perf-band:  calc(26px * var(--film-k));
     --strip-side: var(--perf-band);
     --strip-w:    calc(var(--frame-w) + 2 * var(--strip-side));   /* pelicula: 289 px */
     /* 02.11.2026, 19:26 (cerut de Ștefan): toată pelicula — galeria, rama,
@@ -59,7 +63,12 @@
        lista din stânga rămâne pe loc și primește spațiul în plus.
        Pe ecrane sub 1440 px deplasarea scade treptat (la 1280 px: 32 px),
        ca bara de jos din dreapta (site-uri, ADR, Shanghai) să încapă. */
-    --reel-x:     round(clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px), 1px);   /* rotunjit: afișul rămâne pe pixel întreg */
+    --reel-x0:    round(clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px), 1px);
+    /* 03.11.2026: --reel-x0 = locul peliculei pe WORK, de la care se măsoară
+       coloanele (meniul, creditul, bara de jos); --reel-x = unde stă pelicula
+       pe pagina de acum (pe ABOUT se poate muta fără să miște meniul) */
+    --reel-x:     var(--reel-x0);
+    --strip-gap:  12px;   /* ABOUT: spațiul dintre cele două pelicule */   /* rotunjit: afișul rămâne pe pixel întreg */
     --film-base:  #0e0e0e;   /* negrul peliculei din poză */
 
     /* rama-vizor (02.11, 15:00): mult mai subțire — 30 px de jur împrejur
@@ -77,20 +86,20 @@
        Suprafața: vopsea „ciocănită”, din poza lui Ștefan; 18:25: vopsită
        negru, cu același relief.
        scripts/rama-metal.py 297 331 237 315 public/assets/ui "" --negru */
-    --vf-w:      297px;
-    --vf-h:      331px;
+    --vf-w:      calc(297px * var(--film-k));
+    --vf-h:      calc(331px * var(--film-k));
     /* pasul galeriei = un cadru: afiș + 36 px de peliculă neagră între cadre */
-    --slot-h:    calc(var(--img-h) + 36px);
+    --slot-h:    calc(var(--img-h) + 36px * var(--film-k));
     --gallery-w: var(--strip-w);
 
     /* bara de jos: coloana timecode-urilor Americii (02.11) — pe 2048 px la
        x = 608 (după Regio); pe ecrane înguste, cel mult până la 12 px de peliculă */
     --wc-w:      97px;
-    --wc-l:      min(calc(19.6vw + 207px), calc(50vw + var(--reel-x) - var(--strip-w) / 2 - var(--wc-w) - 12px));
+    --wc-l:      min(calc(19.6vw + 207px), calc(50vw + var(--reel-x0) - var(--strip-w) / 2 - var(--wc-w) - 12px));
     /* coloana din dreapta — creditul, meniul și site-urile din bara de jos
        aliniate pe aceeași verticală, la 173 px de marginea ramei
        (seria a patra: creditul mutat cu 28 px spre dreapta) */
-    --col-r:     calc(50% + var(--reel-x) + var(--vf-w0) / 2 + 173px);
+    --col-r:     calc(50% + var(--reel-x0) + var(--vf-w0) / 2 + 173px);
     /* coloana din stânga — lista de filme și textul butonului de limbă.
        Pe 2048 px: x = 335 (seria a patra), adică 684 px la stânga centrului
        (măsurat ca restul paginii); pe ecrane înguste nu coboară sub 64 px. */
@@ -107,7 +116,7 @@
        de limbă, ca să nu se suprapună. */
     --cf-logos-x0: calc(max(calc(var(--list-x) + 60px), min(19.6vw, calc(var(--wc-l) - 190px))) + 31px);
     --wc-bl-w:     176px;   /* timecode + ■ STOP / ▶ PLAYBACK */
-    --wc-bl-x:     min(calc(var(--cf-logos-x0) + 220px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - var(--wc-bl-w) - 16px));
+    --wc-bl-x:     min(calc(var(--cf-logos-x0) + 220px), calc(50% + var(--reel-x0) - var(--strip-w) / 2 - var(--wc-bl-w) - 16px));
     --cf-logos-x:  max(calc(var(--list-x) + 94px), min(var(--cf-logos-x0), calc(var(--wc-bl-x) - 190px)));
 
     /* 02.11, 23:03 (Modul Regie, pe 1382×867): în colțul din stânga-jos,
@@ -132,6 +141,9 @@
        București (antet), căsuța GEAR, contactele de pe WORK și
        Shanghai / Buenos Aires (pe verticala lui GEAR). */
     --nav-r:       min(calc(var(--col-r) + 387px), calc(100% - 40px));
+    /* 03.11.2026: pe ecranele sub ~1450 px GEAR ajungea peste ABOUT — grupul
+       GEAR, CONTACT stă la cel puțin ~28 px după ABOUT (nav-r ≥ col-r + 300) */
+    --nav-r:       max(min(calc(var(--col-r) + 387px), calc(100% - 40px)), calc(var(--col-r) + 300px));
 
     /* 03.11.2026, 11:33–11:40 (Ștefan: „păstrăm pelicula fără fade”):
        pelicula, afișele și pista nu se mai sting spre marginile de sus și de
@@ -142,7 +154,7 @@
        pe același rând (y = 92) — PEOPLE la logo-x + 434 (pe 1728: 498), GEAR
        după virgulă (+81: 579). Pe ecranele înguste grupul se oprește la 189 px
        de peliculă, dar nu mai la stânga de locul de lângă logo (logo-x + 201). */
-    --people-x:    min(calc(var(--logo-x) + 434px), max(calc(var(--logo-x) + 201px), calc(50% + var(--reel-x) - var(--strip-w) / 2 - 312px)));
+    --people-x:    min(calc(var(--logo-x) + 434px), max(calc(var(--logo-x) + 201px), calc(50% + var(--reel-x0) - var(--strip-w) / 2 - 312px)));
 }
 @media (max-width: 1599px) {
     .page { --wc-bl-w: 112px; --home-w: 112px; }   /* stările rămân doar semne (și la Madrid: doar bulina) */
@@ -1184,10 +1196,10 @@
        verticala logo-ului (--logo-x) și marginea peliculei (perforația);
        în dreapta, în locul lui, stă descrierea omului din ramă (.personText). */
     position: fixed;
-    left: calc((var(--logo-x) + 50% + var(--reel-x) - var(--strip-w) / 2) / 2);
+    left: calc((var(--logo-x) + var(--pair-l)) / 2);
     top: 50%;
     transform: translate(-50%, -50%);
-    width: min(384px, calc(50% + var(--reel-x) - var(--strip-w) / 2 - var(--logo-x) - 48px));
+    width: min(384px, calc(var(--pair-l) - var(--logo-x) - 48px));
     z-index: 40;
     font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: 12.75px;
@@ -2000,20 +2012,6 @@
 }
 
 
-/* ── responsive ───────────────────────────────────────── */
-@media (max-width: 900px) {
-    .page {
-        /* afiș scalat pentru ecrane mai mici (tot 2:3) */
-        --img-w:     200px;
-        --img-h:     300px;
-        --gallery-w: 240px;
-    }
-    .siteHeader { padding: 24px 28px 0; }
-    .logoReel { left: 28px; top: 24px; }
-    /* telefonul se rezolvă în faza 2b */
-    .filmList { left: 24px; }
-    .sideRight { width: 140px; }
-}
 .navSocial .socialIcon:hover { opacity: 0.5; }
 
 /* ── LIMBA (03.11.2026, 13:49) — lista limbilor, deschisă în sus din butonul
@@ -2152,4 +2150,314 @@
     height: 100%;
     overflow: visible;
     filter: drop-shadow(0 9px 14px rgba(0, 0, 0, 0.24));
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   ABOUT — DOUĂ PELICULE (03.11.2026, cererea lui Ștefan)
+   Lângă banda cu oamenii, în stânga ei, a doua bandă: pozele de la
+   filmare (SetStrip.tsx). Între ele --strip-gap (12 px; ramele lor
+   ajung la 4 px una de alta).
+   Banda cu oamenii stă exact unde stă banda de pe WORK (nu sare la
+   trecerea WORK → ABOUT). Ca a doua bandă să nu treacă peste UE + Regio
+   și peste site-uri, pe ABOUT amândouă se opresc deasupra barei de jos
+   (--bar-clip; doar tăiate, rama rămâne la locul ei).
+   --about-shift: dacă vrem vreodată perechea mutată (px, spre dreapta).
+   ══════════════════════════════════════════════════════════════════════ */
+.page {
+    --reel-x2:    var(--reel-x);
+    --pair-l:     calc(50% + var(--reel-x2) - var(--strip-w) / 2);   /* marginea stângă a peliculelor */
+    --cf-logos-w: 168px;   /* lățimea grupului UE + Regio */
+}
+.pageAbout {
+    --about-shift: 0px;
+    --bar-clip:    65px;   /* înălțimea barei de jos */
+    --reel-x:      calc(var(--reel-x0) + var(--about-shift));
+    --reel-x2:     calc(var(--reel-x) - var(--strip-w) - var(--strip-gap));
+}
+/* învelișul celei de-a doua benzi: nu e o cutie, doar mută --reel-x */
+.strip2 { display: contents; --reel-x: var(--reel-x2); }
+.aboutRead { display: contents; }
+.pageAbout .gallery,
+.pageAbout .soundtrack { clip-path: inset(0 0 var(--bar-clip) 0); }
+/* ecranele de 1280 – 1499 px: pe ABOUT peliculele ×0,8, ca textul din stânga să încapă */
+@media (min-width: 1280px) and (max-width: 1499px) {
+    .pageAbout { --film-k: 0.8; }
+}
+/* EST (New York) și SAST (Johannesburg) scoase din bara de jos, pe ABOUT */
+.pageAbout .wcBottomLeft { display: none; }
+/* descrierea omului: în dreapta benzii cu oamenii, la cel puțin 32 px de ea */
+.pageAbout .personText {
+    --person-l: max(calc(var(--col-r) - 119px), calc(50% + var(--reel-x) + var(--strip-w) / 2 + 32px));
+    left: var(--person-l);
+    width: min(384px, calc(100vw - var(--person-l) - 32px));
+}
+/* contactele scrise de pe WORK: sub 1440 px nu mai încap în dreapta (treceau
+   peste credit și ieșeau din ecran) — rămâne CONTACT, care copiază mailul */
+@media (max-width: 1439px) {
+    .workContacts { display: none; }
+}
+/* ABOUT pe ecranele scunde (ex. 1280 × 720): textele nu mai ies sus peste logo
+   și jos peste bară — rămân centrate pe ramă, iar dacă nu încap se derulează */
+.pageAbout .aboutText,
+.pageAbout .personText {
+    max-height: calc(100dvh - 2 * 124px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+@media (min-width: 1280px) and (max-width: 1499px) {
+    .pageAbout .aboutText { width: min(384px, calc(var(--pair-l) - var(--logo-x) - 24px)); font-size: 12px; }
+}
+/* ECRANE FOARTE LATE (03.11.2026): <body> e limitat la 2560 px, dar pagina e
+   făcută din elemente fixe, așezate pe tot ecranul — fundalul trebuie să
+   acopere și marginile (altfel, pe 3440 px, rămâneau două benzi negre) */
+.page { isolation: isolate; }
+.page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg);
+    pointer-events: none;
+}
+/* ecranele mari și înalte (ex. 3440 × 1440, 2560 × 1440): pelicula ×1,3;
+   coloanele se depărtează odată cu ea (--vf-w0) */
+@media (min-width: 2200px) and (min-height: 1250px) {
+    .page { --film-k: 1.3; --vf-w0: calc(308px * var(--film-k)); }
+}
+/* titlul filmului din credit: doar pe ecranele înguste */
+.capTitle { display: none; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   ECRANE ÎNGUSTE — telefon, tabletă (03.11.2026)
+   Sub 1280 px cele trei coloane nu mai încap. Pagina se așază pe
+   verticală: antetul (logo, meniul pe două rânduri), fereastra peliculei
+   (benzile de film trec printre antet și text), dedesubt textul (pe WORK:
+   titlul, anul, creditul; pe ABOUT: omul din ramă și descrierea firmei,
+   într-o casetă care se derulează), jos bara cu limba și cofinanțarea.
+   Pelicula își păstrează proporțiile; se micșorează cu --film-k.
+   Variabile: --hdr-h (antetul), --cap-h (textul de sub peliculă),
+   --bar-h (bara de jos) → fereastra peliculei: de la --band-top până la
+   --band-bot de jos, cu rama în mijlocul ei (--band-mid).
+   Telefonul întors (înălțime sub 560 px) — mai jos, separat.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1279px) {
+    .page {
+        --logo-x:   28px;
+        --hdr-h:    104px;
+        --cap-h:    112px;
+        --bar-h:    64px;
+        --band-top: var(--hdr-h);
+        --band-bot: calc(var(--bar-h) + var(--cap-h));
+        --band-mid: calc(var(--band-top) + (100dvh - var(--band-top) - var(--band-bot)) / 2);
+        --reel-x0:  0px;
+        --film-k:   1.3;
+    }
+
+    /* pelicula: între antet și text */
+    .gallery,
+    .soundtrack { top: var(--band-top); bottom: var(--band-bot); height: auto; }
+    .viewfinder,
+    .lamp,
+    .backlight { top: var(--band-mid); }
+    .galleryPad { height: max(0px, calc((100dvh - var(--band-top) - var(--band-bot)) / 2 - var(--slot-h) / 2)); }
+
+    /* ce nu încape: lista de filme, ceasurile, contactele scrise, TIME CALCULATOR */
+    .filmList,
+    .worldClocks,
+    .hdClocks,
+    .workContacts { display: none !important; }
+
+    /* ANTETUL: logo-ul și rola în stânga-sus */
+    .siteHeader { padding-top: 26px; }
+    .logoReel { top: 26px; }
+
+    /* MENIUL: în dreapta-sus, pe două rânduri — WORK, ABOUT / GEAR, CONTACT */
+    .navRow {
+        top: 30px;
+        left: auto;
+        right: var(--logo-x);
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-areas: "work about" "gear contact";
+        column-gap: 20px;
+        row-gap: 10px;
+        justify-items: start;
+    }
+    .navRow .navItemAt { position: relative; top: auto; left: auto; right: auto; }
+    .navRow .navWork    { grid-area: work; }
+    .navRow .navAbout   { grid-area: about; }
+    .navRow .navGear    { grid-area: gear; }
+    .navRow .navContact { grid-area: contact; }
+    .navItemAt .navItem { font-size: 14px; }
+    .navSocial { margin-left: 10px; gap: 10px; }
+    /* „Email copied”: sub CONTACT, nu în dreapta lui (ar ieși din ecran) */
+    .navRow .copiedNote { top: calc(100% + 6px); left: auto; right: 0; transform: none; }
+    /* căsuța GEAR: sub meniu, pe lățimea ecranului */
+    .navRow .gearBox {
+        position: fixed;
+        top: calc(var(--hdr-h) - 12px);
+        left: auto;
+        right: var(--logo-x);
+        width: min(372px, calc(100vw - 2 * var(--logo-x)));
+    }
+    /* căsuța TIME CALCULATOR nu există aici (butonul e ascuns sub 1700 px) */
+
+    /* WORK — sub peliculă: TITLUL · anul, ce a făcut echipa, cine */
+    .sideRight {
+        left: 50%;
+        top: auto;
+        bottom: var(--bar-h);
+        height: var(--cap-h);
+        width: min(calc(100vw - 2 * var(--logo-x)), 520px);
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .capTitle {
+        display: block;
+        order: 0;
+        font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+        font-size: 15px;
+        line-height: 1.3;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fg);
+        text-wrap: balance;
+    }
+    .sideRight .sideYear { position: static; order: 1; margin: 3px 0 8px; }
+    .sideRight .sideEyebrow { order: 2; margin-bottom: 0; white-space: normal; }
+    .sideRight .sideMeta { order: 3; margin-top: 2px; }
+
+    /* BARA DE JOS: limba în stânga, UE + Regio după ea, site-urile și ADR în dreapta */
+    .cofinance { height: var(--bar-h); }
+    .cofinanceLeft  { left: var(--logo-x); }
+    .cofinanceLogos { left: calc(var(--logo-x) + 84px); }
+    .cofinanceRight { left: auto; right: var(--logo-x); gap: 18px; }
+
+    /* ABOUT — cele două pelicule centrate, una lângă alta; sub ele omul din
+       ramă și descrierea firmei, într-o casetă care se derulează */
+    .pageAbout {
+        --bar-clip: 0px;
+        --read-h:  34dvh;
+        --band-bot: calc(var(--bar-h) + var(--read-h));
+        --film-k:  1;
+        --about-shift: 0px;
+        --reel-x:  calc((var(--strip-w) + var(--strip-gap)) / 2);
+    }
+    .pageAbout .aboutRead {
+        display: block;
+        position: fixed;
+        left: 50%;
+        bottom: var(--bar-h);
+        height: var(--read-h);
+        width: min(calc(100vw - 2 * var(--logo-x)), 600px);
+        transform: translateX(-50%);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        z-index: 40;
+        padding: 22px 0 28px;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 18px, black calc(100% - 22px), transparent 100%);
+                mask-image: linear-gradient(to bottom, transparent 0, black 18px, black calc(100% - 22px), transparent 100%);
+    }
+    .pageAbout .aboutRead .personText,
+    .pageAbout .aboutRead .aboutText {
+        position: static;
+        left: auto;
+        top: auto;
+        width: auto;
+        transform: none;
+    }
+    .pageAbout .aboutRead .aboutText {
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 0.5px solid var(--rule);
+    }
+}
+
+/* tabletă cu ecranul mai scund (ex. 1024 × 768 întinsă): pelicula mai mică */
+@media (max-width: 1279px) and (max-height: 900px) {
+    .page      { --film-k: 1; }
+    .pageAbout { --film-k: 0.8; }
+}
+@media (max-width: 1279px) and (max-height: 760px) {
+    .pageAbout { --film-k: 0.66; }
+}
+
+/* TELEFON */
+@media (max-width: 767px) {
+    .page {
+        --logo-x: 18px;
+        --hdr-h:  92px;
+        --cap-h:  104px;
+        --bar-h:  58px;
+        --film-k: 1;
+    }
+    .siteHeader { padding-top: 22px; }
+    .logoReel { top: 22px; }
+    .logo, .logoReel { scale: 0.84; transform-origin: 0 0; }
+    .navRow { top: 25px; column-gap: 16px; row-gap: 9px; }
+    .navItemAt .navItem { font-size: 12.5px; }
+    .navSocial { display: none; }
+    .capTitle { font-size: 14px; }
+    /* bara de jos: fără site-uri (rămân limba, UE + Regio, ADR Nord-Est) */
+    .cofinanceLinks { display: none; }
+    .cofinanceLogos { left: calc(var(--logo-x) + 78px); gap: 14px; }
+
+    .pageAbout { --read-h: 40dvh; --film-k: 0.58; }
+    .pageAbout .personName { font-size: 16px; }
+}
+@media (max-width: 374px) {
+    .page      { --film-k: 0.88; --logo-x: 14px; }
+    .pageAbout { --film-k: 0.53; }
+    .navRow { column-gap: 12px; }
+    .navItemAt .navItem { font-size: 11.5px; }
+}
+
+/* TELEFONUL ÎNTORS (înălțime mică): pelicula pe toată înălțimea, în mijloc,
+   ca pe desktop; antetul și textul în stânga și în dreapta ei */
+@media (max-width: 1279px) and (max-height: 560px) and (orientation: landscape) {
+    .page {
+        --hdr-h:    0px;
+        --cap-h:    0px;
+        --bar-h:    50px;
+        --band-top: 0px;
+        --band-bot: 0px;
+        --film-k:   0.56;
+        --side-w:   calc(50vw - var(--strip-w) / 2 - var(--logo-x) - 28px);
+    }
+    .siteHeader { padding-top: 16px; }
+    .logoReel { top: 16px; }
+    .logo, .logoReel { scale: 0.76; transform-origin: 0 0; }
+    .navRow { top: 18px; }
+    .navSocial { display: none; }
+    .cofinanceLinks { display: none; }
+    /* textul filmului: în stânga peliculei, la mijloc */
+    .sideRight {
+        left: var(--logo-x);
+        top: 50%;
+        bottom: auto;
+        height: auto;
+        width: var(--side-w);
+        transform: translateY(-50%);
+        align-items: flex-start;
+        text-align: left;
+    }
+    .pageAbout { --film-k: 0.5; --read-h: auto; --bar-clip: var(--bar-h); }   /* peliculele se opresc deasupra barei */
+    /* ABOUT: textul în dreapta celor două pelicule, într-o casetă care se derulează */
+    .pageAbout .aboutRead {
+        left: auto;
+        right: var(--logo-x);
+        top: 92px;
+        bottom: var(--bar-h);
+        height: auto;
+        width: calc(50vw - (var(--strip-w) + var(--strip-gap) / 2) - var(--logo-x) - 24px);
+        transform: none;
+    }
 }

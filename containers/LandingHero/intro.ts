@@ -24,10 +24,13 @@ export function clearIntro(): void {
     h.style.removeProperty('--intro-y');
 }
 
-/** scriptul din <head>: rulează înaintea primului cadru, doar pe / cu ?intro */
+/** scriptul din <head>: rulează înaintea primului cadru, doar pe / cu ?intro,
+    doar pe desktop (≥ 1280 px — pe telefon și tabletă pagina are alt layout;
+    intro-ul pentru ele se face când refacem animația). Varianta e blocată:
+    eticheta git `intro-masa-v1` (03.11.2026). */
 export const INTRO_BOOT = `(function(){try{
 if(location.pathname!=='/'||!/[?&]intro(?:[=&]|$)/.test(location.search))return;
-if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(min-width: 1280px)').matches)return;
 var h=document.documentElement;h.setAttribute('data-intro','pending');h.setAttribute('data-intro-ui','off');
 setTimeout(function(){if(!h.hasAttribute('data-intro-js')){['data-intro','data-intro-ui','data-intro-light'].forEach(function(a){h.removeAttribute(a)})}},12000);
 }catch(e){}})();`;

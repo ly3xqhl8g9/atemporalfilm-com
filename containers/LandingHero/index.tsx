@@ -16,8 +16,12 @@ import HeaderClocks, { WorldClocks } from '@/containers/HeaderClocks';
 import ContactCopy, { WorkContacts } from './ContactCopy';
 import GearRequest from './GearRequest';
 import { HTML_LANG, LANG_STORE, isLang, type Lang } from './i18n';
+import {
+    BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, exposureFilter, filmK,
+} from './filmStrip';
 import IntroReel from './IntroReel';
 import LogoReel from './LogoReel';
+import SetStrip, { type StripImage } from './SetStrip';
 import styles from './landing.module.css';
 
 
@@ -933,7 +937,6 @@ function pickMeta(p: Project, lang: Lang): string | undefined {
    arată fiecare nume o singură dată, nemișcată, centrată pe ramă; numele din
    ramă crește (ca titlul filmului), iar trecerea de la ultimul la primul
    urmează roata (Fram → Diana e un pas, nu doi). */
-const MIN_SLOTS = 30;
 function makeReel(items: Project[], once = false) {
     const N      = items.length;
     const half   = Math.max(1, Math.ceil((MIN_SLOTS / N - 1) / 2));
@@ -956,10 +959,7 @@ const REELS: Record<Kind, ReturnType<typeof makeReel>> = {
    un arc amortizat critic (SPRING_W): pornește cu viteza pe care o avea, fără
    smucitură, și încetinește spre final, ca o peliculă trasă cu mâna pe masa de
    montaj. Același arc pentru săgețile ↑ ↓ și pentru click pe un titlu. */
-const SETTLE_MS  = 360;    // liniștea după care pelicula alege cadrul
-const WHEEL_TAU  = 0.24;   // s — cât de „grea” e pelicula (cât întârzie după rotiță)
-const WHEEL_GAIN = 1;      // distanța pe o mișcare de rotiță (1 = cât derularea normală)
-const SPRING_W   = 3.6;    // rad/s — arcul care o așază (~1,3 s până aproape de cadru)
+/* SETTLE_MS, WHEEL_TAU, WHEEL_GAIN, SPRING_W: în filmStrip.ts (comune cu a doua bandă de pe ABOUT) */
 
 /** titlul din dreptul ramei, în lista din stânga (Modul Regie, 02.11, 15:34) */
 const TITLE_GROW  = 0.46;  // ×1,46
@@ -996,7 +996,7 @@ function bracketPath({ h, d, t, r, ri }: typeof BRACKET): string {
 type Rama = 'groasa' | 'fina' | 'paranteze';
 /** înălțimea tile-ului pistei sonore, în px CSS (public/assets/ui/soundtrack.webp,
     „TILE” afișat de scripts/pista-sonora.py) */
-const BAND_TILE = 2049;   // 02.11, 15:00: 2732 × 0,75 (tot ansamblul micșorat)
+/* BAND_TILE (2049 = 2732 × 0,75): în filmStrip.ts; pe ecranele mici × --film-k */
 
 
 /* ============================================================
@@ -1006,8 +1006,14 @@ const BAND_TILE = 2049;   // 02.11, 15:00: 2732 × 0,75 (tot ansamblul micșorat
 /* EXPUNEREA AFIȘELOR (02.11.2026, 18:25): afară — subexpuse, alb-negru;
    în ramă — dense (≈ −1¾ diafragmă), pentru că lampa din spatele geamului
    (.lamp, color-dodge, ~×3,3 în medie) le aduce la expunerea corectă. */
-const EXPO_OUT = 0.15;
-const EXPO_IN  = 0.30;
+/* EXPO_OUT = 0,15, EXPO_IN = 0,30: în filmStrip.ts (exposureFilter) */
+
+/* A DOUA PELICULĂ DE PE ABOUT (03.11.2026): pozele de la filmare de pe pagina
+   ABOUT veche (13 poze, decupate la 2:3), lângă banda cu oamenii — SetStrip.tsx */
+const SET_PHOTOS: StripImage[] = Array.from({ length: 13 }, (_, k) => ({
+    src: `/assets/entities/about/set-${String(k + 1).padStart(2, '0')}.webp`,
+    alt: `Atemporal Film on set — ${k + 1}`,
+}));
 
 export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const reel = REELS[kind];
@@ -1052,6 +1058,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const bandYRef      = useRef(0);
     const lastTopRef    = useRef(0);
     const exposureRef   = useRef<number[]>([]);
+    const kRef          = useRef(1);   // --film-k: mărimea peliculei (1 pe desktop)
     // derularea continuă: animația de așezare, cadrul pe care s-a oprit ultima
     // dată, direcția ultimei mișcări și poziția de la evenimentul precedent
     const animRef       = useRef<number | null>(null);
@@ -1211,10 +1218,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             // 02.11, 18:25: pelicula e densă — afișul e ținut întunecat (×0,15 afară,
             // ×0,30 în ramă), iar lampa din spate (~×3,3) îl aduce în geam la expunerea
             // corectă, cu culorile lui; în centrul geamului puțin peste, la margini puțin sub
-            img.style.filter =
-                `grayscale(${(1 - e).toFixed(3)}) ` +
-                `contrast(${(1.15 - 0.15 * e).toFixed(3)}) ` +
-                `brightness(${(EXPO_OUT + (EXPO_IN - EXPO_OUT) * e).toFixed(3)})`;
+            img.style.filter = exposureFilter(e);
             // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
             // (02.11, 17:40: mai puternică și caldă, după referință)
             if (halo) halo.style.opacity = (0.32 * e).toFixed(3);
@@ -1228,7 +1232,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         lastTopRef.current = top;
         const band = bandRef.current;
         if (band) {
-            const y = ((bandYRef.current % BAND_TILE) + BAND_TILE) % BAND_TILE;
+            const tile = BAND_TILE * kRef.current;   // pe ecranele mici pelicula e mai mică (--film-k)
+            const y = ((bandYRef.current % tile) + tile) % tile;
             band.style.transform = `translate3d(0, ${-y}px, 0)`;
         }
     }, [slotPitch, reel]);
@@ -1405,6 +1410,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const gallery = galleryRef.current;
         if (!gallery) return;
 
+        kRef.current = filmK(gallery);
         // pornim de la un film ales la întâmplare, în copia din mijloc
         jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
         const readyId = requestAnimationFrame(() => setReady(true));
@@ -1467,7 +1473,15 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         gallery.addEventListener('pointerdown', onGrab, { passive: true });
         gallery.addEventListener('touchend', onLift, { passive: true });
         window.addEventListener('pointerup', onLift, { passive: true });
-        window.addEventListener('resize', onScroll);
+        // telefonul întors / fereastra redimensionată: altă mărime a peliculei,
+        // alt loc al ramei → cadrul din ramă e pus din nou exact în ea
+        const onResize = () => {
+            kRef.current = filmK(gallery);
+            exposureRef.current = [];
+            if (motionRef.current.mode === 'idle') jumpTo(lastActiveRef.current);
+            else onScroll();
+        };
+        window.addEventListener('resize', onResize);
         // fonturile schimbă înălțimea rândurilor → recalculăm după ce se încarcă
         document.fonts?.ready.then(syncList).catch(() => {});
         return () => {
@@ -1480,7 +1494,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             gallery.removeEventListener('pointerdown', onGrab);
             gallery.removeEventListener('touchend', onLift);
             window.removeEventListener('pointerup', onLift);
-            window.removeEventListener('resize', onScroll);
+            window.removeEventListener('resize', onResize);
         };
     }, [updateActive, syncList, jumpTo, settle, stopGlide, runMotion, reel]);
 
@@ -1543,6 +1557,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     return (
         <div className={[
             styles.page,
+            isAbout ? styles.pageAbout : styles.pageWork,
             ready ? '' : styles.notReady,
             rama === 'fina' ? styles.ramaFina : '',
             rama === 'paranteze' ? styles.ramaParanteze : '',
@@ -1631,6 +1646,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             )}
 
             {/* ABOUT (03.11.2026, 12:41): în stânga peliculei, descrierea omului din ramă */}
+            {/* ABOUT, ecranele înguste (03.11.2026): descrierea omului și cea a firmei
+                stau împreună, sub pelicule, într-o casetă care se derulează;
+                pe desktop învelișul nu există (display: contents) */}
+            <div className={styles.aboutRead}>
             {isAbout && proj.bio && (
                 <section className={styles.personText} style={fadeStyle} aria-live="polite">
                     <h2 className={styles.personName}>{pickTitle(proj, lang)}</h2>
@@ -1646,8 +1665,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 <section className={styles.aboutText} aria-label={t.nav.about}>
                     {ABOUT_TEXT[lang].map((para, k) => <p key={k}>{para}</p>)}
                 </section>
-            ) : (
+            ) : null}
+            </div>
+            {!isAbout && (
             <aside className={`${styles.side} ${styles.sideRight}`} style={fadeStyle}>
+                {/* titlul filmului: doar pe ecranele înguste, unde lista din stânga nu încape */}
+                <div className={styles.capTitle} aria-hidden="true">{projTitle}</div>
                 <div className={styles.sideEyebrow}>{projWork}</div>
                 {/* anul filmului, pe rândul creditului, în dreapta (02.11, 23:03) */}
                 {pickYear(proj) && <div className={styles.sideYear}>{pickYear(proj)}</div>}
@@ -1713,8 +1736,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                     ref={bandRef}
                     className={styles.soundtrackStrip}
                     style={{
-                        height:         `calc(100% + ${BAND_TILE}px)`,
-                        backgroundSize: `100% ${BAND_TILE}px`,
+                        height:         `calc(100% + ${BAND_TILE}px * var(--film-k))`,
+                        backgroundSize: `100% calc(${BAND_TILE}px * var(--film-k))`,
                     }}
                 />
             </div>
@@ -1770,6 +1793,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 {/* indicatorul „scroll mai jos pentru info cofinanțare” scos:
                     bara de jos e acum mereu vizibilă (30.10, seria a treia) */}
             </div>
+
+
+            {/* ABOUT: a doua peliculă, cu pozele de la filmare, lângă cea cu oamenii (03.11.2026) */}
+            {isAbout && <SetStrip images={SET_PHOTOS} label={t.nav.about + ' — on set'} />}
 
 
             {/* BARA DE JOS — fixă, mereu vizibilă: limba + cofinanțarea */}
