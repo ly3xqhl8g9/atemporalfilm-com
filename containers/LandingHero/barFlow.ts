@@ -101,7 +101,7 @@ export function useBarFlow(deps: unknown[]) {
 
             const on = mq.matches;
             page.classList.toggle(styles.barFlow, on);
-            if (!on) return;
+            if (!on) { placePortrait(els); return; }
 
             // măsurăm totul lipit de marginea din stânga, ca nimic să nu fie
             // strâns (rupt pe două rânduri) de marginea din dreapta a ecranului
@@ -179,6 +179,52 @@ export function useBarFlow(deps: unknown[]) {
                 page.style.setProperty('--tc-r', `${Math.round(x.tc + w.tc)}px`);
             }
         };
+
+        /* ECRANELE ȚINUTE VERTICAL (09.11.2026, 16:23 — Ștefan: „pe telefon și
+           tabletă e destul loc în bara de jos între Regio și ADR Nord-Est să pui
+           butonul de TIME CALCULATOR; fă-l mai mic, să nu fie mai mare decât ADR”).
+           Butonul (mic, vezi CSS) stă după Regio, înaintea primului element din
+           dreapta de pe rândul logo-urilor (pe telefon ADR, pe tabletă site-urile):
+           – telefon: limba, UE, Regio, TIME CALCULATOR și ADR cu spații egale
+             (limba și ADR rămân la marginile lor; UE și Regio se mută puțin);
+           – tabletă: centrat în golul dintre Regio și site-uri (restul pe loc).
+           Dacă nu încape nici așa (sub ~6 px între elemente), lipsește din bară —
+           rămâne în fișa TIMECODE (ceasul din antet). */
+        const placePortrait = (els: Record<Key, HTMLElement | null>) => {
+            const { tc, regio, eu, lang, sites, adr } = els;
+            if (!tc || !regio || !eu || !lang) return;
+            const W   = document.documentElement.clientWidth;
+            const r   = (el: HTMLElement) => el.getBoundingClientRect();
+            const wT  = r(tc).width;
+            const reg = r(regio);
+            if (!wT || !reg.width) { hide(tc); return; }
+            const cy    = (reg.top + reg.bottom) / 2;
+            const right = [sites, adr]
+                .filter((el): el is HTMLElement => !!el)
+                .map(r)
+                .filter((q) => q.width > 0 && q.top <= cy && q.bottom >= cy && q.left > reg.right);
+            const nextL = right.length ? Math.min(...right.map((q) => q.left)) : W - EDGE;
+
+            if (W < 768) {
+                const logos = page0()?.querySelector<HTMLElement>(`.${styles.cofinanceLogos}`);
+                const wE = r(eu).width;
+                const wR = reg.width;
+                const l  = r(lang).right;
+                const g  = (nextL - l - wE - wR - wT) / 4;
+                if (g < 6 || !logos) { hide(tc); return; }
+                const xE = Math.round(l + g);
+                const xR = Math.round(l + g + wE + g);
+                const xT = Math.round(l + g + wE + g + wR + g);
+                logos.style.setProperty('left', `${xE}px`, 'important');
+                logos.style.setProperty('gap', `${(xR - xE - wE).toFixed(2)}px`, 'important');
+                tc.style.setProperty('left', `${xT}px`, 'important');
+            } else {
+                const room = nextL - reg.right;
+                if (room < wT + 2 * GAP_MIN) { hide(tc); return; }
+                tc.style.setProperty('left', `${Math.round(reg.right + (room - wT) / 2)}px`, 'important');
+            }
+        };
+        const page0 = () => document.querySelector<HTMLElement>(`.${styles.page}`);
 
         const schedule = () => { if (!raf) raf = requestAnimationFrame(place); };
 

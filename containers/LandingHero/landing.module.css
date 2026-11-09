@@ -3329,3 +3329,55 @@ button.capTitle {
     /* căsuța GEAR: sub rândul meniului */
     .navRow .gearBox { top: calc(var(--hdr-h) + 4px); right: 14px; }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   TIME CALCULATOR ÎN BARA DE JOS, PE ECRANELE ȚINUTE VERTICAL (09.11.2026,
+   16:23 — Ștefan: „între Regio și ADR Nord-Est e destul loc … fă-l mai mic,
+   să nu fie mai mare decât ADR”). Butonul: tot pe două rânduri, scris mic
+   (6 px), cel mult cât ADR (46 × 28 px). Locul pe orizontală îl pune
+   barFlow.ts (placePortrait). Căsuța se deschide ca fișa de pe telefon: de
+   jos, pe toată lățimea (cel mult 600 px), sub antet; se derulează.
+   Fără `transform` pe bloc — căsuța e `fixed`.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1279px) and (orientation: portrait) {
+    .page .cofinance .cofinanceEncoder {
+        display: flex;
+        width: max-content;
+        right: auto;
+        justify-content: flex-start;
+        top: -2px;            /* pe rândul logo-urilor (ele sunt ridicate cu 2 px) */
+        bottom: 2px;
+        z-index: 2;           /* pe telefon blocul site-uri + ADR ține toată lățimea barei */
+    }
+    /* aceeași înălțime ca ADR (28 px), lățimea 45 px (ADR: 46) */
+    .cofinanceEncoder .tcBtn {
+        font-size: 6px;
+        letter-spacing: 0.02em;
+        line-height: 1.15;
+        gap: 1px;
+        padding: 6px 3px 5px;
+    }
+    .cofinanceEncoder .tcBox {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: min(100%, 600px);
+        margin: 0 auto;
+        max-height: calc(100dvh - var(--hdr-h) - 8px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+        border-bottom: 0;
+    }
+    .cofinanceEncoder .tcRateRow, .cofinanceEncoder .tcWaveRow,
+    .cofinanceEncoder .tcRow, .cofinanceEncoder .tcRatio { grid-template-columns: 92px 1fr; }
+    .cofinanceEncoder .tcSwap  { margin-left: 92px; }
+    .cofinanceEncoder .tcChips { flex-wrap: wrap; row-gap: 3px; }
+}
+@media (max-width: 767px) and (orientation: portrait) {
+    /* telefon: rândul logo-urilor e deasupra site-urilor (bara de 82 px) */
+    .page .cofinance .cofinanceEncoder { bottom: 28px; }
+}
