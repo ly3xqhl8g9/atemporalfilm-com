@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
     BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, exposureFilter, filmK,
+    type Axis, bandShift, filmAxis, offsetPos, rectMid, scrollMax, scrollPos, setScrollPos, viewSize, wheelDelta,
 } from './filmStrip';
 import styles from './landing.module.css';
 
@@ -49,6 +50,10 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
     const bandYRef   = useRef(0);
     const lastTopRef = useRef(0);
     const kRef       = useRef(1);
+    // axa (09.11.2026): 'x' pe telefon / tabletă — pelicula curge stânga ↔ dreapta
+    const axisRef    = useRef<Axis>('y');
+    // poziția (în cadre) de la ultima sincronizare: cadrul rămâne în ramă când se schimbă axa
+    const fRef       = useRef(0);
     const animRef    = useRef<number | null>(null);
     const motionRef  = useRef({
         mode: 'idle' as 'idle' | 'free' | 'spring',
@@ -58,14 +63,15 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
 
     const pitch = useCallback(() => {
         const a = slotRefs.current[0], b = slotRefs.current[1];
-        return a && b ? b.offsetTop - a.offsetTop : 1;
+        return a && b ? offsetPos(b, axisRef.current) - offsetPos(a, axisRef.current) : 1;
     }, []);
 
     /** expunerea fiecărei poze și pista sonoră, după poziția derulării */
     const sync = useCallback(() => {
         const g = galleryRef.current;
         if (!g) return;
-        const f = (g.scrollTop - originRef.current) / pitch();
+        const f = (scrollPos(g, axisRef.current) - originRef.current) / pitch();
+        fRef.current = f;
         const exp = expoRef.current;
         slotRefs.current.forEach((el, i) => {
             const img  = el?.children[0] as HTMLElement | undefined;
@@ -78,13 +84,13 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             img.style.filter = exposureFilter(e);
             if (halo) halo.style.opacity = (0.32 * e).toFixed(3);
         });
-        const top = g.scrollTop;
+        const top = scrollPos(g, axisRef.current);
         bandYRef.current += top - lastTopRef.current;
         lastTopRef.current = top;
         const tile = BAND_TILE * kRef.current;
         if (bandRef.current) {
             const y = ((bandYRef.current % tile) + tile) % tile;
-            bandRef.current.style.transform = `translate3d(0, ${-y}px, 0)`;
+            bandRef.current.style.transform = bandShift(y, axisRef.current);
         }
     }, [pitch]);
 
@@ -92,8 +98,8 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
     const scrollFor = useCallback((slot: number) => {
         const g = galleryRef.current, el = slotRefs.current[slot], vf = vfRef.current;
         if (!g || !el || !vf) return originRef.current + slot * pitch();
-        const r = el.getBoundingClientRect(), v = vf.getBoundingClientRect();
-        const to = g.scrollTop + (r.top + r.height / 2) - (v.top + v.height / 2);
+        const a = axisRef.current;
+        const to = scrollPos(g, axisRef.current) + rectMid(el.getBoundingClientRect(), a) - rectMid(vf.getBoundingClientRect(), a);
         originRef.current = to - slot * pitch();
         return to;
     }, [pitch]);
@@ -101,10 +107,10 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
     const jumpTo = useCallback((slot: number) => {
         const g = galleryRef.current;
         if (!g) return;
-        g.scrollTop = scrollFor(slot);
-        lastTopRef.current = g.scrollTop;          // săritura nu mișcă pista
+        setScrollPos(g, axisRef.current, scrollFor(slot));
+        lastTopRef.current = scrollPos(g, axisRef.current);          // săritura nu mișcă pista
         const m = motionRef.current;
-        m.pos = m.target = g.scrollTop;
+        m.pos = m.target = scrollPos(g, axisRef.current);
         m.vel = 0;
         sync();
     }, [scrollFor, sync]);
@@ -114,7 +120,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         animRef.current = null;
         const m = motionRef.current, g = galleryRef.current;
         m.mode = 'idle'; m.vel = 0; m.onDone = null;
-        if (g) m.pos = m.target = g.scrollTop;
+        if (g) m.pos = m.target = scrollPos(g, axisRef.current);
     }, []);
 
     const run = useCallback(() => {
@@ -140,7 +146,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             } else {
                 done = true;
             }
-            g.scrollTop = m.pos;
+            setScrollPos(g, axisRef.current, m.pos);
             if (!done) { animRef.current = requestAnimationFrame(step); return; }
             animRef.current = null;
             if (m.mode === 'spring') {
@@ -158,7 +164,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         const g = galleryRef.current;
         if (!g) return;
         const to = scrollFor(slot);
-        if (Math.abs(g.scrollTop - to) > 0.75) g.scrollTop = to;
+        if (Math.abs(scrollPos(g, axisRef.current) - to) > 0.75) setScrollPos(g, axisRef.current, to);
         if (!reel.isHome(slot)) {
             g.classList.add(styles.jumping);
             jumpTo(reel.HOME + reel.of(slot));
@@ -172,12 +178,12 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         const g = galleryRef.current;
         if (!g) return;
         const m = motionRef.current;
-        if (animRef.current === null) { m.pos = g.scrollTop; if (m.mode === 'idle') m.vel = 0; }
+        if (animRef.current === null) { m.pos = scrollPos(g, axisRef.current); if (m.mode === 'idle') m.vel = 0; }
         const to = scrollFor(slot);
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (still || (Math.abs(to - m.pos) < 0.5 && Math.abs(m.vel) < 8)) {
             stop();
-            g.scrollTop = to;
+            setScrollPos(g, axisRef.current, to);
             arrive(slot);
             return;
         }
@@ -190,7 +196,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
     const settle = useCallback(() => {
         const g = galleryRef.current, m = motionRef.current;
         if (!g || m.mode === 'spring') return;
-        const rest = m.mode === 'free' ? m.target : g.scrollTop;
+        const rest = m.mode === 'free' ? m.target : scrollPos(g, axisRef.current);
         const last = reel.SLOTS.length - 1;
         glideTo(Math.min(last, Math.max(0, Math.round((rest - originRef.current) / pitch()))));
     }, [glideTo, pitch, reel]);
@@ -199,6 +205,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         const g = galleryRef.current;
         if (!g) return;
         kRef.current = filmK(g);
+        axisRef.current = filmAxis(g);
         jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
 
         let idle = 0, ticking = false;
@@ -209,8 +216,8 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
                 requestAnimationFrame(() => { sync(); ticking = false; });
             }
             const m = motionRef.current;
-            if (animRef.current === null && Math.abs(g.scrollTop - m.pos) > 1.5) {
-                m.mode = 'idle'; m.pos = m.target = g.scrollTop; m.vel = 0;
+            if (animRef.current === null && Math.abs(scrollPos(g, axisRef.current) - m.pos) > 1.5) {
+                m.mode = 'idle'; m.pos = m.target = scrollPos(g, axisRef.current); m.vel = 0;
                 later();
             }
         };
@@ -219,17 +226,18 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             e.preventDefault();
             const m = motionRef.current;
             if (m.mode !== 'free') {
-                m.pos    = animRef.current !== null ? m.pos : g.scrollTop;
+                m.pos    = animRef.current !== null ? m.pos : scrollPos(g, axisRef.current);
                 m.target = m.pos + m.vel * WHEEL_TAU;
                 m.mode   = 'free';
                 m.onDone = null;
             }
-            const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? g.clientHeight : 1;
-            const max  = g.scrollHeight - g.clientHeight;
-            m.target = Math.min(max, Math.max(0, m.target + e.deltaY * unit * WHEEL_GAIN));
+            const ax   = axisRef.current;
+            const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? viewSize(g, ax) : 1;
+            const max  = scrollMax(g, ax);
+            m.target = Math.min(max, Math.max(0, m.target + wheelDelta(e, ax) * unit * WHEEL_GAIN));
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 m.pos = m.target;
-                g.scrollTop = m.pos;
+                setScrollPos(g, axisRef.current, m.pos);
             } else {
                 run();
             }
@@ -240,8 +248,15 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         const onResize = () => {
             kRef.current = filmK(g);
             expoRef.current = [];
-            // după o schimbare de mărime (ex. telefonul întors), cadrul rămâne în ramă
-            const f = Math.round((g.scrollTop - originRef.current) / pitch());
+            // după o schimbare de mărime (ex. telefonul întors), cadrul rămâne în ramă;
+            // dacă s-a schimbat și axa (09.11.2026), pelicula o ia de la capăt pe cealaltă axă
+            const ax = filmAxis(g);
+            if (ax !== axisRef.current) {
+                stop();
+                window.clearTimeout(idle);
+                axisRef.current = ax;
+            }
+            const f = Math.round(fRef.current);
             jumpTo(Math.min(reel.SLOTS.length - 1, Math.max(0, f)));
         };
         g.addEventListener('scroll', onScroll, { passive: true });
@@ -275,10 +290,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
                 <div
                     ref={bandRef}
                     className={styles.soundtrackStrip}
-                    style={{
-                        height:         `calc(100% + ${BAND_TILE}px * var(--film-k))`,
-                        backgroundSize: `100% calc(${BAND_TILE}px * var(--film-k))`,
-                    }}
+                    style={{ '--band-tile': `${BAND_TILE}px` } as React.CSSProperties}
                 />
             </div>
             <div ref={galleryRef} className={styles.gallery}>

@@ -18,6 +18,7 @@ import GearRequest from './GearRequest';
 import { HTML_LANG, LANG_STORE, isLang, type Lang } from './i18n';
 import {
     BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, exposureFilter, filmK,
+    type Axis, bandShift, filmAxis, offsetPos, rectMid, scrollMax, scrollPos, setScrollPos, viewSize, wheelDelta,
 } from './filmStrip';
 import IntroReel from './IntroReel';
 import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
@@ -1064,6 +1065,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const lastTopRef    = useRef(0);
     const exposureRef   = useRef<number[]>([]);
     const kRef          = useRef(1);   // --film-k: mărimea peliculei (1 pe desktop)
+    // axa peliculei (09.11.2026): 'y' pe desktop, 'x' pe telefon / tabletă (curge stânga ↔ dreapta)
+    const axisRef       = useRef<Axis>('y');
     // derularea continuă: animația de așezare, cadrul pe care s-a oprit ultima
     // dată, direcția ultimei mișcări și poziția de la evenimentul precedent
     const animRef       = useRef<number | null>(null);
@@ -1090,13 +1093,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         if (!gallery) return;
         // centrul ramei (nu al galeriei): acolo trebuie să stea afișul
         const vfRect     = (vfRef.current ?? gallery).getBoundingClientRect();
-        const galleryMid = vfRect.top + vfRect.height / 2;
+        const galleryMid = rectMid(vfRect, axisRef.current);
         let bestIdx  = lastActiveRef.current;
         let bestDist = Infinity;
         slotRefs.current.forEach((el, i) => {
             if (!el) return;
-            const r   = el.getBoundingClientRect();
-            const mid = r.top + r.height / 2;
+            const mid = rectMid(el.getBoundingClientRect(), axisRef.current);
             const d   = Math.abs(mid - galleryMid);
             if (d < bestDist) {
                 bestDist = d;
@@ -1127,7 +1129,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const slotPitch = useCallback((): number => {
         const a = slotRefs.current[0];
         const b = slotRefs.current[1];
-        return a && b ? b.offsetTop - a.offsetTop : 1;
+        return a && b ? offsetPos(b, axisRef.current) - offsetPos(a, axisRef.current) : 1;
     }, []);
 
     const syncList = useCallback(() => {
@@ -1136,7 +1138,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const items   = listItemRefs.current;
         if (!gallery) return;
         const last = reel.SLOTS.length - 1;
-        const f    = Math.min(last, Math.max(0, (gallery.scrollTop - originRef.current) / slotPitch()));
+        const f    = Math.min(last, Math.max(0, (scrollPos(gallery, axisRef.current) - originRef.current) / slotPitch()));
         /* PERSPECTIVA LISTEI (02.11.2026, 23:05, cerut de Ștefan): titlul din
            ramă e cel mai mare; cu cât un titlu e mai departe de el, cu atât e mai
            mic și mai stins — ca rândurile unei role care se depărtează. Distanța
@@ -1232,14 +1234,14 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         /* PISTA SONORĂ — banda din stânga afișului curge odată cu pelicula.
            Mișcarea vine din derulare; săriturile invizibile dintre copiile galeriei
            (jumpTo) nu o mișcă, deci banda nu sare niciodată. */
-        const top = gallery.scrollTop;
+        const top = scrollPos(gallery, axisRef.current);
         bandYRef.current += top - lastTopRef.current;
         lastTopRef.current = top;
         const band = bandRef.current;
         if (band) {
             const tile = BAND_TILE * kRef.current;   // pe ecranele mici pelicula e mai mică (--film-k)
             const y = ((bandYRef.current % tile) + tile) % tile;
-            band.style.transform = `translate3d(0, ${-y}px, 0)`;
+            band.style.transform = bandShift(y, axisRef.current);
         }
     }, [slotPitch, reel]);
 
@@ -1250,9 +1252,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const el      = slotRefs.current[slot];
         const vf      = vfRef.current;
         if (!gallery || !el || !vf) return originRef.current + slot * slotPitch();
-        const r  = el.getBoundingClientRect();
-        const v  = vf.getBoundingClientRect();
-        const to = gallery.scrollTop + (r.top + r.height / 2) - (v.top + v.height / 2);
+        const a  = axisRef.current;
+        const to = scrollPos(gallery, a) + rectMid(el.getBoundingClientRect(), a) - rectMid(vf.getBoundingClientRect(), a);
         originRef.current = to - slot * slotPitch();
         return to;
     }, [slotPitch]);
@@ -1261,13 +1262,13 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const jumpTo = useCallback((slot: number) => {
         const gallery = galleryRef.current;
         if (!gallery) return;
-        gallery.scrollTop = scrollFor(slot);
-        lastTopRef.current = gallery.scrollTop;   // săritura nu mișcă pista sonoră
-        prevTopRef.current = gallery.scrollTop;   // și nu contează ca mișcare
+        setScrollPos(gallery, axisRef.current, scrollFor(slot));
+        lastTopRef.current = scrollPos(gallery, axisRef.current);   // săritura nu mișcă pista sonoră
+        prevTopRef.current = scrollPos(gallery, axisRef.current);   // și nu contează ca mișcare
         lastActiveRef.current = slot;
         restRef.current = slot;
         const m = motionRef.current;
-        m.pos = m.target = gallery.scrollTop;
+        m.pos = m.target = scrollPos(gallery, axisRef.current);
         m.vel = 0;
         setActive(slot);
         syncList();
@@ -1282,7 +1283,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         m.mode = 'idle';
         m.vel = 0;
         m.onDone = null;
-        if (gallery) m.pos = m.target = gallery.scrollTop;
+        if (gallery) m.pos = m.target = scrollPos(gallery, axisRef.current);
     }, []);
 
     /** un pas al peliculei (rAF): liberă → se apropie de țintă cu inerție;
@@ -1314,7 +1315,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             } else {
                 done = true;
             }
-            gallery.scrollTop = m.pos;
+            setScrollPos(gallery, axisRef.current, m.pos);
             if (!done) {
                 animRef.current = requestAnimationFrame(step);
                 return;
@@ -1337,7 +1338,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         if (!gallery) return;
         const m = motionRef.current;
         if (m.mode === 'idle' || animRef.current === null) {
-            m.pos = gallery.scrollTop;
+            m.pos = scrollPos(gallery, axisRef.current);
             if (m.mode === 'idle') m.vel = 0;
         }
         const to    = scrollFor(slot);
@@ -1352,7 +1353,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             m.pos = m.target = to;
             m.vel = 0;
             m.onDone = null;
-            gallery.scrollTop = to;
+            setScrollPos(gallery, axisRef.current, to);
             onDone?.();
             return;
         }
@@ -1384,7 +1385,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const gallery = galleryRef.current;
         if (gallery) {
             const to = scrollFor(slot);
-            if (Math.abs(gallery.scrollTop - to) > 0.75) gallery.scrollTop = to;
+            if (Math.abs(scrollPos(gallery, axisRef.current) - to) > 0.75) setScrollPos(gallery, axisRef.current, to);
         }
         updateActive();
         syncList();
@@ -1398,7 +1399,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const gallery = galleryRef.current;
         const m = motionRef.current;
         if (!gallery || m.mode === 'spring') return;
-        const rest = m.mode === 'free' ? m.target : gallery.scrollTop;
+        const rest = m.mode === 'free' ? m.target : scrollPos(gallery, axisRef.current);
         const last = reel.SLOTS.length - 1;
         const f    = (rest - originRef.current) / slotPitch();
         const target = Math.min(last, Math.max(0, Math.round(f)));
@@ -1416,6 +1417,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         if (!gallery) return;
 
         kRef.current = filmK(gallery);
+        axisRef.current = filmAxis(gallery);
         // pornim de la un film ales la întâmplare, în copia din mijloc
         jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
         const readyId = requestAnimationFrame(() => setReady(true));
@@ -1427,7 +1429,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             idle = window.setTimeout(settle, SETTLE_MS);
         };
         const onScroll = () => {
-            const top = gallery.scrollTop;
+            const top = scrollPos(gallery, axisRef.current);
             prevTopRef.current = top;
             if (!ticking) {
                 requestAnimationFrame(() => {
@@ -1454,17 +1456,18 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             const m = motionRef.current;
             if (m.mode !== 'free') {
                 // preia mișcarea de unde e, cu viteza pe care o avea (fără smucitură)
-                m.pos    = animRef.current !== null ? m.pos : gallery.scrollTop;
+                m.pos    = animRef.current !== null ? m.pos : scrollPos(gallery, axisRef.current);
                 m.target = m.pos + m.vel * WHEEL_TAU;
                 m.mode   = 'free';
                 m.onDone = null;
             }
-            const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? gallery.clientHeight : 1;
-            const max  = gallery.scrollHeight - gallery.clientHeight;
-            m.target = Math.min(max, Math.max(0, m.target + e.deltaY * unit * WHEEL_GAIN));
+            const ax   = axisRef.current;
+            const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? viewSize(gallery, ax) : 1;
+            const max  = scrollMax(gallery, ax);
+            m.target = Math.min(max, Math.max(0, m.target + wheelDelta(e, ax) * unit * WHEEL_GAIN));
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 m.pos = m.target;
-                gallery.scrollTop = m.pos;
+                setScrollPos(gallery, axisRef.current, m.pos);
             } else {
                 runMotion();
             }
@@ -1483,6 +1486,16 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const onResize = () => {
             kRef.current = filmK(gallery);
             exposureRef.current = [];
+            // telefonul / tableta întoarsă: pelicula poate trece de pe orizontală
+            // pe verticală (sau invers) — același cadru rămâne în ramă
+            const ax = filmAxis(gallery);
+            if (ax !== axisRef.current) {
+                stopGlide();
+                window.clearTimeout(idle);
+                axisRef.current = ax;
+                jumpTo(lastActiveRef.current);
+                return;
+            }
             if (motionRef.current.mode === 'idle') jumpTo(lastActiveRef.current);
             else onScroll();
         };
@@ -1513,7 +1526,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
        într-un câmp de text (ex. o notă în Modul Regie). */
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+            // ↑ ↓ și, doar pentru pelicula orizontală de pe ecranele mici, ← → (09.11.2026);
+            // pe desktop (pelicula verticală) săgețile ← → nu fac nimic, ca până acum
+            const horiz = axisRef.current === 'x';
+            const fwd  = e.key === 'ArrowDown' || (horiz && e.key === 'ArrowRight');
+            const back = e.key === 'ArrowUp' || (horiz && e.key === 'ArrowLeft');
+            if (!fwd && !back) return;
             if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
             if (expandedIdx !== null) return;
             const el = e.target as HTMLElement | null;
@@ -1523,7 +1541,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             const m    = motionRef.current;
             const from = m.mode === 'spring' ? m.goal : lastActiveRef.current;
             const last   = reel.SLOTS.length - 1;
-            const target = Math.min(last, Math.max(0, from + (e.key === 'ArrowDown' ? 1 : -1)));
+            const target = Math.min(last, Math.max(0, from + (fwd ? 1 : -1)));
             glideTo(target, () => arrive(target));
         };
         window.addEventListener('keydown', onKey);
@@ -1874,10 +1892,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 <div
                     ref={bandRef}
                     className={styles.soundtrackStrip}
-                    style={{
-                        height:         `calc(100% + ${BAND_TILE}px * var(--film-k))`,
-                        backgroundSize: `100% calc(${BAND_TILE}px * var(--film-k))`,
-                    }}
+                    style={{ '--band-tile': `${BAND_TILE}px` } as React.CSSProperties}
                 />
             </div>
 

@@ -38,3 +38,49 @@ export function exposureFilter(e: number): string {
            `contrast(${(1.15 - 0.15 * e).toFixed(3)}) ` +
            `brightness(${(EXPO_OUT + (EXPO_IN - EXPO_OUT) * e).toFixed(3)})`;
 }
+
+/* ============================================================
+   PELICULA ORIZONTALĂ (09.11.2026, cererea lui Ștefan): pe telefon și
+   tabletă pelicula curge stânga ↔ dreapta, imediat sub meniu, ca sub ea să
+   rămână loc pentru text și butoane. Axa o dă CSS-ul (--film-axis: x, vezi
+   „PELICULA ORIZONTALĂ” la sfârșitul landing.module.css); calculele sunt
+   aceleași ca pe verticală — funcțiile de mai jos aleg doar axa.
+   ============================================================ */
+export type Axis = 'x' | 'y';
+
+/** 'x' când pelicula curge stânga ↔ dreapta (telefon, tabletă), altfel 'y' */
+export function filmAxis(el: Element | null): Axis {
+    if (!el) return 'y';
+    return getComputedStyle(el).getPropertyValue('--film-axis').trim() === 'x' ? 'x' : 'y';
+}
+
+/** poziția derulării de-a lungul peliculei */
+export const scrollPos = (g: HTMLElement, a: Axis): number => (a === 'x' ? g.scrollLeft : g.scrollTop);
+
+export function setScrollPos(g: HTMLElement, a: Axis, v: number): void {
+    if (a === 'x') g.scrollLeft = v;
+    else g.scrollTop = v;
+}
+
+/** cât se poate derula, de la un capăt la altul */
+export const scrollMax = (g: HTMLElement, a: Axis): number =>
+    (a === 'x' ? g.scrollWidth - g.clientWidth : g.scrollHeight - g.clientHeight);
+
+/** cât din peliculă se vede, de-a lungul ei */
+export const viewSize = (g: HTMLElement, a: Axis): number => (a === 'x' ? g.clientWidth : g.clientHeight);
+
+/** mijlocul unui dreptunghi de pe ecran, pe axa peliculei */
+export const rectMid = (r: DOMRect, a: Axis): number =>
+    (a === 'x' ? r.left + r.width / 2 : r.top + r.height / 2);
+
+/** începutul unui cadru în galerie, pe axa peliculei */
+export const offsetPos = (el: HTMLElement, a: Axis): number => (a === 'x' ? el.offsetLeft : el.offsetTop);
+
+/** rotița / trackpadul: pe pelicula orizontală contează și mișcarea stânga ↔ dreapta */
+export function wheelDelta(e: WheelEvent, a: Axis): number {
+    return a === 'x' && Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+}
+
+/** pista sonoră mutată cu `off` px de-a lungul peliculei */
+export const bandShift = (off: number, a: Axis): string =>
+    (a === 'x' ? `translate3d(${(-off).toFixed(2)}px, 0, 0)` : `translate3d(0, ${-off}px, 0)`);

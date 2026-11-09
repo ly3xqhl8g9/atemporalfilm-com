@@ -55,6 +55,9 @@ export default function AppWrapper({
     // homepage-ul are propriul header (în <LandingHero />).
     const pathname = usePathname();
     const isHome = pathname === '/' || pathname === '/people' || pathname === '/about';   // /people (02.11) și /about (03.11) folosesc același layout
+    // /telefon (09.11.2026, doar local): Modul Regie pe un ecran de telefon — site-ul
+    // e într-un iframe, cu propriul Regie; pagina-mamă nu are meniu și nici Regie
+    const isTelefon = pathname === '/telefon';
 
     const [vizitator, setVizitator] = useState(false);
     useEffect(() => {
@@ -83,7 +86,7 @@ export default function AppWrapper({
                     setLanguage,
                 }}
             >
-                {!isHome && (
+                {!isHome && !isTelefon && (
                     <>
                         <div
                             className="block md:hidden max-w-[1800px] relative mx-auto"
@@ -118,7 +121,7 @@ export default function AppWrapper({
                     </div>
                 )}
 
-                {Regie && !vizitator && <Regie />}
+                {Regie && !vizitator && !isTelefon && <Regie />}
                 {DevCssRefresh && <DevCssRefresh />}
             </LanguageContext.Provider>
         </AppContext.Provider>

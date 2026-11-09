@@ -136,6 +136,25 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 
 const viewport = () => ({ w: window.innerWidth, h: window.innerHeight });
 
+/** Pagina „telefon” (localhost:3000/telefon, 09.11.2026): site-ul stă într-un
+    iframe de mărimea unui telefon, iar panoul Regie stă lângă el, în iframe-ul
+    `data-regie-dock` al paginii-mamă — ca în fereastra separată (⧉), doar că
+    e lipit de telefon. Întoarce fereastra acelui iframe sau null. */
+function dockWindow(): Window | null {
+    try {
+        if (window.parent === window) return null;
+        const f = window.parent.document.querySelector<HTMLIFrameElement>('iframe[data-regie-dock]');
+        return f?.contentWindow ?? null;
+    } catch {
+        return null;
+    }
+}
+
+/** închide fereastra panoului; coloana de lângă telefon nu se închide, doar se golește (React) */
+function closeWin(w: Window) {
+    if (w !== dockWindow()) w.close();
+}
+
 const toBox = (r: DOMRect): Box => ({
     x: Math.round(r.left),
     y: Math.round(r.top),
@@ -275,7 +294,7 @@ function changesOf(c: ElementCue): string[] {
 
 function buildText(cues: Cue[]): string {
     const lines: string[] = [
-        `REGIE — ${cues.length} cue-uri — ecran ${window.innerWidth}×${window.innerHeight} — ${new Date().toLocaleString('ro-RO')}`,
+        `REGIE — ${cues.length} cue-uri — ecran ${window.innerWidth}×${window.innerHeight}${dockWindow() ? ' (telefon, /telefon)' : ''} — ${new Date().toLocaleString('ro-RO')}`,
         '',
     ];
     cues.forEach((c, i) => {
@@ -496,7 +515,8 @@ export default function Regie() {
 
     useEffect(() => {
         cuesRef.current = load<Cue[]>(STORAGE_CUES, []);
-        setActive(load<boolean>(STORAGE_ON, false));
+        // în pagina „telefon” Modul Regie pornește direct, cu panoul lângă telefon
+        setActive(dockWindow() ? true : load<boolean>(STORAGE_ON, false));
         setPos(load<{ x: number; y: number } | null>(STORAGE_POS, null));
         setFade(load<number>(STORAGE_FADE, 1));
         setMounted(true);
@@ -511,7 +531,7 @@ export default function Regie() {
     }, []);
 
     useEffect(() => {
-        if (mounted) save(STORAGE_ON, active);
+        if (mounted && !dockWindow()) save(STORAGE_ON, active);
     }, [active, mounted]);
 
     useEffect(() => {
@@ -534,7 +554,7 @@ export default function Regie() {
                 setPopup(null);
             }
         }, 400);
-        const closeIt = () => popup.close();
+        const closeIt = () => closeWin(popup);
         window.addEventListener('pagehide', closeIt);
         return () => {
             window.clearInterval(timer);
@@ -545,10 +565,16 @@ export default function Regie() {
     // ieșirea din Modul Regie închide și fereastra
     useEffect(() => {
         if (!active && popup) {
-            popup.close();
+            closeWin(popup);
             popupHostRef.current = null;
             setPopup(null);
         }
+    }, [active, popup]);
+
+    // pagina „telefon”: panoul stă mereu în coloana de lângă telefon
+    useEffect(() => {
+        if (active && !popup && dockWindow()) detach();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, popup]);
 
 
@@ -827,7 +853,9 @@ export default function Regie() {
 
     /* panoul într-o fereastră separată (o poți muta pe alt ecran) */
     const detach = () => {
-        const w = window.open('', 'regie-panou', 'popup=yes,width=380,height=820');
+        // pagina „telefon”: coloana din dreapta; altfel, o fereastră nouă
+        const dock = dockWindow();
+        const w = dock ?? window.open('', 'regie-panou', 'popup=yes,width=380,height=820');
         if (!w) {
             setStatus('Browserul a blocat fereastra. Permite ferestrele pop-up pentru localhost și apasă din nou ⧉.');
             return;
@@ -847,11 +875,11 @@ export default function Regie() {
         d.body.appendChild(host);
         popupHostRef.current = host;
         setPopup(w);
-        w.focus();
+        if (!dock) w.focus();
     };
 
     const attach = () => {
-        popup?.close();
+        if (popup) closeWin(popup);
         popupHostRef.current = null;
         setPopup(null);
     };
@@ -926,6 +954,7 @@ export default function Regie() {
             sentAt: new Date().toISOString(),
             page: pathRef.current,
             viewport: viewport(),
+            ...(dockWindow() ? { cadru: 'telefon (/telefon)' } : {}),
             text: buildText(cues),
             cues,
         };
@@ -958,6 +987,7 @@ export default function Regie() {
     const pinIndex = selectedPinRef.current ? cues.findIndex((c) => c.id === selectedPinRef.current) : -1;
     const pin = pinIndex >= 0 && cues[pinIndex].kind === 'pin' ? (cues[pinIndex] as PinCue) : null;
     const computed = sel ? window.getComputedStyle(sel) : null;
+    const docked = !!popup && popup === dockWindow();
 
     const panelUI = (
         <aside
@@ -1000,14 +1030,14 @@ export default function Regie() {
                             ◐
                         </button>
                     )}
-                    <button
+                    {!docked && <button
                         type="button"
                         onClick={popup ? attach : detach}
                         aria-label={popup ? 'Adu panoul înapoi în pagină' : 'Scoate panoul într-o fereastră separată'}
                         title={popup ? 'Adu panoul înapoi în pagină' : 'Scoate panoul într-o fereastră separată (o poți muta pe alt ecran)'}
                     >
                         {popup ? '⇲' : '⧉'}
-                    </button>
+                    </button>}
                     <button
                         type="button"
                         onClick={() => setCollapsed((v) => !v)}

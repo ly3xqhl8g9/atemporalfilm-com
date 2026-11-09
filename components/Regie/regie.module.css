@@ -190,8 +190,10 @@
     color: var(--rg-red-2);
 }
 
-/* panoul scos într-o fereastră separată: ocupă toată fereastra */
-.detached {
+/* panoul scos într-o fereastră separată: ocupă toată fereastra
+   (09.11.2026: .panel.detached — altfel, într-o fereastră îngustă, regula
+   pentru telefon de mai jos îl tăia la jumătate de înălțime) */
+.panel.detached {
     position: static;
     width: auto;
     height: 100vh;
