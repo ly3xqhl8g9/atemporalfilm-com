@@ -25,6 +25,7 @@ import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
 import TimeCalculator from './TimeCalculator';
 import LogoReel from './LogoReel';
 import SetStrip, { type StripImage } from './SetStrip';
+import { useBarFlow } from './barFlow';
 import styles from './landing.module.css';
 
 
@@ -226,7 +227,7 @@ const WORK_T: Record<string, Record<MoreLang, string>> = {
     'Production sound mixer':         { es: 'Jefe de sonido directo',       th: 'ผู้ควบคุมเสียงในกองถ่าย',          zh: '同期录音师',            hi: 'प्रोडक्शन साउंड मिक्सर' },
     'Production sound':               { es: 'Sonido directo',               th: 'เสียงในกองถ่าย',                  zh: '同期录音',              hi: 'प्रोडक्शन साउंड' },
     'Sound mixer':                    { es: 'Ingeniero de sonido',          th: 'วิศวกรเสียง',                     zh: '声音工程师',            hi: 'साउंड इंजीनियर' },
-    'Distribution':                   { es: 'Distribución',                 th: 'จัดจำหน่าย',                      zh: '发行',                  hi: 'वितरण' },
+    'Theatrical distribution':        { es: 'Distribución en salas',        th: 'จัดจำหน่ายในโรงภาพยนตร์',          zh: '院线发行',              hi: 'सिनेमाघरों में वितरण' },
     'Sound, sound designer':          { es: 'Sonido, diseñador de sonido',  th: 'เสียง, นักออกแบบเสียง',             zh: '声音、声音设计',         hi: 'साउंड, साउंड डिज़ाइनर' },
     'Film editor, sound designer':    { es: 'Montador, diseñador de sonido', th: 'ตัดต่อภาพยนตร์, นักออกแบบเสียง',    zh: '剪辑、声音设计',         hi: 'फ़िल्म एडिटर, साउंड डिज़ाइनर' },
     'Dialogue editor, foley artist, sound designer':
@@ -467,10 +468,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'World premiere: Krakow Film Festival 2025 · DocFilmMusic Competition · TIFF 2025 · One World Romania 2025 · Astra Film Festival 2025',
         people:        'Simona Constantin (regie, scenariu)\ncu Gheorghe „Caliu” Anghel\nAndrei Oană, Cosmin Filișan (imagine)\nLigia Popescu (montaj)\nȘtefania Grigorescu (colorizare)\nAndrei Boanță (sunet)\nCristina Badea (producător)',
         peopleEn:      'Simona Constantin (director, writer)\nwith Gheorghe ‘Caliu’ Anghel\nAndrei Oană, Cosmin Filișan (cinematography)\nLigia Popescu (editing)\nȘtefania Grigorescu (colour grading)\nAndrei Boanță (sound)\nCristina Badea (producer)',
-        // 03.11.2026: creditul cerut de Ștefan (11:18)
-        work:   'Distribuție',
-        workEn: 'Distribution',
-        workFr: 'Distribution',
+        // 03.11.2026: creditul cerut de Ștefan (11:18); 09.11: „theatrical distribution” (Diana a făcut distribuție în cinematografe)
+        work:   'Distribuție în cinematografe',
+        workEn: 'Theatrical distribution',
+        workFr: 'Distribution en salles',
         by:     'Diana Smeu',
         image:         '/assets/entities/posters/caliu.webp',
     },
@@ -486,10 +487,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'In Romanian cinemas from 16 October 2026 · distributed by Manifest Film',
         people:        'Alina Manolache (regie, scenariu, imagine)\ncu Alina Manolache, Mady Lykeridou\nAlina Manolache, Dragoș Apetri (montaj)\nClaudiu Doagă (colorizare)\nFilip Mureșan (sunet, muzica)\nMonica Lăzurean-Gorgan, Elena Martin (producătoare)',
         peopleEn:      'Alina Manolache (director, writer, cinematography)\nwith Alina Manolache, Mady Lykeridou\nAlina Manolache, Dragoș Apetri (editing)\nClaudiu Doagă (colour grading)\nFilip Mureșan (sound, music)\nMonica Lăzurean-Gorgan, Elena Martin (producers)',
-        // 03.11.2026: creditul cerut de Ștefan (11:18)
-        work:   'Distribuție',
-        workEn: 'Distribution',
-        workFr: 'Distribution',
+        // 03.11.2026: creditul cerut de Ștefan (11:18); 09.11: „theatrical distribution” (Diana a făcut distribuție în cinematografe)
+        work:   'Distribuție în cinematografe',
+        workEn: 'Theatrical distribution',
+        workFr: 'Distribution en salles',
         by:     'Diana Smeu',
         image:         '/assets/entities/posters/a-summer-of-nothing.webp',
     },
@@ -505,10 +506,10 @@ const PROJECTS: Project[] = [
         awardsEn:      'World premiere: CPH:DOX 2026 · International Main Competition · Biografilm 2026 · Astra Film Festival 2026 · TIFF 2026',
         people:        'Rachel Tâpârjan (regie, scenariu)\nAndrei Oană (imagine)\nAlice Powell (montaj)\nQuinta (muzica)\nNikola Medic (supervizor montaj sunet)\nMonica Lăzurean-Gorgan, Elena Martin, Aleksandra Bilić (producătoare)',
         peopleEn:      'Rachel Tâpârjan (director, writer)\nAndrei Oană (cinematography)\nAlice Powell (editing)\nQuinta (music)\nNikola Medic (supervising sound editor)\nMonica Lăzurean-Gorgan, Elena Martin, Aleksandra Bilić (producers)',
-        // 03.11.2026: creditul cerut de Ștefan (11:18)
-        work:   'Distribuție',
-        workEn: 'Distribution',
-        workFr: 'Distribution',
+        // 03.11.2026: creditul cerut de Ștefan (11:18); 09.11: „theatrical distribution” (Diana a făcut distribuție în cinematografe)
+        work:   'Distribuție în cinematografe',
+        workEn: 'Theatrical distribution',
+        workFr: 'Distribution en salles',
         by:     'Diana Smeu',
         image:         '/assets/entities/posters/something-familiar.webp',
     },
@@ -1586,47 +1587,25 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         transition: 'opacity 0.35s ease',
     };
 
-    /* ABOUT, desktop (03.11.2026, 18:40 — Ștefan: „nu mai apar aici pe această
-       pagină decât dacă intră între Regio și peliculă”): timecode-urile care
-       pe ABOUT nu au loc la locul lor din bara de jos (New York / Johannesburg
-       și, pe unele ecrane, Bangkok / Los Angeles) nu mai urcă sub București.
-       Stau în golul dintre Regio și prima peliculă, pe rândurile bării de jos,
-       centrate în gol: întâi întregi, apoi doar cu ora și minutul („EST 11:05 ▶”,
-       ca pe WORK la 1280–1369 px); ce nu încape nici așa nu apare pe ABOUT.
-       Măsurat pe ecran (nu din CSS), ca să fie la fel în Safari.
-       Tot aici: lățimea textului Atemporal, din poziția reală a peliculei. */
+    /* BARA DE JOS (09.11.2026): spații egale între elemente, de o parte și
+       de alta a peliculei; ce nu încape iese în ordinea lui Ștefan — vezi
+       barFlow.ts. Înlocuiește regula de pe ABOUT din 03.11, 18:40
+       (timecode-urile „doar dacă intră între Regio și peliculă”, întâi
+       scurtate) și timecode-urile scurte de pe WORK la 1280–1369 px. */
+    useBarFlow([isAbout, lang]);
+
+    /* ABOUT, desktop (03.11.2026): lățimea textului Atemporal, din poziția
+       reală a peliculei. */
     useEffect(() => {
         if (!isAbout) return;
-        const MARGIN = 8;    // cel puțin atât față de Regio și de peliculă
-        const BETWEEN = 16;  // între două grupuri
-        const groups = () => [styles.wcBottomLeft, styles.wcBottomFar]
-            .map((c) => document.querySelector<HTMLElement>(`.${styles.page} .${c}`))
-            .filter((el): el is HTMLElement => !!el);
-        const reset = (el: HTMLElement) => {
-            el.style.removeProperty('display');
-            el.style.removeProperty('left');
-            el.style.removeProperty('top');
-            el.style.removeProperty('bottom');
-            el.style.removeProperty('row-gap');
-            el.classList.remove(styles.wcSigns, styles.wcShort);
-        };
-        /* trei trepte: întregi · doar semnele (▶ / ■, ca Bangkok) · ora și minutul */
-        const MODES = ['', styles.wcSigns, `${styles.wcSigns} ${styles.wcShort}`];
-        const setMode = (el: HTMLElement, m: string) => {
-            el.classList.remove(styles.wcSigns, styles.wcShort);
-            if (m) el.classList.add(...m.split(' '));
-        };
         const place = () => {
-            const all = groups();
-            all.forEach(reset);
             const text = document.querySelector<HTMLElement>(`.${styles.page} .${styles.aboutText}`);
             text?.style.removeProperty('width');
             text?.style.removeProperty('left');
             if (window.innerWidth < 1280) return;
 
-            const regio = document.querySelector<HTMLElement>(`.${styles.cfLogoRegio}`);
             const stripEls = [...document.querySelectorAll<HTMLElement>(`.${styles.page} .${styles.viewfinder}, .${styles.page} .${styles.gallery}`)];
-            if (!regio || !stripEls.length) return;
+            if (!stripEls.length) return;
             const stripL = Math.min(...stripEls.map((el) => el.getBoundingClientRect().left));
 
             // textul Atemporal: de la verticala listei de filme până la 32 px de
@@ -1644,44 +1623,6 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 if (x !== listX) text.style.left = `${Math.round(x)}px`;
                 text.style.width = `${Math.round(Math.max(200, Math.min(384, stripL - x - 32)))}px`;
             }
-
-            // doar grupurile pe care CSS-ul de pe ABOUT le-ar urca în antet
-            const moved = all.filter((el) => {
-                if (getComputedStyle(el).display === 'none') return false;
-                return el.getBoundingClientRect().top < window.innerHeight / 2;   // urcat sus
-            });
-            if (!moved.length) return;
-            const homeBottom = getComputedStyle(document.querySelector<HTMLElement>(`.${styles.wcBottomHome}`) ?? moved[0]).bottom;
-            const regioR = regio.getBoundingClientRect().right;
-            const room = stripL - regioR - 2 * MARGIN;
-
-            const widths = (list: HTMLElement[], m: string) => list.map((el) => {
-                setMode(el, m);
-                return el.getBoundingClientRect().width;
-            });
-            const total = (w: number[]) => w.reduce((a, b) => a + b, 0) + BETWEEN * (w.length - 1);
-
-            let chosen: HTMLElement[] = [];
-            let mode = '';
-            outer: for (let k = moved.length; k >= 1; k--) {
-                for (const m of MODES) {
-                    const list = moved.slice(0, k);
-                    if (total(widths(list, m)) <= room) { chosen = list; mode = m; break outer; }
-                }
-            }
-            moved.forEach((el) => setMode(el, ''));
-            moved.filter((el) => !chosen.includes(el)).forEach((el) => { el.style.display = 'none'; });
-            if (!chosen.length) return;
-
-            const w = widths(chosen, mode);
-            let x = regioR + MARGIN + (room - total(w)) / 2;
-            chosen.forEach((el, i) => {
-                el.style.top = 'auto';
-                el.style.bottom = homeBottom;
-                el.style.rowGap = '9px';
-                el.style.left = `${Math.round(x)}px`;
-                x += w[i] + BETWEEN;
-            });
         };
         place();
         const t1 = window.setTimeout(place, 300);
@@ -1692,7 +1633,6 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             window.clearTimeout(t1);
             window.clearTimeout(t2);
             window.removeEventListener('resize', place);
-            groups().forEach(reset);
         };
     }, [isAbout, lang]);
 
