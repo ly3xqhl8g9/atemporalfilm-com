@@ -32,12 +32,19 @@ export function filmK(el: Element | null): number {
     return Number.isFinite(v) && v > 0 ? v : 1;
 }
 
-/** filtrul unui afiș după cât de mult e în ramă (e: 0 = afară, 1 = în ramă) */
-export function exposureFilter(e: number): string {
+/** filtrul unui afiș după cât de mult e în ramă (e: 0 = afară, 1 = în ramă);
+    `gain` = cât de mult e ridicată expunerea în ramă față de afișe (1 = la fel) */
+export function exposureFilter(e: number, gain = 1): string {
     return `grayscale(${(1 - e).toFixed(3)}) ` +
            `contrast(${(1.15 - 0.15 * e).toFixed(3)}) ` +
-           `brightness(${(EXPO_OUT + (EXPO_IN - EXPO_OUT) * e).toFixed(3)})`;
+           `brightness(${(EXPO_OUT + (EXPO_IN * gain - EXPO_OUT) * e).toFixed(3)})`;
 }
+
+/* POZELE DE PE PLATOU (ABOUT, a doua peliculă — 12.11.2026, Ștefan: „e
+   subexpusă, o poți ridica puțin să se vadă mai bine?”): în ramă, puțin
+   mai luminoase decât afișele. Lampa (color-dodge) amplifică, deci un pas
+   mic aici se vede mult. */
+export const SET_GAIN = 1.3;
 
 /* ============================================================
    PELICULA ORIZONTALĂ (09.11.2026, cererea lui Ștefan): pe telefon și

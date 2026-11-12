@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
-    BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, exposureFilter, filmK,
+    BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, SET_GAIN, exposureFilter, filmK,
     type Axis, bandShift, filmAxis, offsetPos, rectMid, scrollMax, scrollPos, setScrollPos, viewSize, wheelDelta,
 } from './filmStrip';
 import styles from './landing.module.css';
@@ -81,7 +81,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             const e = Math.round(x * x * (3 - 2 * x) * 1000) / 1000;
             if (exp[i] === e) return;
             exp[i] = e;
-            img.style.filter = exposureFilter(e);
+            img.style.filter = exposureFilter(e, SET_GAIN);
             if (halo) halo.style.opacity = (0.32 * e).toFixed(3);
         });
         const top = scrollPos(g, axisRef.current);
@@ -208,9 +208,33 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         axisRef.current = filmAxis(g);
         jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
 
-        let idle = 0, ticking = false;
+        let idle = 0, ticking = false, finger = false;
         const later = () => { window.clearTimeout(idle); idle = window.setTimeout(settle, SETTLE_MS); };
+        /* fără capăt și în timpul derulării (12.11.2026) — ca banda principală
+           (index.tsx › wrap): capătul la mai puțin de un ecran → liste întregi spre mijloc */
+        const wrap = () => {
+            const m = motionRef.current;
+            if (finger || m.mode === 'spring') return;
+            const top = scrollPos(g, axisRef.current);
+            const N = reel.N, p = pitch(), ax = axisRef.current;
+            const max  = scrollMax(g, ax);
+            const edge = Math.max((N / 2) * p, viewSize(g, ax));
+            if (top > edge && top < max - edge) return;
+            const f = (top - originRef.current) / p;
+            const d = Math.round(((reel.SLOTS.length - 1) / 2 - f) / N) * N;
+            if (!d) return;
+            g.classList.add(styles.jumping);
+            setScrollPos(g, axisRef.current, top + d * p);
+            const moved = scrollPos(g, axisRef.current) - top;
+            lastTopRef.current += moved;          // pista sonoră nu sare
+            m.pos += moved;
+            m.target += moved;
+            window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+                g.classList.remove(styles.jumping);
+            })), 60);
+        };
         const onScroll = () => {
+            wrap();
             if (!ticking) {
                 ticking = true;
                 requestAnimationFrame(() => { sync(); ticking = false; });
@@ -243,8 +267,11 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             }
             later();
         };
-        const onGrab   = () => { stop(); window.clearTimeout(idle); };
-        const onLift   = () => { if (motionRef.current.mode !== 'spring') later(); };
+        const onGrab   = (e: Event) => { if (e.type === 'touchstart') finger = true; stop(); window.clearTimeout(idle); };
+        const onLift   = (e: Event) => {
+            if (e.type === 'touchend' || e.type === 'touchcancel') finger = false;
+            if (motionRef.current.mode !== 'spring') later();
+        };
         const onResize = () => {
             kRef.current = filmK(g);
             expoRef.current = [];
@@ -264,6 +291,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         g.addEventListener('touchstart', onGrab, { passive: true });
         g.addEventListener('pointerdown', onGrab, { passive: true });
         g.addEventListener('touchend', onLift, { passive: true });
+        g.addEventListener('touchcancel', onLift, { passive: true });
         window.addEventListener('pointerup', onLift, { passive: true });
         window.addEventListener('resize', onResize);
         return () => {
@@ -274,6 +302,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             g.removeEventListener('touchstart', onGrab);
             g.removeEventListener('pointerdown', onGrab);
             g.removeEventListener('touchend', onLift);
+            g.removeEventListener('touchcancel', onLift);
             window.removeEventListener('pointerup', onLift);
             window.removeEventListener('resize', onResize);
         };

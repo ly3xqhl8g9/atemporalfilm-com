@@ -804,47 +804,56 @@ const PEOPLE: Project[] = [
         meta:        'Sound designer, editor',
         metaRo:      'Sound designer, montaj',
         metaFr:      'Sound designer, monteur',
+        // 12.11.2026: textele noi, scrise de Ștefan (plan de lucru/bio-stefan-12-noiembrie.txt);
+        // în afară de RO: „Where Elephants Go” și „4:15 P.M. The End of the World” — titlurile oficiale
         bio: {
             en: {
                 role: 'Founder | Sound Designer • Production Sound Mixing • Editor • Foley Artist',
                 text: [
-                    'With over a decade of experience, Ștefan has shaped audio for productions in Romania, the UK, UAE, Saudi Arabia, Turkey, Zambia and Zimbabwe. He holds both a BA and an MA in Editing & Sound Design and is currently pursuing a PhD. When he’s not capturing sound on set, you’ll find him in the studio fine-tuning every detail.',
+                    "Ștefan studied music from childhood, then chose film. He did his BA and MA at UNATC in Bucharest, where he’s now working on a PhD in cinema. For over ten years he has done sound and editing on films from Romania, the UK, the UAE, Turkey, Zambia and Zimbabwe, including the features “Nasty,” “Where Elephants Go,” “A River’s Gaze” and “Thou Shalt Not Kill,” which earned nominations and awards at festivals such as Cannes, Berlin, Locarno and Warsaw. The short “4:15 P.M. The End of the World” was selected for the official competition at Cannes in 2016. Ștefan was nominated for the Young Hope award at Romania’s Gopo Awards.",
+                    "He loves moving between set and studio, because knowing both worlds gives him a sharper sense of what a film really needs. The same goes for editing and sound: he’s already shaping the entire sound concept while he’s in the cut. Between projects he composes and records sounds for his personal library.",
                 ],
             },
             ro: {
                 role: 'Fondator | Sound designer • Sunet de platou • Montaj • Foley',
                 text: [
-                    'Cu peste zece ani de experiență, Ștefan a lucrat sunetul unor producții din România, Marea Britanie, Emiratele Arabe Unite, Arabia Saudită, Turcia, Zambia și Zimbabwe. Are licența și masteratul în Montaj și Sound Design și face acum doctoratul. Când nu înregistrează sunet pe platou, e în studio, unde lucrează fiecare detaliu.',
+                    "Ștefan a studiat muzica încă din copilărie, apoi a ales filmul. A urmat licența și masterul la UNATC, iar acum își face doctoratul în cinematografie la aceeași universitate. De peste zece ani face sunet și montaj pentru filme din România, Marea Britanie, Emiratele Arabe Unite, Turcia, Zambia și Zimbabwe, printre care lungmetrajele „Nasty”, „Unde merg elefanții”, „A River’s Gaze” și „Să nu ucizi”, nominalizate și premiate la festivaluri precum Cannes, Berlin, Locarno și Varșovia. Scurtmetrajul „4:15 P.M. Sfârșitul lumii” a fost selectat în competiția oficială de la Cannes în 2016. Ștefan a fost nominalizat la Premiile Gopo, la categoria Tânără Speranță.",
+                    "Îi place să îmbine lucrul pe platou cu cel din studio: cunoscând ambele lumi, vede mai precis de ce are nevoie un film. La fel se întâmplă cu montajul și sunetul, pentru că gândește întregul concept sonor încă din faza de montaj. Între proiecte compune și înregistrează sunete pentru biblioteca lui personală.",
                 ],
             },
             fr: {
                 role: 'Fondateur | Sound designer • Ingénieur du son plateau • Monteur • Bruiteur',
                 text: [
-                    'Fort de plus de dix ans d’expérience, Ștefan a façonné le son de productions en Roumanie, au Royaume-Uni, aux Émirats arabes unis, en Arabie saoudite, en Turquie, en Zambie et au Zimbabwe. Titulaire d’une licence et d’un master en montage et sound design, il prépare actuellement un doctorat. Quand il n’enregistre pas le son sur un plateau, il est en studio, à peaufiner chaque détail.',
+                    "Ștefan a étudié la musique dès l’enfance avant de choisir le cinéma. Il a suivi une licence et un master à l’UNATC de Bucarest, où il prépare aujourd’hui un doctorat en cinéma. Depuis plus de dix ans, il fait le son et le montage de films venus de Roumanie, du Royaume-Uni, des Émirats arabes unis, de Turquie, de Zambie et du Zimbabwe, parmi lesquels les longs métrages « Nasty », « Where Elephants Go », « A River’s Gaze » et « Thou Shalt Not Kill », nommés et primés dans des festivals comme Cannes, Berlin, Locarno ou Varsovie. Le court métrage « 4:15 P.M. The End of the World » a été sélectionné en compétition officielle à Cannes en 2016. Ștefan a été nommé aux prix Gopo, en Roumanie, dans la catégorie Jeune Espoir.",
+                    "Il aime conjuguer le travail sur le plateau et en studio, car connaître les deux univers lui permet de voir plus précisément ce dont un film a besoin. Il en va de même pour le montage et le son : il pense toute la conception sonore dès l’étape du montage. Entre deux projets, il compose et enregistre des sons pour sa sonothèque personnelle.",
                 ],
             },
             es: {
                 role: 'Fundador | Diseñador de sonido • Sonido directo • Montador • Artista de foley',
                 text: [
-                    'Con más de una década de experiencia, Ștefan ha dado forma al sonido de producciones en Rumanía, el Reino Unido, los Emiratos Árabes Unidos, Arabia Saudí, Turquía, Zambia y Zimbabue. Es graduado y máster en Montaje y Diseño de Sonido, y actualmente cursa un doctorado. Cuando no está grabando sonido en un rodaje, está en el estudio, puliendo cada detalle.',
+                    "Ștefan estudió música desde niño y después eligió el cine. Hizo el grado y el máster en la UNATC de Bucarest, donde ahora cursa el doctorado en cine. Desde hace más de diez años hace sonido y montaje para películas de Rumanía, Reino Unido, Emiratos Árabes Unidos, Turquía, Zambia y Zimbabue, entre ellas los largometrajes «Nasty», «Where Elephants Go», «A River’s Gaze» y «Thou Shalt Not Kill», nominados y premiados en festivales como Cannes, Berlín, Locarno o Varsovia. El cortometraje «4:15 P.M. The End of the World» fue seleccionado en la competición oficial de Cannes en 2016. Ștefan fue nominado a Joven Promesa en los Premios Gopo de Rumanía.",
+                    "Le gusta combinar el trabajo en rodaje con el de estudio, porque conocer los dos mundos le permite ver con más precisión lo que necesita una película. Con el montaje y el sonido le pasa lo mismo: concibe todo el concepto sonoro ya desde la fase de montaje. Entre proyecto y proyecto compone y graba sonidos para su sonoteca personal.",
                 ],
             },
             th: {
                 role: 'ผู้ก่อตั้ง | นักออกแบบเสียง • บันทึกเสียงในกองถ่าย • ช่างตัดต่อ • ศิลปินฟอลีย์',
                 text: [
-                    'ด้วยประสบการณ์กว่าสิบปี Ștefan สร้างสรรค์งานเสียงให้กับโปรดักชันในโรมาเนีย สหราชอาณาจักร สหรัฐอาหรับเอมิเรตส์ ซาอุดีอาระเบีย ตุรกี แซมเบีย และซิมบับเว เขาจบปริญญาตรีและปริญญาโทด้านการตัดต่อและการออกแบบเสียง และกำลังศึกษาระดับปริญญาเอก เมื่อไม่ได้บันทึกเสียงอยู่ในกองถ่าย เขาจะอยู่ในสตูดิโอ ขัดเกลาทุกรายละเอียด',
+                    "Ștefan เรียนดนตรีมาตั้งแต่เด็ก ก่อนจะเลือกเส้นทางภาพยนตร์ เขาจบปริญญาตรีและปริญญาโทจาก UNATC กรุงบูคาเรสต์ และตอนนี้กำลังเรียนปริญญาเอกด้านภาพยนตร์ที่มหาวิทยาลัยเดียวกัน กว่าสิบปีที่ผ่านมา เขาทำเสียงและตัดต่อให้ภาพยนตร์จากโรมาเนีย สหราชอาณาจักร สหรัฐอาหรับเอมิเรตส์ ตุรกี แซมเบีย และซิมบับเว รวมถึงหนังยาวอย่าง “Nasty” “Where Elephants Go” “A River’s Gaze” และ “Thou Shalt Not Kill” ซึ่งได้เข้าชิงและคว้ารางวัลจากเทศกาลภาพยนตร์อย่างคานส์ เบอร์ลิน โลการ์โน และวอร์ซอ หนังสั้น “4:15 P.M. The End of the World” ได้เข้าสายประกวดหลักของเทศกาลภาพยนตร์เมืองคานส์ในปี 2016 และ Ștefan เองก็เคยเข้าชิงรางวัล Gopo ของโรมาเนียในสาขาดาวรุ่ง",
+                    "เขาชอบทำงานทั้งในกองถ่ายและในสตูดิโอควบคู่กัน เพราะการรู้จักทั้งสองโลกทำให้เขาเห็นชัดขึ้นว่าหนังเรื่องหนึ่งต้องการอะไร งานตัดต่อกับงานเสียงก็เช่นกัน เขาวางคอนเซ็ปต์เสียงทั้งหมดไว้ตั้งแต่ขั้นตอนตัดต่อ ระหว่างโปรเจกต์ เขาแต่งเพลงและอัดเสียงเก็บไว้ในคลังเสียงส่วนตัว",
                 ],
             },
             zh: {
                 role: '创始人 | 声音设计 • 同期录音 • 剪辑 • 拟音',
                 text: [
-                    'Ștefan 拥有十余年从业经验，曾为罗马尼亚、英国、阿联酋、沙特阿拉伯、土耳其、赞比亚和津巴布韦的作品打造声音。他拥有剪辑与声音设计学士和硕士学位，目前正在攻读博士学位。不在片场录音的时候，他就在录音棚里打磨每一个细节。',
+                    "Ștefan 自幼学习音乐，后来选择了电影。他在布加勒斯特国立戏剧与电影艺术大学（UNATC）完成本科和硕士学业，目前在该校攻读电影博士。十多年来，他为罗马尼亚、英国、阿联酋、土耳其、赞比亚和津巴布韦的电影担任声音和剪辑，参与的长片包括《Nasty》《Where Elephants Go》《A River’s Gaze》和《Thou Shalt Not Kill》，这些影片曾在戛纳、柏林、洛迦诺、华沙等电影节获得提名和奖项。短片《4:15 P.M. The End of the World》入围了 2016 年戛纳电影节短片竞赛单元。Ștefan 曾获罗马尼亚 Gopo 奖\"新希望奖\"提名。",
+                    "他喜欢把片场工作和录音棚工作结合起来：对两边都了解，让他更准确地知道一部电影真正需要什么。剪辑和声音也是如此，早在剪辑阶段，他就已经在构思整个声音概念。项目间隙，他会作曲，并为自己的私人声音库录制声音。",
                 ],
             },
             hi: {
                 role: 'संस्थापक | साउंड डिज़ाइनर • प्रोडक्शन साउंड मिक्सिंग • एडिटर • फ़ोली आर्टिस्ट',
                 text: [
-                    'एक दशक से अधिक के अनुभव के साथ, Ștefan ने रोमानिया, ब्रिटेन, संयुक्त अरब अमीरात, सऊदी अरब, तुर्की, ज़ाम्बिया और ज़िम्बाब्वे की प्रोडक्शनों के लिए साउंड गढ़ा है। उनके पास एडिटिंग और साउंड डिज़ाइन में BA और MA की डिग्रियाँ हैं और वे इस समय PhD कर रहे हैं। जब वे सेट पर साउंड रिकॉर्ड नहीं कर रहे होते, तो स्टूडियो में हर बारीकी को निखारते मिलते हैं।',
+                    "Ștefan ने बचपन से संगीत सीखा और फिर फ़िल्म को चुना। उन्होंने बुखारेस्ट के UNATC से बीए और एमए किया, और अब उसी विश्वविद्यालय से सिनेमा में पीएचडी कर रहे हैं। दस साल से ज़्यादा समय से वे रोमानिया, ब्रिटेन, संयुक्त अरब अमीरात, तुर्की, ज़ाम्बिया और ज़िम्बाब्वे की फ़िल्मों में साउंड और एडिटिंग कर रहे हैं। इनमें “Nasty”, “Where Elephants Go”, “A River’s Gaze” और “Thou Shalt Not Kill” जैसी फ़ीचर फ़िल्में शामिल हैं, जिन्हें कान, बर्लिन, लोकार्नो और वारसॉ जैसे फ़िल्म फ़ेस्टिवलों में नामांकन और पुरस्कार मिले। शॉर्ट फ़िल्म “4:15 P.M. The End of the World” 2016 में कान की आधिकारिक प्रतियोगिता में चुनी गई थी। Ștefan को रोमानिया के गोपो अवॉर्ड्स में 'यंग होप' श्रेणी में नामांकन मिला।",
+                    "उन्हें सेट और स्टूडियो, दोनों का काम साथ लेकर चलना पसंद है, क्योंकि दोनों दुनियाओं की समझ से उन्हें ज़्यादा साफ़ दिखता है कि किसी फ़िल्म को क्या चाहिए। एडिटिंग और साउंड के साथ भी ऐसा ही है: एडिटिंग के दौरान ही वे पूरा साउंड कॉन्सेप्ट गढ़ लेते हैं। प्रोजेक्ट्स के बीच वे संगीत रचते हैं और अपनी निजी साउंड लाइब्रेरी के लिए आवाज़ें रिकॉर्ड करते हैं।",
                 ],
             },
         },
@@ -1446,12 +1455,47 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
         let ticking = false;
         let idle    = 0;
+        let finger  = false;   // degetul e pe peliculă
         const scheduleSettle = () => {
             window.clearTimeout(idle);
             idle = window.setTimeout(settle, SETTLE_MS);
         };
+        /* PELICULA FĂRĂ CAPĂT ȘI ÎN TIMPUL DERULĂRII (12.11.2026, Ștefan: pe
+           telefon, derulând mult, pelicula ajungea la capăt): până acum
+           pelicula sărea în copia din mijloc doar după ce se oprea. Acum, cât
+           derulează (inerția degetului, rotița), când capătul ajunge la mai
+           puțin de un ecran, sare cu un număr întreg de liste spre mijloc —
+           aceeași imagine, deci nu se vede. Nu cât timp degetul e pe
+           ecran (ar sări sub deget) și nu pe arcul care o așază. */
+        const wrap = (top: number): number => {
+            const m = motionRef.current;
+            if (finger || m.mode === 'spring') return top;
+            // capătul ar ajunge la mai puțin de un ecran (sau o jumătate de listă)
+            // → mutăm pelicula cu un număr întreg de liste, cât mai aproape de mijloc
+            const N = reel.N, p = slotPitch(), ax = axisRef.current;
+            const max  = scrollMax(gallery, ax);
+            const edge = Math.max((N / 2) * p, viewSize(gallery, ax));
+            if (top > edge && top < max - edge) return top;
+            const f = (top - originRef.current) / p;
+            const d = Math.round(((reel.SLOTS.length - 1) / 2 - f) / N) * N;
+            if (!d) return top;
+            const delta = d * p;
+            gallery.classList.add(styles.jumping);
+            setScrollPos(gallery, axisRef.current, top + delta);
+            const now = scrollPos(gallery, axisRef.current);
+            const moved = now - top;
+            lastTopRef.current += moved;          // pista sonoră nu sare
+            m.pos += moved;
+            m.target += moved;
+            lastActiveRef.current += d;
+            restRef.current += d;
+            window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+                gallery.classList.remove(styles.jumping);
+            })), 60);
+            return now;
+        };
         const onScroll = () => {
-            const top = scrollPos(gallery, axisRef.current);
+            const top = wrap(scrollPos(gallery, axisRef.current));
             prevTopRef.current = top;
             if (!ticking) {
                 requestAnimationFrame(() => {
@@ -1495,13 +1539,17 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             }
             scheduleSettle();
         };
-        const onGrab  = () => { stopGlide(); window.clearTimeout(idle); };
-        const onLift  = () => { if (motionRef.current.mode !== 'spring') scheduleSettle(); };
+        const onGrab  = (e: Event) => { if (e.type === 'touchstart') finger = true; stopGlide(); window.clearTimeout(idle); };
+        const onLift  = (e: Event) => {
+            if (e.type === 'touchend' || e.type === 'touchcancel') finger = false;
+            if (motionRef.current.mode !== 'spring') scheduleSettle();
+        };
         gallery.addEventListener('scroll', onScroll, { passive: true });
         gallery.addEventListener('wheel', onWheel, { passive: false });
         gallery.addEventListener('touchstart', onGrab, { passive: true });
         gallery.addEventListener('pointerdown', onGrab, { passive: true });
         gallery.addEventListener('touchend', onLift, { passive: true });
+        gallery.addEventListener('touchcancel', onLift, { passive: true });
         window.addEventListener('pointerup', onLift, { passive: true });
         // telefonul întors / fereastra redimensionată: altă mărime a peliculei,
         // alt loc al ramei → cadrul din ramă e pus din nou exact în ea
@@ -1533,10 +1581,11 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             gallery.removeEventListener('touchstart', onGrab);
             gallery.removeEventListener('pointerdown', onGrab);
             gallery.removeEventListener('touchend', onLift);
+            gallery.removeEventListener('touchcancel', onLift);
             window.removeEventListener('pointerup', onLift);
             window.removeEventListener('resize', onResize);
         };
-    }, [updateActive, syncList, jumpTo, settle, stopGlide, runMotion, reel]);
+    }, [updateActive, syncList, jumpTo, settle, stopGlide, runMotion, reel, slotPitch]);
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);

@@ -3533,7 +3533,7 @@ button.capTitle {
        cue-uri: 6 px de la cuvânt la cuvânt); între cele două perechi, 36 px */
     :global(html[data-film='h']) .navRow .navWork,
     :global(html[data-film='h']) .navRow .navGear { margin-right: 9px; }
-    :global(html[data-film='h']) .navRow .navAbout { margin-right: 36px; }
+    :global(html[data-film='h']) .navRow .navAbout { margin-right: var(--nav-pair-gap, 36px); }
     /* căsuța GEAR: sub rândul meniului */
     :global(html[data-film='h']) .navRow .gearBox { top: calc(var(--hdr-h) + 4px); right: 14px; }
 }
@@ -3690,10 +3690,11 @@ button.capTitle {
        21 px la 15,4 px → 19 px la 14 px); între cele două perechi, 36 px */
     :global(html[data-film='v1']) .navRow .navWork,
     :global(html[data-film='v1']) .navRow .navGear  { margin-right: 19px; }
-    :global(html[data-film='v1']) .navRow .navAbout { margin-right: 36px; }
+    :global(html[data-film='v1']) .navRow .navAbout { margin-right: var(--nav-pair-gap, 36px); }
     /* în ES / FR / RO, unde altfel n-ar încăpea: scris puțin mai mic (cel
        puțin 12 px), cât să încapă — îl pune filmMode.ts, ca pe desktop */
-    :global(html[data-film='v1'][data-nav-fs]) .navItemAt .navItem { font-size: var(--nav-fs-v1); }
+    :global(html[data-film='v1'][data-nav-fs]) .navItemAt .navItem,
+    :global(html[data-film='h'][data-nav-fs]) .navItemAt .navItem { font-size: var(--nav-fs-v1); }
     /* ceasul: sub rândul meniului (înainte, sub două rânduri: 86 px) */
     :global(html[data-film='v1']) .hdClocks { top: 62px; }
     /* ABOUT: caseta cu textul, sub ceas */
@@ -3706,4 +3707,54 @@ button.capTitle {
     :global(html[data-film='v1']) .hdClocks { top: 48px; }
     :global(html[data-film='v1']) .pageAbout .aboutRead { top: 74px; }
     :global(html[data-film='v1']) .navRow .gearBox { top: 46px; }
+}
+
+/* 12.11.2026, seara (Ștefan: „doar în engleză, când fac ecranul mai mic,
+   dispare descrierea — sound designer, Ștefan Azaharioaie”): pe WORK, în
+   așezarea v1 (pelicula verticală, meniul pe un rând) blocul cu contactele
+   de pe desktop rămâne în dreapta, sub ceas — e loc destul. Doar în celelalte
+   așezări (pelicula orizontală) contactele stau în fișa de la CONTACT. Lățimea:
+   până la 16 px de ramă; rândurile prea lungi trec pe al doilea rând. */
+@media (max-width: 1279px) {
+    :global(html[data-film='v1']) .workContacts {
+        display: block !important;
+        top: 92px;
+        left: auto;
+        right: var(--logo-x);
+        max-width: calc(50vw - var(--vf-w) / 2 - var(--logo-x) - 16px);
+        white-space: normal;
+    }
+}
+@media (max-width: 1279px) and (max-height: 560px) {
+    :global(html[data-film='v1']) .workContacts { top: 74px; line-height: 1.32; }
+    :global(html[data-film='v1']) .workContacts p { margin-bottom: 4px; }
+}
+
+/* 12.11.2026, seara (Ștefan: „să evităm TRABAJOS, NOSOTROS deasupra lui
+   MATERIAL, CONTACTO”): pe tableta cu pelicula orizontală (≥ 768 px, ținută
+   vertical sau lată) meniul trece și el pe un singur rând, ca în v1 și ca pe
+   telefon. Încape în toate limbile (cel mai lung, ES: ~410 px). Rămân două
+   rânduri doar în v2 (telefonul întors, când nu e loc lângă peliculă). */
+@media (min-width: 768px) and (max-width: 1279px) {
+    :global(html[data-film='h']) .navRow {
+        grid-template-columns: auto auto auto auto;
+        grid-template-areas: "work about gear contact";
+        column-gap: 0;
+    }
+    :global(html[data-film='h']) .navRow .navWork,
+    :global(html[data-film='h']) .navRow .navGear  { margin-right: 19px; }
+    :global(html[data-film='h']) .navRow .navAbout { margin-right: var(--nav-pair-gap, 36px); }
+    :global(html[data-film='h']) .hdClocks { top: 62px; }
+    :global(html[data-film='h']) .navRow .gearBox { top: 60px; }
+}
+
+/* 12.11.2026, seara (Ștefan: „pe telefon butonul de limbi nu merge”): pe
+   telefon blocul site-uri + ADR ține toată lățimea barei și stătea peste
+   butonul de limbă (atingerea ajungea la el, nu la buton). Blocul lasă acum
+   atingerile să treacă; doar site-urile și ADR le primesc. Butonul de limbă
+   și lista lui stau deasupra. */
+@media (max-width: 1279px) {
+    .page .cofinanceRight { pointer-events: none; }
+    .page .cofinanceRight > * { pointer-events: auto; }
+    .page .cofinanceLeft { z-index: 3; }
 }

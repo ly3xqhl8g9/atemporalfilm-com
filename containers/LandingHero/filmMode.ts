@@ -95,6 +95,49 @@ function fitsV1(): boolean {
     return true;
 }
 
+/** cel mai mic scris al meniului pe telefon, ca să nu intre peste logo */
+const NAV_FS_MIN_PHONE = 10.5;
+
+/* PELICULA ORIZONTALĂ (12.11.2026, seara — pe 375 px, în română, meniul
+   „LUCRĂRI, DESPRE   ECHIPAMENT, CONTACT” intra peste „Film” din logo):
+   meniul se scrie puțin mai mic, exact cât să rămână la 10 px de logo;
+   unde încape, nu se schimbă nimic. */
+function fitNavBesideLogo(): void {
+    const page  = document.querySelector<HTMLElement>(`.${styles.page}`);
+    const navEl = page?.querySelector<HTMLElement>(`.${styles.navRow}`);
+    const logo  = page?.querySelector<HTMLElement>(`.${styles.logoWord2}`)
+               ?? page?.querySelector<HTMLElement>(`.${styles.logo}`);
+    if (!navEl || !logo) return;
+    const h = document.documentElement;
+    const clear = () => {
+        const n = navEl.getBoundingClientRect(), l = logo.getBoundingClientRect();
+        return n.top >= l.bottom || n.bottom <= l.top || n.left >= l.right + 10;
+    };
+    if (clear()) return;
+    // întâi golul dintre perechi (36 → cel puțin 20 px), apoi scrisul
+    h.style.setProperty('--nav-pair-gap', '20px');
+    if (clear()) {
+        let g = 20;
+        while (g < 36) { h.style.setProperty('--nav-pair-gap', `${g + 2}px`); if (!clear()) break; g += 2; }
+        h.style.setProperty('--nav-pair-gap', `${g}px`);
+        return;
+    }
+    const word = navEl.querySelector<HTMLElement>(`.${styles.navItem}`);
+    const fs0  = word ? parseFloat(getComputedStyle(word).fontSize) : 12.5;
+    const at = (fs: number) => {
+        h.style.setProperty('--nav-fs-v1', `${fs}px`);
+        h.setAttribute(FS_ATTR, '');
+        return clear();
+    };
+    if (!at(NAV_FS_MIN_PHONE)) return;   // nici așa: rămâne cel mai mic
+    let lo = NAV_FS_MIN_PHONE * 10, hi = Math.floor(fs0 * 10);
+    while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (at(mid / 10)) lo = mid; else hi = mid;
+    }
+    at(lo / 10);
+}
+
 /**
  * Alege așezarea și o pune pe <html>. `announce` = trimite un „resize”, ca
  * peliculele și bara de jos să se așeze din nou — nu e nevoie când suntem
@@ -105,7 +148,8 @@ export function decideFilmMode(announce = true): FilmMode {
     const prev = h.getAttribute(ATTR);
     const w = window.innerWidth, t = window.innerHeight;
     let m: FilmMode;
-    const fsPrev = h.style.getPropertyValue('--nav-fs-v1');
+    const fsPrev = h.style.getPropertyValue('--nav-fs-v1') + h.style.getPropertyValue('--nav-pair-gap');
+    h.style.removeProperty('--nav-pair-gap');
     h.style.removeProperty('--nav-fs-v1');
     h.removeAttribute(FS_ATTR);
     if (w >= DESKTOP) m = 'd';
@@ -119,7 +163,8 @@ export function decideFilmMode(announce = true): FilmMode {
         h.removeAttribute(FS_ATTR);
     }
     h.setAttribute(ATTR, m);
-    if (announce && (m !== prev || h.style.getPropertyValue('--nav-fs-v1') !== fsPrev)) window.dispatchEvent(new Event('resize'));
+    if (m === 'h') fitNavBesideLogo();
+    if (announce && (m !== prev || h.style.getPropertyValue('--nav-fs-v1') + h.style.getPropertyValue('--nav-pair-gap') !== fsPrev)) window.dispatchEvent(new Event('resize'));
     return m;
 }
 
