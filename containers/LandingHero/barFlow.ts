@@ -230,7 +230,8 @@ export function useBarFlow(deps: unknown[]) {
 
         place();
         // lățimile se schimbă cu fontul, cu limba, cu mărimea ecranului
-        const ro = new ResizeObserver(schedule);
+        // browserele vechi (Safari sub 13.1) nu au ResizeObserver: rămân resize + cronometrele
+        const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
         const page = document.querySelector<HTMLElement>(`.${styles.page}`);
         if (page) {
             const { els } = find(page);
@@ -239,22 +240,23 @@ export function useBarFlow(deps: unknown[]) {
                 const target = el?.classList.contains(styles.cofinanceEncoder)
                     ? el.firstElementChild as HTMLElement | null
                     : el;
-                if (target) ro.observe(target);
+                if (target) ro?.observe(target);
             });
-            page.querySelectorAll<HTMLElement>(`.${styles.gallery}`).forEach((g) => ro.observe(g));
+            page.querySelectorAll<HTMLElement>(`.${styles.gallery}`).forEach((g) => ro?.observe(g));
         }
         const t1 = window.setTimeout(schedule, 300);
         const t2 = window.setTimeout(schedule, 1500);
         document.fonts?.ready.then(schedule).catch(() => {});
         window.addEventListener('resize', schedule);
-        mq.addEventListener('change', schedule);
+        // Safari mai vechi de 14 are doar addListener
+        if (mq.addEventListener) mq.addEventListener('change', schedule); else mq.addListener(schedule);
         return () => {
             if (raf) cancelAnimationFrame(raf);
             window.clearTimeout(t1);
             window.clearTimeout(t2);
-            ro.disconnect();
+            ro?.disconnect();
             window.removeEventListener('resize', schedule);
-            mq.removeEventListener('change', schedule);
+            if (mq.removeEventListener) mq.removeEventListener('change', schedule); else mq.removeListener(schedule);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps);

@@ -125,6 +125,9 @@ function flangePath(): string {
 export const FLANGE = flangePath();
 
 
+/** golește un element — replaceChildren() lipsește în Safari mai vechi de 14 */
+const clear = (el: Element) => { while (el.firstChild) el.removeChild(el.firstChild); };
+
 export default function LogoReel({ label }: { label: string }) {
     // starea inițială e aceeași pe server și la hidratare ('wait'); după
     // aceea e schimbată direct în DOM (data-state), în același cadru cu SVG-ul
@@ -145,7 +148,7 @@ export default function LogoReel({ label }: { label: string }) {
     const finish = () => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
-        stripRef.current?.replaceChildren();
+        if (stripRef.current) clear(stripRef.current);
         if (fillRef.current) fillRef.current.style.opacity = '0';
         if (rootRef.current) rootRef.current.dataset.state = 'done';
         setReel(1);
@@ -179,7 +182,7 @@ export default function LogoReel({ label }: { label: string }) {
                 }
             }
         }
-        strip.replaceChildren();
+        clear(strip);
         let total = 0;
         for (const pc of pieces) {
             const el = document.createElementNS(NS, 'path');

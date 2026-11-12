@@ -11,12 +11,12 @@
     /* FUNDALUL — seria a cincea: întâi −1 diafragmă, apoi +½ (oklch L 0,85).
        02.11, 17:40: încă +½ (luminanța 0,615 → 0,87, ×√2) → L 0,955, adică
        din nou cât restul site-ului; textele secundare revin la valorile lui. */
-    --bg:        oklch(0.955 0.004 80);
+    --bg:        #f1f0ed;
     /* 02.11, 22:52 (Modul Regie, cue-ul 10): textul paginii negru */
     --fg:        #000;
-    --fg-soft:   oklch(0.40 0.005 80);
-    --fg-faint:  oklch(0.58 0.005 80);
-    --rule:      oklch(0.82 0.005 80);
+    --fg-soft:   #494745;
+    --fg-faint:  #7c7a77;
+    --rule:      #c6c4c0;
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-serif), 'EB Garamond', 'Iowan Old Style', Georgia, serif;
@@ -63,7 +63,12 @@
        lista din stânga rămâne pe loc și primește spațiul în plus.
        Pe ecrane sub 1440 px deplasarea scade treptat (la 1280 px: 32 px),
        ca bara de jos din dreapta (site-uri, ADR, Shanghai) să încapă. */
-    --reel-x0:    round(clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px), 1px);
+    /* 11.11.2026: round() nu există în Firefox mai vechi de 118, Safari sub
+       15.4 și Chrome sub 125 — acolo toată așezarea paginii cădea (pelicula
+       în stânga, meniul și textele lipsă: poza de pe MacBook-ul din 2010).
+       Aici valoarea nerotunjită, pe care o înțelege orice browser; rotunjirea
+       la pixel întreg se adaugă la sfârșitul fișierului, doar unde există. */
+    --reel-x0:    clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px);
     /* 03.11.2026: --reel-x0 = locul peliculei pe WORK, de la care se măsoară
        coloanele (meniul, creditul, bara de jos); --reel-x = unde stă pelicula
        pe pagina de acum (pe ABOUT se poate muta fără să miște meniul) */
@@ -309,7 +314,7 @@
 .logoReelBtn:hover { transform: rotate(-24deg); }
 .logoReelBtn:focus-visible { outline: 1px solid var(--fg); outline-offset: 2px; border-radius: 50%; }
 .logoReelFlange {
-    fill: oklch(0.86 0.006 80);     /* flanșa: metal deschis, puțin mai închis decât fundalul */
+    fill: #d3d1cd;     /* flanșa: metal deschis, puțin mai închis decât fundalul */
     stroke: #15110d;
     stroke-width: 1.1;
 }
@@ -368,7 +373,7 @@
     width: 0.8em;
     height: 0.8em;
     border-radius: 50%;
-    background: oklch(0.55 0.18 30);
+    background: #c53829;
     animation: recBlink 1.6s ease-in-out infinite;
 }
 /* PLAYBACK (02.11): ca REC, dar cu un triunghi verde — fix, nu clipește */
@@ -385,7 +390,7 @@
     flex: none;
     width: 7px;
     height: 8px;
-    background: oklch(0.6 0.17 145);
+    background: #279936;
     clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
@@ -1268,7 +1273,10 @@
 
 .vfGlass {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: url("/assets/ui/vizor.webp?v=8") center / 100% 100% no-repeat;
     /* rama de metal stă puțin deasupra peliculei: o umbră fină sub ea */
     filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
@@ -1489,7 +1497,10 @@
 .soundtrack::after {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: linear-gradient(to bottom,
         rgba(0, 0, 0, 0.6) calc(var(--gate-top) - 40px), rgba(0, 0, 0, 0) calc(var(--gate-top) + 16px),
         rgba(0, 0, 0, 0) calc(var(--gate-bot) - 16px), rgba(0, 0, 0, 0.6) calc(var(--gate-bot) + 40px));
@@ -1688,8 +1699,8 @@
 .cfLogoEu { display: flex; align-items: center; gap: 7px; }
 .cfStars {
     font-size: 6px;
-    color: oklch(0.92 0.12 95);
-    background: oklch(0.32 0.18 260);
+    color: #fee484;
+    background: #00228c;
     padding: 5px 7px;
     letter-spacing: 0.05em;
     line-height: 1.05;
@@ -1703,7 +1714,7 @@
     font-size: 14px;
     text-transform: none;
     letter-spacing: 0;
-    color: oklch(0.55 0.18 30);
+    color: #c53829;
 }
 .cfLogoAdr {
     font-weight: 500;
@@ -1728,13 +1739,23 @@
 .cofinanceLinks a:hover { opacity: 1; }
 
 
-/* ── FILM DETAIL — overlay banner cinematic ──────────── */
+/* ── FILM DETAIL — close-up-ul filmului (refăcut pe 11.11.2026) ──────────
+   Cererile lui Ștefan: nimic tăiat (fereastra crește după text, titlul se
+   micșorează după lungime, iar dacă tot nu încape se derulează înăuntru);
+   fără buton de închidere — click / tap oriunde închide; premiile de pe
+   afișe, cu lauri; fotograma rămâne luminată din spate, cu trepidația
+   obturatorului și grain la 24 fps, puțin mai accentuate decât în ramă;
+   încadrarea afișului pe fiecare film (--fx, --fy, --fz; pe telefonul
+   ținut vertical --px, --py, --pz) — containers/FilmDetail/extras.ts. */
 .detailBackdrop {
     position: fixed;
-    inset: 0;
-    background: rgba(8, 6, 4, 0.82);
-    backdrop-filter: blur(8px);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(8, 6, 4, 0.86);
     -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
     z-index: 200;
     display: flex;
     align-items: center;
@@ -1743,6 +1764,8 @@
     cursor: zoom-out;
     animation: detailFadeIn 0.28s ease;
 }
+/* click oriunde închide: peste tot același cursor, nimic nu pare „apăsabil” separat */
+.detailBackdrop * { cursor: zoom-out; }
 
 @keyframes detailFadeIn {
     from { opacity: 0; }
@@ -1751,15 +1774,20 @@
 
 .detailBanner {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     max-width: 1400px;
-    aspect-ratio: 2.35 / 1;
+    /* formatul 2,35 : 1 e doar minimul: dacă textul are nevoie de mai mult,
+       fereastra crește (până la înălțimea ecranului; apoi se derulează) */
+    min-height: min(calc((100vw - 48px) / 2.35), 596px, calc(100vh - 48px));
+    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
     border-radius: 18px;
     overflow: hidden;
-    background: #1a1612;
+    background: #14110e;
     color: #f5f0e3;
     box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
-    cursor: default;
     animation: detailZoomIn 0.42s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1768,78 +1796,151 @@
     to   { transform: scale(1);    opacity: 1; }
 }
 
+/* FOTOGRAMA: afișul + lampa + umbra pentru text + grain, într-un strat al lor
+   (isolation), ca lampa să lumineze doar imaginea */
+.detailStage {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    isolation: isolate;
+    pointer-events: none;
+}
+/* imaginea e „densă”, ca pe peliculă (×0,3, ca afișul din ramă); lampa o
+   aduce la expunerea corectă. Încadrarea: punctul (--fx, --fy) al afișului
+   rămâne în centru, mărit de --fz ori. */
 .detailBg {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
-    transform: scale(1.05);
-    filter: saturate(0.85) contrast(1.05);
+    object-position: var(--fx, 50%) var(--fy, 40%);
+    transform: scale(var(--fz, 1));
+    transform-origin: var(--fx, 50%) var(--fy, 40%);
+    filter: brightness(0.3) saturate(0.94) contrast(1.06);
 }
-
+/* LAMPA din spatele fotogramei — aceeași rețetă ca .lamp (color-dodge =
+   câștig de lumină prin peliculă, cald, cu punctul fierbinte spre mijloc):
+   în centru ×3,9, la margini ×2,3 → marginile rămân mai dense.
+   Trepidația obturatorului la 24 fps, puțin mai accentuată decât în ramă
+   (opacitatea 0,945 – 1; în ramă 0,962 – 1). */
+.detailLamp {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    mix-blend-mode: color-dodge;
+    background: radial-gradient(ellipse 72% 92% at 60% 46%,
+        rgb(190, 186, 177) 0%,
+        rgb(185, 182, 175) 30%,
+        rgb(172, 170, 166) 62%,
+        rgb(146, 145, 144) 100%);
+    will-change: opacity;
+    animation: detailShutter24 0.5s steps(1, end) infinite;
+}
+@keyframes detailShutter24 {
+    0%      { opacity: 1;     }
+    8.333%  { opacity: 0.958; }
+    16.667% { opacity: 0.988; }
+    25%     { opacity: 0.950; }
+    33.333% { opacity: 1;     }
+    41.667% { opacity: 0.968; }
+    50%     { opacity: 0.945; }
+    58.333% { opacity: 0.992; }
+    66.667% { opacity: 0.960; }
+    75%     { opacity: 1;     }
+    83.333% { opacity: 0.952; }
+    91.667% { opacity: 0.980; }
+}
+/* umbra de sub text: stânga (titlul) și jos (tabelul), puțin și în dreapta (laurii) */
 .detailVignette {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background:
-        radial-gradient(ellipse at 30% 50%, rgba(20, 14, 8, 0.0) 0%, rgba(8, 4, 0, 0.55) 90%),
-        linear-gradient(120deg, rgba(8, 6, 4, 0.7) 0%, rgba(8, 6, 4, 0.15) 45%, rgba(8, 6, 4, 0.55) 100%);
+        linear-gradient(100deg, rgba(8, 6, 4, 0.80) 0%, rgba(8, 6, 4, 0.52) 30%, rgba(8, 6, 4, 0.08) 54%, rgba(8, 6, 4, 0.34) 74%, rgba(8, 6, 4, 0.62) 100%),
+        linear-gradient(0deg, rgba(8, 6, 4, 0.55) 0%, rgba(8, 6, 4, 0) 40%);
+}
+/* GRAIN la 24 fps, doar pe fotogramă — mai mare și mai vizibil decât cel al
+   paginii (bobul ~¾ px, în „overlay”, ca să se vadă și pe zonele închise) */
+.detailGrain {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    opacity: 0.46;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='1.9 0 0 0 -0.45  1.9 0 0 0 -0.45  1.9 0 0 0 -0.45  0 0 0 0 1'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 384px 384px;
+    will-change: transform;
+    animation: grain24 0.5s steps(1, end) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .detailLamp,
+    .detailGrain { animation: none; }
 }
 
 
-/* layout grid: 6 zone (3 col x 3 row, fără mid-row mid-col) */
+/* TEXTUL — două coloane, trei rânduri; se derulează doar dacă nu încape */
 .detailContent {
     position: relative;
     z-index: 2;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     grid-template-rows: auto 1fr auto;
-    height: 100%;
+    grid-gap: 16px 40px;
+    gap: 16px 40px;
     padding: 36px 56px;
-    gap: 16px 24px;
     font-family: var(--font-mono), monospace;
 }
+.detailContent::-webkit-scrollbar { display: none; }
 
 
-/* TOP-LEFT — festival */
+/* SUS-STÂNGA — ce a făcut Atemporal la film */
 .detailTopLeft {
     grid-column: 1;
     grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+    min-height: 26px;
 }
-.detailFestYear {
-    font-family: var(--font-mono), monospace;
-    font-size: 14px;
+.detailCredit {
+    font-size: 11px;
     letter-spacing: 0.18em;
-    opacity: 0.9;
+    line-height: 1.4;
+    text-transform: uppercase;
+    opacity: 0.92;
 }
-.detailFestName {
-    font-family: var(--font-mono), monospace;
+.detailBy {
+    margin-top: 3px;
     font-size: 9px;
     letter-spacing: 0.18em;
-    opacity: 0.7;
     line-height: 1.4;
-    max-width: 200px;
-}
-.detailLaurel {
-    color: #e8dfc8;
-    margin-top: 4px;
-    opacity: 0.6;
+    text-transform: uppercase;
+    opacity: 0.62;
 }
 
 
-/* TOP-RIGHT — category tag */
+/* SUS-DREAPTA — categoria · anul */
 .detailTopRight {
-    grid-column: 3;
+    grid-column: 2;
     grid-row: 1;
     justify-self: end;
+    align-self: start;
     display: flex;
     align-items: center;
-    gap: 6px;
     border: 0.5px solid rgba(245, 240, 227, 0.4);
     border-radius: 4px;
     padding: 6px 12px;
@@ -1852,15 +1953,16 @@
     white-space: nowrap;
     opacity: 0.95;
 }
-.detailTagSep { opacity: 0.4; }
+.detailTagSep { opacity: 0.4; margin: 0 6px; }
 
 
-/* CENTER-LEFT — title + description */
+/* MIJLOC-STÂNGA — titlul + descrierea */
 .detailTitleBlock {
-    grid-column: 1 / span 2;
+    grid-column: 1;
     grid-row: 2;
     align-self: center;
-    max-width: 540px;
+    min-width: 0;
+    max-width: 640px;
 }
 .detailEyebrow {
     font-family: var(--font-mono), monospace;
@@ -1870,21 +1972,26 @@
     margin-bottom: 14px;
     text-transform: uppercase;
 }
+/* mărimea: după lățimea și înălțimea ecranului, înmulțită cu --tk (după
+   lungimea titlului: 1 … 0,52) — titlurile lungi nu mai ies din fereastră */
 .detailTitleMain {
     font-family: var(--font-serif), serif;
-    /* condensed-ish via -letter-spacing + heavy weight */
     font-weight: 500;
-    font-size: clamp(36px, 5.6vw, 78px);
-    line-height: 0.95;
+    font-size: calc(clamp(30px, 5.6vw, 78px) * var(--tk, 1));
+    font-size: calc(clamp(30px, min(5.6vw, 10.5vh), 78px) * var(--tk, 1));
+    line-height: 0.98;
     letter-spacing: -0.01em;
     text-transform: uppercase;
     margin: 0;
+    overflow-wrap: break-word;
+    text-wrap: balance;
     text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
 }
 .detailTitleRo {
     font-family: var(--font-serif), serif;
     font-style: italic;
     font-size: 16px;
+    line-height: 1.3;
     opacity: 0.7;
     margin-top: 12px;
 }
@@ -1900,47 +2007,68 @@
 }
 
 
-/* CENTER-RIGHT — awards quotes */
-.detailQuotes {
-    grid-column: 3;
+/* MIJLOC-DREAPTA — premiile și festivalurile, fiecare între două ramuri de laur */
+.detailLaurels {
+    grid-column: 2;
     grid-row: 2;
     align-self: center;
     justify-self: end;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    text-align: center;
-    max-width: 220px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto;
+    justify-items: center;
+    grid-gap: 16px 22px;
+    gap: 16px 22px;
+    color: #f5eedc;
+    /* laurii stau peste imagine: o umbră moale îi ține lizibili și pe zonele deschise */
+    text-shadow: 0 0 14px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.65);
 }
-.detailQuote {
+/* mai mult de patru: pe două coloane */
+.detailManyLaurels .detailLaurels { grid-template-columns: auto auto; }
+.detailLaurel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+.detailBranch {
+    flex: none;
+    opacity: 0.95;
+    -webkit-filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
+}
+.detailLaurelText {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    text-align: center;
+    margin: 0 9px;
+    max-width: 230px;
+    min-width: 0;
 }
-.detailQuoteStars {
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    color: #f5f0e3;
-    opacity: 0.95;
-}
-.detailQuoteSource {
-    font-family: var(--font-mono), monospace;
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    opacity: 0.6;
+.detailManyLaurels .detailLaurelText { max-width: 132px; }
+.detailLaurelFest {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    line-height: 1.35;
     text-transform: uppercase;
-    line-height: 1.3;
+}
+.detailLaurelNote {
+    margin-top: 3px;
+    font-size: 8.5px;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    opacity: 0.8;
 }
 
 
-/* BOTTOM-LEFT — meta table */
+/* JOS-STÂNGA — tabelul */
 .detailMeta {
-    grid-column: 1 / span 2;
+    grid-column: 1;
     grid-row: 3;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
     border-top: 0.5px solid rgba(245, 240, 227, 0.25);
     padding-top: 14px;
     max-width: 540px;
@@ -1948,7 +2076,9 @@
 .detailMetaRow {
     display: grid;
     grid-template-columns: 110px 1fr;
+    grid-gap: 24px;
     gap: 24px;
+    margin-bottom: 4px;
     font-family: var(--font-mono), monospace;
     font-size: 10px;
     letter-spacing: 0.16em;
@@ -1960,58 +2090,123 @@
 .detailMetaValue {
     color: #f5f0e3;
 }
-
-
-/* BOTTOM-RIGHT — close action */
-.detailCloseBtn {
-    grid-column: 3;
-    grid-row: 3;
-    justify-self: end;
-    align-self: end;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 18px;
-    border: 0.5px solid rgba(245, 240, 227, 0.45);
-    border-radius: 4px;
-    background: rgba(20, 14, 8, 0.35);
-    color: #f5f0e3;
-    font-family: var(--font-mono), monospace;
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-.detailCloseBtn:hover {
-    background: rgba(245, 240, 227, 0.12);
-    border-color: rgba(245, 240, 227, 0.7);
+/* nota de lansare (nu e premiu) */
+.detailNote {
+    margin-top: 10px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    opacity: 0.7;
 }
 
 
-/* responsive — pe ecrane mai înguste, devine mai vertical */
-@media (max-width: 900px) {
+/* ecrane mici sau scunde, lățite (telefonul întors, tableta întoarsă,
+   ferestre înguste): aceeași așezare, mai strânsă */
+@media (max-width: 1000px), (max-height: 560px) {
+    .detailBackdrop { padding: 12px; }
     .detailBanner {
-        aspect-ratio: auto;
-        height: 90vh;
-        max-height: 720px;
+        min-height: min(calc((100vw - 24px) / 2.35), calc(100vh - 24px));
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 14px;
     }
     .detailContent {
-        padding: 24px 24px;
-        grid-template-columns: 1fr 1fr;
+        padding: 20px 26px;
+        grid-gap: 10px 24px;
+        gap: 10px 24px;
     }
-    .detailTopRight { grid-column: 2; }
-    .detailTitleBlock { grid-column: 1 / span 2; }
-    .detailQuotes {
+    .detailEyebrow { margin-bottom: 8px; }
+    .detailTitleMain {
+        font-size: calc(clamp(22px, 5.6vw, 78px) * var(--tk, 1));
+        font-size: calc(clamp(22px, min(5.6vw, 10.5vh), 78px) * var(--tk, 1));
+    }
+    .detailTitleRo { font-size: 13.5px; margin-top: 8px; }
+    .detailDescription { font-size: 13px; line-height: 1.42; margin-top: 10px; }
+    .detailLaurels { grid-gap: 10px 14px; gap: 10px 14px; }
+    .detailLaurelText { max-width: 170px; }
+    .detailManyLaurels .detailLaurelText { max-width: 104px; }
+    .detailMeta { padding-top: 10px; }
+    .detailMetaRow { grid-template-columns: 96px 1fr; grid-gap: 16px; gap: 16px; }
+}
+
+/* ECRANELE ȚINUTE VERTICAL (telefon, tabletă): fotograma sus, pe toată
+   lățimea, cu încadrarea ei (--px, --py, --pz); textul dedesubt, pe fundalul
+   închis. Fereastra întreagă se derulează dacă textul e lung. */
+@media (orientation: portrait) and (max-width: 1100px) {
+    .detailBackdrop { padding: 12px; }
+    .detailBanner {
+        display: block;
+        min-height: 0;
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        border-radius: 14px;
+    }
+    .detailBanner::-webkit-scrollbar { display: none; }
+    .detailStage {
+        position: relative;
+        height: 46vh;
+        height: min(46dvh, 118vw);
+    }
+    .detailBg {
+        object-position: var(--px, 50%) var(--py, 40%);
+        transform: scale(var(--pz, 1));
+        transform-origin: var(--px, 50%) var(--py, 40%);
+    }
+    .detailLamp {
+        background: radial-gradient(ellipse 92% 80% at 50% 44%,
+            rgb(190, 186, 177) 0%,
+            rgb(185, 182, 175) 30%,
+            rgb(172, 170, 166) 62%,
+            rgb(146, 145, 144) 100%);
+    }
+    /* fotograma se stinge în fundalul textului */
+    .detailVignette {
+        background: linear-gradient(180deg, rgba(20, 17, 14, 0.32) 0%, rgba(20, 17, 14, 0) 26%, rgba(20, 17, 14, 0) 52%, #14110e 100%);
+    }
+    .detailContent {
+        overflow: visible;
+        margin-top: -44px;
+        padding: 0 22px 26px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: auto;
+        grid-gap: 16px 10px;
+        gap: 16px 10px;
+    }
+    /* creditul pe rândul lui (poate fi lung: „Distribuție în cinematografe”),
+       dedesubt categoria · anul */
+    .detailTopLeft    { grid-column: 1 / span 2; grid-row: 1; }
+    .detailTopRight   { grid-column: 1 / span 2; grid-row: 2; justify-self: start; }
+    .detailTitleBlock { grid-column: 1 / span 2; grid-row: 3; max-width: none; }
+    .detailTitleMain {
+        font-size: calc(clamp(26px, 11vw, 64px) * var(--tk, 1));
+    }
+    .detailDescription { max-width: 560px; }
+    .detailLaurels,
+    .detailManyLaurels .detailLaurels {
         grid-column: 1 / span 2;
-        grid-row: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
+        grid-row: 5;
         justify-self: stretch;
-        max-width: none;
-        gap: 16px;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 14px 10px;
+        gap: 14px 10px;
     }
-    .detailMeta { grid-column: 1 / span 2; }
-    .detailCloseBtn { grid-column: 2; grid-row: auto; }
+    .detailLaurelText,
+    .detailManyLaurels .detailLaurelText { max-width: 110px; margin: 0 6px; }
+    /* tabelul (regia, anul) înaintea laurilor: se vede fără derulare */
+    .detailMeta { grid-column: 1 / span 2; grid-row: 4; max-width: none; }
+}
+/* tableta ținută vertical: laurii pe trei coloane, textul mai aerisit */
+@media (orientation: portrait) and (min-width: 600px) and (max-width: 1100px) {
+    .detailContent { padding: 0 40px 36px; }
+    .detailLaurels,
+    .detailManyLaurels .detailLaurels { grid-template-columns: 1fr 1fr 1fr; }
+    .detailLaurelText,
+    .detailManyLaurels .detailLaurelText { max-width: 150px; }
 }
 
 
@@ -2123,14 +2318,20 @@
 :global(html[data-intro-ui]) .introLayer {
     display: block;
     position: fixed;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 45;
     pointer-events: none;
 }
 /* masa se aprinde: ca un tub fluorescent, două pâlpâiri și lumina plină */
 .introDim {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: #17140f;
     opacity: 0;
     animation: introTableOn 0.8s linear both;
@@ -2148,7 +2349,10 @@
 /* pelicula și rola sunt în aer, deasupra mesei: umbră moale */
 .introSvg {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     overflow: visible;
@@ -2230,7 +2434,10 @@
 .page::before {
     content: '';
     position: fixed;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: -1;
     background: var(--bg);
     pointer-events: none;
@@ -2598,9 +2805,8 @@
    ABOUT și GEAR rămâne un gol mare și ele se citesc ca două grupuri).
    Pe 1280 – 1534 cele patru cuvinte au pași aproape egali (pe 1382:
    ~23 px de la sfârșitul unui cuvânt la următorul): ABOUT +2 px, GEAR −3 px. */
-.navCommaAbout { display: none; }
+/* 11.11.2026: virgula după ABOUT a fost scoasă, în toate limbile (Ștefan) */
 @media (min-width: 1280px) and (max-width: 1534px) {
-    .navItemAt .navCommaAbout { display: inline-flex; }
     .navAbout { left: calc(var(--col-r) - 35px); }
     .navRow .navGear { right: calc(100% - var(--nav-r) + 218px); }
 }
@@ -2757,13 +2963,16 @@ button.capTitle {
 }
 .capListIcon { margin-left: 0.55em; opacity: 0.5; font-weight: 400; }
 
-.sheetWrap { position: fixed; inset: 0; z-index: 300; }
+.sheetWrap { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 300; }
 @media (min-width: 1280px) {
     .sheetWrap { display: none; }
 }
 .sheetBackdrop {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: rgb(0 0 0 / 0.28);
     animation: sheetFade 0.22s ease both;
 }
@@ -3325,7 +3534,6 @@ button.capTitle {
     .navRow .navWork,
     .navRow .navGear  { margin-right: 9px; }
     .navRow .navAbout { margin-right: 36px; }
-    .navRow .navCommaAbout { display: none; }
     /* căsuța GEAR: sub rândul meniului */
     .navRow .gearBox { top: calc(var(--hdr-h) + 4px); right: 14px; }
 }
@@ -3380,4 +3588,78 @@ button.capTitle {
 @media (max-width: 767px) and (orientation: portrait) {
     /* telefon: rândul logo-urilor e deasupra site-urilor (bara de 82 px) */
     .page .cofinance .cofinanceEncoder { bottom: 28px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   11.11.2026 — MENIUL: „ABOUT” nu mai intră peste „GEAR”
+   (Ștefan: în spaniolă, română, franceză și thailandeză cuvintele se
+   suprapuneau; fără virgulă după ABOUT; puțin mai mult loc între ABOUT și
+   GEAR, mutând WORK și ABOUT spre stânga.)
+   Doar pe desktop (de la 1280 px); pe telefon / tabletă meniul e o grilă
+   și cele două învelișuri nu există.
+   • .navDuo = cutia dintre locul lui ABOUT (--col-r − 37) și marginea
+     dreaptă a lui GEAR. Înăuntru, de la dreapta la stânga: GEAR, apoi
+     perechea „WORK, ABOUT”. Cât încap, ABOUT stă la locul lui și GEAR la
+     al lui (ecranele late: două grupuri, ca înainte). Când nu mai încap cu
+     golul de 36 px între ele, perechea iese spre STÂNGA — nu peste GEAR.
+   • .navPair = „WORK, ABOUT”: WORK e prins de ABOUT (21 px înaintea lui;
+     23 px sub 1535, ca înainte), deci se mută odată cu el.
+   • --nav-gap și --nav-fs le pune JS-ul (LandingHero › „MENIUL, pe
+     desktop”) doar când perechea ar ajunge peste peliculă.
+   ══════════════════════════════════════════════════════════════════════ */
+.navDuo,
+.navPair { display: contents; }
+@media (min-width: 1280px) {
+    .navRow .navDuo {
+        position: absolute;
+        top: 27px;            /* 58 + 27 = 85 */
+        left: calc(var(--col-r) - 37px);
+        right: calc(100% - var(--nav-r) + 215px);
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        align-items: flex-start;
+        pointer-events: none;
+    }
+    .navRow .navDuo .navGear,
+    .navRow .navPair .navAbout {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        flex: none;
+    }
+    .navRow .navPair {
+        position: relative;
+        display: flex;
+        flex: none;
+        margin-right: var(--nav-gap, 36px);
+    }
+    .navRow .navPair .navWork {
+        position: absolute;
+        top: 0;
+        left: auto;
+        right: calc(100% + 21px);
+        white-space: nowrap;   /* altfel thailandeza și chineza s-ar rupe pe două rânduri */
+    }
+    .navItemAt .navItem { font-size: var(--nav-fs, 15.4px); }
+}
+@media (min-width: 1280px) and (max-width: 1534px) {
+    .navRow .navDuo {
+        left: calc(var(--col-r) - 35px);
+        right: calc(100% - var(--nav-r) + 218px);
+    }
+    .navRow .navPair .navWork { right: calc(100% + 23px); }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   11.11.2026 — BROWSERE VECHI: rotunjirea poziției peliculei la pixel
+   întreg, doar unde există round() (vezi --reel-x0, la început)
+   ══════════════════════════════════════════════════════════════════════ */
+@supports (width: round(1.4px, 1px)) {
+    @media (min-width: 1280px) {
+        .page { --reel-x0: round(clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px), 1px); }
+    }
 }

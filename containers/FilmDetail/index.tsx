@@ -4,14 +4,24 @@ import { useEffect, useMemo } from 'react';
 
 import styles from '@/containers/LandingHero/landing.module.css';
 
+import { LAURELS, NOTES, FOCUS, FOCUS_DEFAULT } from './extras';
+import type { Laurel } from './extras';
+
 
 
 /* ============================================================
    <FilmDetail />
-   Overlay banner cinematic care apare când dai click pe afișul
-   activ. Layout inspirat din referința atașată: backdrop blur,
-   imagine fundal vignette, titlu mare stânga, premii cu stele
-   pe dreapta, meta jos.
+   Close-up-ul filmului: apare la click pe afișul din ramă.
+
+   11.11.2026 (cererile lui Ștefan):
+   • nimic tăiat — fereastra crește după text (titlul se micșorează după
+     lungime), iar dacă tot nu încape, se derulează în interiorul ei;
+   • fără buton de închidere: click sau tap oriunde închide (și Esc);
+   • premiile de pe afișe, cu lauri (./extras.ts);
+   • fotograma rămâne luminată din spate, cu trepidația obturatorului și
+     grain la 24 de cadre pe secundă, puțin mai accentuate decât în ramă;
+   • încadrarea afișului se dă pe fiecare film (./extras.ts › FOCUS) —
+     pe telefonul ținut vertical imaginea stă sus, textul dedesubt.
    ============================================================ */
 
 import type { Lang } from '@/containers/LandingHero/i18n';
@@ -38,17 +48,20 @@ interface FilmDetailData {
 interface FilmDetailProps {
     film: FilmDetailData;
     lang: Lang;
+    /** ce a făcut echipa la film + cine (creditul din dreapta peliculei) */
+    credit?: string;
+    by?: string;
     onClose: () => void;
 }
 
-const META_LABELS: Record<Lang, { director: string; year: string; category: string; close: string }> = {
-    ro: { director: 'REGIE',    year: 'AN',     category: 'CATEGORIE', close: 'ÎNCHIDE' },
-    en: { director: 'DIRECTOR', year: 'YEAR',   category: 'CATEGORY',  close: 'CLOSE'   },
-    fr: { director: 'RÉALISÉ PAR', year: 'ANNÉE', category: 'CATÉGORIE', close: 'FERMER' },
-    es: { director: 'DIRECCIÓN', year: 'AÑO',   category: 'CATEGORÍA', close: 'CERRAR'  },
-    th: { director: 'ผู้กำกับ',   year: 'ปี',     category: 'ประเภท',    close: 'ปิด'      },
-    zh: { director: '导演',       year: '年份',    category: '类别',       close: '关闭'     },
-    hi: { director: 'निर्देशक',    year: 'वर्ष',    category: 'श्रेणी',     close: 'बंद करें' },
+const META_LABELS: Record<Lang, { director: string; year: string; category: string; close: string; awards: string }> = {
+    ro: { director: 'REGIE',    year: 'AN',     category: 'CATEGORIE', close: 'ÎNCHIDE', awards: 'Premii și festivaluri' },
+    en: { director: 'DIRECTOR', year: 'YEAR',   category: 'CATEGORY',  close: 'CLOSE',   awards: 'Awards and festivals' },
+    fr: { director: 'RÉALISÉ PAR', year: 'ANNÉE', category: 'CATÉGORIE', close: 'FERMER', awards: 'Prix et festivals' },
+    es: { director: 'DIRECCIÓN', year: 'AÑO',   category: 'CATEGORÍA', close: 'CERRAR',  awards: 'Premios y festivales' },
+    th: { director: 'ผู้กำกับ',   year: 'ปี',     category: 'ประเภท',    close: 'ปิด',      awards: 'รางวัลและเทศกาล' },
+    zh: { director: '导演',       year: '年份',    category: '类别',       close: '关闭',     awards: '奖项与电影节' },
+    hi: { director: 'निर्देशक',    year: 'वर्ष',    category: 'श्रेणी',     close: 'बंद करें', awards: 'पुरस्कार और समारोह' },
 };
 
 /** categoria filmului, în limba paginii (03.11.2026, 13:49) */
@@ -62,15 +75,13 @@ const CATEGORY: Record<Lang, { feature: string; short: string; film: string; ani
     hi: { feature: 'फ़ीचर फ़िल्म',     short: 'शॉर्ट फ़िल्म',     film: 'फ़िल्म',     anim: 'एनिमेशन',    doc: 'डॉक्यूमेंट्री' },
 };
 
-function pickField(p: FilmDetailData, lang: Lang, base: 'description' | 'awards' | 'people'): string {
-    // RO e textul de bază; FR are câmpuri proprii; celelalte limbi iau varianta EN
-    // (descrierile sunt încă temporare — se traduc când sunt scrise)
-    if (lang === 'ro') return p[base];
-    const pick = (suffix: 'En' | 'Fr') => {
-        const v = p[(base + suffix) as keyof FilmDetailData];
-        return (typeof v === 'string' && v.length > 0) ? v : '';
-    };
-    return (lang === 'fr' && pick('Fr')) || pick('En') || p[base];
+function pickDescription(p: FilmDetailData, lang: Lang): string {
+    // RO e textul de bază; FR are câmp propriu; celelalte limbi iau varianta EN
+    const v = lang === 'ro'
+        ? p.description
+        : (lang === 'fr' && p.descriptionFr) || p.descriptionEn || p.description;
+    // textele-machetă („Descriere temporară — de înlocuit ulterior”) nu se arată
+    return /temporar/i.test(v) ? '' : v;
 }
 
 function pickTitle(p: FilmDetailData, lang: Lang): string {
@@ -79,16 +90,94 @@ function pickTitle(p: FilmDetailData, lang: Lang): string {
     return p.title;
 }
 
+function pickNote(l: Laurel, lang: Lang): string | undefined {
+    if (lang === 'ro') return l.noteRo ?? l.note;
+    if (lang === 'fr') return l.noteFr ?? l.note;
+    return l.note;
+}
 
-export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
+/** mărimea titlului după lungime: titlurile lungi se scriu mai mic, ca să încapă */
+function titleScale(n: number): number {
+    if (n <= 12) return 1;
+    if (n <= 20) return 0.84;
+    if (n <= 30) return 0.7;
+    if (n <= 42) return 0.6;
+    return 0.52;
+}
+
+
+/* ── LAURUL ─────────────────────────────────────────────────
+   O ramură desenată o dată (frunze de-a lungul unei curbe), folosită în
+   stânga și, oglindită, în dreapta fiecărui premiu. */
+const BRANCH_D = (() => {
+    const P0 = [15.5, 43], P1 = [-3, 24], P2 = [12.5, 2.5];
+    const at = (t: number) => [
+        (1 - t) * (1 - t) * P0[0] + 2 * (1 - t) * t * P1[0] + t * t * P2[0],
+        (1 - t) * (1 - t) * P0[1] + 2 * (1 - t) * t * P1[1] + t * t * P2[1],
+    ];
+    const tan = (t: number) => {
+        const x = 2 * (1 - t) * (P1[0] - P0[0]) + 2 * t * (P2[0] - P1[0]);
+        const y = 2 * (1 - t) * (P1[1] - P0[1]) + 2 * t * (P2[1] - P1[1]);
+        const l = Math.hypot(x, y) || 1;
+        return [x / l, y / l];
+    };
+    const f = (v: number) => v.toFixed(2);
+    const leaf = (bx: number, by: number, dx: number, dy: number, len: number, wid: number) => {
+        const tx = bx + dx * len, ty = by + dy * len;
+        const mx = bx + dx * len * 0.5, my = by + dy * len * 0.5;
+        const nx = -dy * wid, ny = dx * wid;
+        return `M${f(bx)} ${f(by)}Q${f(mx + nx)} ${f(my + ny)} ${f(tx)} ${f(ty)}Q${f(mx - nx)} ${f(my - ny)} ${f(bx)} ${f(by)}Z`;
+    };
+    const rot = (x: number, y: number, deg: number) => {
+        const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+        return [x * c - y * s, x * s + y * c];
+    };
+    let d = '';
+    const N = 7;
+    for (let i = 0; i < N; i++) {
+        const t = 0.1 + (i / (N - 1)) * 0.8;
+        const [bx, by] = at(t);
+        const [tx, ty] = tan(t);
+        const len = 6.6 - i * 0.28;
+        const [ox, oy] = rot(tx, ty, -42);   // spre exterior
+        const [ix, iy] = rot(tx, ty, 38);    // spre interior
+        d += leaf(bx, by, ox, oy, len, 1.75) + leaf(bx, by, ix, iy, len * 0.86, 1.55);
+    }
+    const [ex, ey] = at(1);
+    const [etx, ety] = tan(1);
+    d += leaf(ex, ey, etx, ety, 5.4, 1.5);
+    return d;
+})();
+
+function Branch({ flip }: { flip?: boolean }) {
+    return (
+        <svg
+            className={styles.detailBranch}
+            width="18" height="45" viewBox="0 0 18 45"
+            aria-hidden="true"
+            style={flip ? { transform: 'scaleX(-1)' } : undefined}
+        >
+            <path d={BRANCH_D} fill="currentColor" />
+            <path d="M15.5 43Q-3 24 12.5 2.5" fill="none" stroke="currentColor" strokeWidth="0.7" />
+        </svg>
+    );
+}
+
+
+export default function FilmDetail({ film, lang, credit, by, onClose }: FilmDetailProps) {
 
     const labels      = META_LABELS[lang];
-    const description = pickField(film, lang, 'description');
-    const awards      = pickField(film, lang, 'awards');
+    const description = pickDescription(film, lang);
     const titleMain   = pickTitle(film, lang);
     const titleSub    = lang === 'ro' ? film.title : film.titleRo;
 
-    // close on Escape
+    const laurels = LAURELS[film.image] ?? [];
+    const noteT   = NOTES[film.image];
+    const note    = noteT ? (lang === 'ro' ? noteT.ro : (lang === 'fr' && noteT.fr) || noteT.en) : '';
+    const focus   = FOCUS[film.image] ?? FOCUS_DEFAULT;
+    const tall    = focus.tall ?? focus;
+
+    // Esc închide
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -97,7 +186,7 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
         return () => document.removeEventListener('keydown', onKey);
     }, [onClose]);
 
-    // blocăm scroll-ul paginii cât timp e overlay-ul deschis
+    // blocăm scroll-ul paginii cât timp e fereastra deschisă
     useEffect(() => {
         const prev = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
@@ -105,8 +194,7 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
     }, []);
 
 
-    // extragem informația structurată din câmpurile existente
-    const { yearNumber, category, awardsList } = useMemo(() => {
+    const { yearNumber, category, eyebrow } = useMemo(() => {
         const m = film.year.match(/\d{4}/);
         const isFeature = /feature/i.test(film.year);
         const isShort   = /short/i.test(film.year);
@@ -114,21 +202,19 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
         const isDoc     = /documentary|documentar/i.test(film.year);
 
         const C = CATEGORY[lang];
-        let cat = isFeature ? C.feature : isShort ? C.short : C.film;
+        const base = isFeature ? C.feature : isShort ? C.short : C.film;
+        let cat = base;
         if (isAnim) cat += ' · ' + C.anim;
         if (isDoc)  cat += ' · ' + C.doc;
 
-        const list = awards
-            .split(/\s*[·•]\s*/)
-            .map(s => s.trim())
-            .filter(s => s && s !== '—');
+        return { yearNumber: m ? m[0] : '', category: cat, eyebrow: base };
+    }, [film.year, lang]);
 
-        return {
-            yearNumber: m ? m[0] : '',
-            category:   cat,
-            awardsList: list,
-        };
-    }, [film.year, awards, lang]);
+    const vars = {
+        '--fx': `${focus.x}%`, '--fy': `${focus.y}%`, '--fz': String(focus.zoom ?? 1),
+        '--px': `${tall.x}%`,  '--py': `${tall.y}%`,  '--pz': String(tall.zoom ?? 1),
+        '--tk': String(titleScale(titleMain.length)),
+    } as React.CSSProperties;
 
 
     return (
@@ -140,47 +226,37 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
             aria-label={film.title}
         >
             <div
-                className={styles.detailBanner}
-                onClick={(e) => e.stopPropagation()}
+                className={`${styles.detailBanner} ${laurels.length > 4 ? styles.detailManyLaurels : ''}`}
+                style={vars}
+                data-regie="close-up"
             >
-                {/* Background image (zoomed-in poster) */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={film.image}
-                    alt={film.title}
-                    className={styles.detailBg}
-                />
-                <div className={styles.detailVignette} aria-hidden="true" />
+                {/* FOTOGRAMA — afișul, luminat din spate: imaginea e „densă” (ca pe
+                    peliculă), lampa o aduce la expunerea corectă și trepidează la
+                    24 de cadre pe secundă; deasupra, grain la 24 fps */}
+                <div className={styles.detailStage}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={film.image}
+                        alt=""
+                        className={styles.detailBg}
+                        data-regie="incadrare"
+                    />
+                    <div className={styles.detailLamp} aria-hidden="true" />
+                    <div className={styles.detailVignette} aria-hidden="true" />
+                    <div className={styles.detailGrain} aria-hidden="true" />
+                </div>
 
 
-                {/* CONTENT GRID */}
                 <div className={styles.detailContent}>
 
-                    {/* TOP-LEFT — festival badge */}
+                    {/* SUS-STÂNGA — ce a făcut Atemporal la film */}
                     <div className={styles.detailTopLeft}>
-                        {awardsList[0] && (
-                            <>
-                                {yearNumber && (
-                                    <div className={styles.detailFestYear}>{yearNumber}</div>
-                                )}
-                                <div className={styles.detailFestName}>
-                                    {awardsList[0].toUpperCase()}
-                                </div>
-                                <div className={styles.detailLaurel}>
-                                    <svg width="44" height="50" viewBox="0 0 44 50" fill="none" aria-hidden="true">
-                                        <path d="M8 25 Q 4 12, 12 4" stroke="currentColor" strokeWidth="1" fill="none" />
-                                        <path d="M8 25 Q 4 38, 12 46" stroke="currentColor" strokeWidth="1" fill="none" />
-                                        <path d="M36 25 Q 40 12, 32 4" stroke="currentColor" strokeWidth="1" fill="none" />
-                                        <path d="M36 25 Q 40 38, 32 46" stroke="currentColor" strokeWidth="1" fill="none" />
-                                        <text x="22" y="29" textAnchor="middle" fontSize="9" fill="currentColor" fontFamily="serif" fontStyle="italic">laurel</text>
-                                    </svg>
-                                </div>
-                            </>
-                        )}
+                        {credit && <div className={styles.detailCredit}>{credit}</div>}
+                        {by && <div className={styles.detailBy}>{by}</div>}
                     </div>
 
 
-                    {/* TOP-RIGHT — category / year tags */}
+                    {/* SUS-DREAPTA — categoria · anul */}
                     <div className={styles.detailTopRight}>
                         <span className={styles.detailTag}>{category}</span>
                         {yearNumber && (
@@ -192,9 +268,9 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
                     </div>
 
 
-                    {/* CENTER-LEFT — eyebrow + big title */}
+                    {/* MIJLOC-STÂNGA — titlul */}
                     <div className={styles.detailTitleBlock}>
-                        <div className={styles.detailEyebrow}>{category.split('·')[0].trim()}</div>
+                        <div className={styles.detailEyebrow}>{eyebrow}</div>
                         <h1 className={styles.detailTitleMain}>{titleMain}</h1>
                         {titleSub && titleSub !== titleMain && (
                             <div className={styles.detailTitleRo}>{titleSub}</div>
@@ -205,28 +281,27 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
                     </div>
 
 
-                    {/* CENTER-RIGHT — awards / festival quotes */}
-                    <div className={styles.detailQuotes}>
-                        {awardsList.slice(0, 3).map((award, i) => (
-                            <div key={i} className={styles.detailQuote}>
-                                <div className={styles.detailQuoteStars}>★ ★ ★ ★ ★</div>
-                                <div className={styles.detailQuoteSource}>
-                                    {award.toUpperCase()}
-                                </div>
-                            </div>
-                        ))}
-                        {awardsList.length === 0 && (
-                            <div className={styles.detailQuote}>
-                                <div className={styles.detailQuoteStars}>★ ★ ★ ★ ★</div>
-                                <div className={styles.detailQuoteSource}>
-                                    SOUND DESIGN BY<br />ATEMPORAL FILM
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    {/* MIJLOC-DREAPTA — premiile și festivalurile, cu lauri */}
+                    {laurels.length > 0 && (
+                        <ul className={styles.detailLaurels} aria-label={labels.awards}>
+                            {laurels.map((l, i) => {
+                                const n = pickNote(l, lang);
+                                return (
+                                    <li key={i} className={styles.detailLaurel}>
+                                        <Branch />
+                                        <span className={styles.detailLaurelText}>
+                                            <span className={styles.detailLaurelFest}>{l.fest}</span>
+                                            {n && <span className={styles.detailLaurelNote}>{n}</span>}
+                                        </span>
+                                        <Branch flip />
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
 
 
-                    {/* BOTTOM-LEFT — meta table */}
+                    {/* JOS-STÂNGA — tabelul */}
                     <div className={styles.detailMeta}>
                         <div className={styles.detailMetaRow}>
                             <span className={styles.detailMetaLabel}>{labels.director}</span>
@@ -242,21 +317,15 @@ export default function FilmDetail({ film, lang, onClose }: FilmDetailProps) {
                             <span className={styles.detailMetaLabel}>{labels.category}</span>
                             <span className={styles.detailMetaValue}>{category}</span>
                         </div>
+                        {note && <div className={styles.detailNote}>{note}</div>}
                     </div>
-
-
-                    {/* BOTTOM-RIGHT — close action */}
-                    <button
-                        className={styles.detailCloseBtn}
-                        onClick={onClose}
-                        aria-label={labels.close}
-                    >
-                        {labels.close}
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                            <path d="M3 3 L 11 11 M 11 3 L 3 11" stroke="currentColor" strokeWidth="1.4" />
-                        </svg>
-                    </button>
                 </div>
+
+                {/* fără buton vizibil: click / tap oriunde închide. Butonul rămâne
+                    doar pentru cititoarele de ecran și pentru tastatură. */}
+                <button type="button" className={styles.srOnly} onClick={onClose}>
+                    {labels.close}
+                </button>
             </div>
         </div>
     );

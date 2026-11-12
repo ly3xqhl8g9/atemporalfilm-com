@@ -1558,8 +1558,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const mq = window.matchMedia('(max-width: 1279px)');
         const on = () => { setNarrow(mq.matches); if (!mq.matches) setSheet(null); };
         on();
-        mq.addEventListener('change', on);
-        return () => mq.removeEventListener('change', on);
+        // Safari mai vechi de 14 are doar addListener (11.11.2026: pagina dădea
+        // „Application error” pe Mac-urile vechi)
+        if (mq.addEventListener) mq.addEventListener('change', on); else mq.addListener(on);
+        return () => { if (mq.removeEventListener) mq.removeEventListener('change', on); else mq.removeListener(on); };
     }, []);
     const closeSheet = useCallback(() => setSheet(null), []);
 
@@ -1593,6 +1595,57 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
        (timecode-urile „doar dacă intră între Regio și peliculă”, întâi
        scurtate) și timecode-urile scurte de pe WORK la 1280–1369 px. */
     useBarFlow([isAbout, lang]);
+
+    /* MENIUL, pe desktop (11.11.2026): în limbile cu cuvinte lungi (ES, FR, RO)
+       „WORK, ABOUT” se mută spre stânga ca să nu intre peste „GEAR” (o face
+       CSS-ul, singur). Aici doar măsurăm: dacă așa ar ajunge peste peliculă,
+       întâi se strânge golul ABOUT → GEAR (36 → cel puțin 24 px), apoi tot
+       meniul se scrie mai mic, exact cât să încapă (cel mult până la ×0,7).
+       Limita e aceeași pe WORK și pe ABOUT (10 px după rama peliculei de pe
+       WORK), ca meniul să arate la fel pe amândouă. Pe ABOUT, peliculele se
+       opresc la 16 px înainte de WORK: îi spunem CSS-ului unde a ajuns
+       (--work-w = cât de departe e marginea lui stângă de locul lui ABOUT). */
+    const navRef = useRef<HTMLElement>(null);
+    useEffect(() => {
+        const nav = navRef.current;
+        if (!nav) return;
+        const page = nav.parentElement;
+        const BASE = 15.4, GAP = 36, GAP_MIN = 24, K_MIN = 0.7;
+        const fit = () => {
+            nav.style.removeProperty('--nav-fs');
+            nav.style.removeProperty('--nav-gap');
+            page?.style.removeProperty('--work-w');
+            if (window.innerWidth < 1280) return;
+            const duo  = nav.querySelector<HTMLElement>(`.${styles.navDuo}`);
+            const word = (c: string) => nav.querySelector<HTMLElement>(`.${c} > .${styles.navItem}`);
+            const work = word(styles.navWork), about = word(styles.navAbout), gear = word(styles.navGear);
+            if (!duo || !work || !about || !gear) return;
+            const tight = window.innerWidth <= 1534;                 // meniul pe un singur rând strâns
+            const d     = duo.getBoundingClientRect();
+            const colR  = d.left + (tight ? 35 : 37);                // --col-r
+            const join  = tight ? 23 : 21;                           // WORK → ABOUT
+            const avail = d.right - (colR - 169);                    // până la 10 px după rama peliculei
+            const sum   = work.offsetWidth + about.offsetWidth + gear.offsetWidth;
+            let k = 1, gap = GAP;
+            if (sum + join + GAP > avail) {
+                gap = Math.max(GAP_MIN, Math.min(GAP, Math.floor(avail - sum - join)));
+                if (sum + join + gap > avail) k = Math.max(K_MIN, (avail - join - gap) / sum);
+            }
+            if (gap !== GAP) nav.style.setProperty('--nav-gap', `${gap}px`);
+            if (k < 1) nav.style.setProperty('--nav-fs', `${(Math.floor(BASE * k * 10) / 10).toFixed(1)}px`);
+            page?.style.setProperty('--work-w', `${Math.ceil(colR - 58 - work.getBoundingClientRect().left)}px`);
+        };
+        fit();
+        const t1 = window.setTimeout(fit, 300);
+        const t2 = window.setTimeout(fit, 1500);
+        document.fonts?.ready.then(fit).catch(() => {});
+        window.addEventListener('resize', fit);
+        return () => {
+            window.clearTimeout(t1);
+            window.clearTimeout(t2);
+            window.removeEventListener('resize', fit);
+        };
+    }, [lang]);
 
     /* ABOUT, desktop (03.11.2026): lățimea textului Atemporal, din poziția
        reală a peliculei. */
@@ -1679,21 +1732,28 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             {/* 02.11, 23:03 (Modul Regie): meniul urcă la y = 85; WORK (= homepage-ul)
                 apare înaintea lui ABOUT, CONTACT stă mai departe; PEOPLE și GEAR
                 au trecut în stânga, pe același rând, după timecode-urile din antet. Pagina deschisă e subliniată. */}
-            <nav className={styles.navRow} aria-label="Main navigation">
+            <nav className={styles.navRow} aria-label="Main navigation" ref={navRef}>
                 {/* 03.11, 12:41: PEOPLE s-a unit cu ABOUT (o singură pagină, /about);
                     GEAR a trecut în dreapta, înaintea lui CONTACT: „GEAR, CONTACT” */}
-                {/* 03.11: GEAR deschide căsuța pentru mail → descarcă lista de echipament */}
-                <GearRequest lang={lang} label={t.nav.gear} />
-                <span className={`${styles.navItemAt} ${styles.navWork}`}>
-                    <NavLink href="/">{t.nav.work}</NavLink>
-                    <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
-                </span>
-                <span className={`${styles.navItemAt} ${styles.navAbout}`}>
-                    <NavLink href="/about">{t.nav.about}</NavLink>
-                    {/* 03.11, 17:44 (nota Regie, pe 1382×867): virgula și după ABOUT —
-                        „WORK, ABOUT, GEAR, CONTACT” — acolo unde cele două grupuri
-                        se strâng într-un singur rând (sub 1535 px; vezi CSS) */}
-                    <span className={`${styles.navItem} ${styles.navComma} ${styles.navCommaAbout}`} aria-hidden="true">,</span>
+                {/* 11.11.2026 (Ștefan: în ES, RO, FR, TH „ABOUT” intra peste „GEAR”):
+                    fără virgulă după ABOUT, în nicio limbă; „WORK, ABOUT” stau
+                    împreună (navPair) și se mută spre stânga cât e nevoie ca între
+                    ABOUT și GEAR să rămână mereu loc (navDuo — vezi CSS, „MENIUL,
+                    11.11.2026”); dacă ar ajunge peste peliculă, meniul se scrie
+                    puțin mai mic (efectul de mai sus). Sub 1280 px cele două
+                    învelișuri nu există (display: contents). */}
+                <span className={styles.navDuo}>
+                    {/* 03.11: GEAR deschide căsuța pentru mail → descarcă lista de echipament */}
+                    <GearRequest lang={lang} label={t.nav.gear} />
+                    <span className={styles.navPair}>
+                        <span className={`${styles.navItemAt} ${styles.navWork}`}>
+                            <NavLink href="/">{t.nav.work}</NavLink>
+                            <span className={`${styles.navItem} ${styles.navComma}`} aria-hidden="true">,</span>
+                        </span>
+                        <span className={`${styles.navItemAt} ${styles.navAbout}`}>
+                            <NavLink href="/about">{t.nav.about}</NavLink>
+                        </span>
+                    </span>
                 </span>
                 {/* 03.11: CONTACT copiază datele de contact în clipboard */}
                 <ContactCopy lang={lang} label={t.nav.contact} social={kind === 'work' || kind === 'about'}
@@ -1935,6 +1995,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 <FilmDetail
                     film={items[expandedIdx]}
                     lang={lang}
+                    credit={pickWork(items[expandedIdx], lang)}
+                    by={items[expandedIdx].by || BY_DEFAULT}
                     onClose={() => setExpandedIdx(null)}
                 />
             )}

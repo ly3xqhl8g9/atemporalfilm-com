@@ -10,6 +10,11 @@ import LandingHero from '@/containers/LandingHero';
    (text + Person) rămâne în istoricul Git și în app/about/components/. */
 export const metadata: Metadata = {
     title: 'About — Atemporal Film',
+    // 11.11.2026: adresa proprie a paginii (înainte moștenea adresa homepage-ului
+    // din layout; Google a indexat-o ca www.atemporalfilm.com/about)
+    alternates: {
+        canonical: '/about',
+    },
 };
 
 export default function About() {
