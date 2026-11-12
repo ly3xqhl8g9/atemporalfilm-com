@@ -12,6 +12,7 @@ import './globals.css';
 
 import AppWrapper from '@/containers/AppWrapper';
 import { INTRO_BOOT } from '@/containers/LandingHero/intro';
+import { FILM_MODE_BOOT } from '@/containers/LandingHero/filmModeBoot';
 
 
 
@@ -88,6 +89,9 @@ export default function RootLayout({
             <head>
                 {/* /?intro: ascunde pagina înaintea primului cadru (intro „masa luminată”) */}
                 <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
+                {/* sub 1280 px: pelicula verticală sau orizontală, meniul pe unul sau
+                    două rânduri — alese înaintea primului cadru (vezi filmMode.ts) */}
+                <script dangerouslySetInnerHTML={{ __html: FILM_MODE_BOOT }} />
             </head>
             <body className={`${font.className} ${fontSerif.variable} ${fontMono.variable} ${fontHand.variable} max-w-[2560px] min-h-screen mx-auto`}>
                 <AppWrapper>

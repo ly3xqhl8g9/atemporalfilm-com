@@ -2650,8 +2650,8 @@
    pentru ecranele normale de computer”) orice ecran sub 1280 px mai lat
    decât înalt. Pelicula orizontală rămâne doar pe ecranele ținute vertical.
    Mărimea peliculei după înălțime (mai jos); telefonul întors, la sfârșit. */
-@media (max-width: 1279px) and (orientation: landscape) {
-    .page {
+@media (max-width: 1279px) {
+    :global(html:not([data-film='h'])) .page {
         --hdr-h:    0px;
         --cap-h:    0px;
         --band-top: 0px;
@@ -2660,7 +2660,7 @@
         --side-w:   calc(50vw - var(--strip-w) / 2 - var(--logo-x) - 28px);
     }
     /* textul filmului: în stânga peliculei, la mijloc */
-    .sideRight {
+    :global(html:not([data-film='h'])) .sideRight {
         left: var(--logo-x);
         top: 50%;
         bottom: auto;
@@ -2670,9 +2670,9 @@
         align-items: flex-start;
         text-align: left;
     }
-    .pageAbout { --film-k: 0.8; --read-h: auto; --bar-clip: var(--bar-h); }   /* peliculele se opresc deasupra barei */
+    :global(html:not([data-film='h'])) .pageAbout { --film-k: 0.8; --read-h: auto; --bar-clip: var(--bar-h); }   /* peliculele se opresc deasupra barei */
     /* ABOUT: textul în dreapta celor două pelicule, într-o casetă care se derulează */
-    .pageAbout .aboutRead {
+    :global(html:not([data-film='h'])) .pageAbout .aboutRead {
         left: auto;
         right: var(--logo-x);
         top: 92px;
@@ -2683,26 +2683,26 @@
     }
 }
 /* tableta întoarsă, după înălțime: rama cam cât pe desktop (~45% din ecran) */
-@media (max-width: 1279px) and (orientation: landscape) and (max-height: 719px) {
-    .page      { --film-k: 0.9; }
-    .pageAbout { --film-k: 0.72; }
+@media (max-width: 1279px) and (max-height: 719px) {
+    :global(html:not([data-film='h'])) .page { --film-k: 0.9; }
+    :global(html:not([data-film='h'])) .pageAbout { --film-k: 0.72; }
 }
-@media (max-width: 1279px) and (orientation: landscape) and (max-height: 659px) {
-    .page      { --film-k: 0.8; }
-    .pageAbout { --film-k: 0.64; }
+@media (max-width: 1279px) and (max-height: 659px) {
+    :global(html:not([data-film='h'])) .page { --film-k: 0.8; }
+    :global(html:not([data-film='h'])) .pageAbout { --film-k: 0.64; }
 }
 /* telefonul întors (înălțime mică): antetul mai mic, pelicula mai mică */
-@media (max-width: 1279px) and (max-height: 560px) and (orientation: landscape) {
-    .page {
+@media (max-width: 1279px) and (max-height: 560px) {
+    :global(html:not([data-film='h'])) .page {
         --bar-h:  50px;
         --film-k: 0.56;
     }
-    .siteHeader { padding-top: 16px; }
-    .logoReel { top: 16px; }
-    .logo, .logoReel { scale: 0.76; transform-origin: 0 0; }
-    .navRow { top: 18px; }
-    .navSocial { display: none; }
-    .pageAbout { --film-k: 0.5; }
+    :global(html:not([data-film='h'])) .siteHeader { padding-top: 16px; }
+    :global(html:not([data-film='h'])) .logoReel { top: 16px; }
+    :global(html:not([data-film='h'])) .logo, :global(html:not([data-film='h'])) .logoReel { scale: 0.76; transform-origin: 0 0; }
+    :global(html:not([data-film='h'])) .navRow { top: 18px; }
+    :global(html:not([data-film='h'])) .navSocial { display: none; }
+    :global(html:not([data-film='h'])) .pageAbout { --film-k: 0.5; }
 }
 
 
@@ -3190,18 +3190,18 @@ button.capTitle {
     .cofinanceLinks a { white-space: nowrap; }
 }
 /* ecranul întors (telefon, tabletă): site-urile lângă ADR, pe patru rânduri */
-@media (max-width: 1279px) and (orientation: landscape) {
-    .pageAbout .aboutRead { top: 116px; }   /* sub ceas */
-    .cofinanceLeft,
-    .cofinanceLogos { bottom: 0; }
-    .cofinanceRight {
+@media (max-width: 1279px) {
+    :global(html:not([data-film='h'])) .pageAbout .aboutRead { top: 116px; }   /* sub ceas */
+    :global(html:not([data-film='h'])) .cofinanceLeft,
+    :global(html:not([data-film='h'])) .cofinanceLogos { bottom: 0; }
+    :global(html:not([data-film='h'])) .cofinanceRight {
         left: auto;
         right: var(--logo-x);
         display: flex;
         gap: 14px;
     }
-    .cofinanceRight .cfLogoAdr { position: static; transform: none; }
-    .cofinance .cofinanceLinks {
+    :global(html:not([data-film='h'])) .cofinanceRight .cfLogoAdr { position: static; transform: none; }
+    :global(html:not([data-film='h'])) .cofinance .cofinanceLinks {
         display: flex;
         position: static;
         flex-direction: column;
@@ -3209,11 +3209,11 @@ button.capTitle {
         line-height: 1.4;
     }
 }
-@media (max-width: 1279px) and (max-height: 560px) and (orientation: landscape) {
-    .hdClocks { top: 74px; }
-    .pageAbout .aboutRead { top: 104px; }   /* sub ceas */
-    .page { --bar-h: 50px; }
-    .cofinance .cofinanceLinks { font-size: 7.5px; }
+@media (max-width: 1279px) and (max-height: 560px) {
+    :global(html:not([data-film='h'])) .hdClocks { top: 74px; }
+    :global(html:not([data-film='h'])) .pageAbout .aboutRead { top: 104px; }   /* sub ceas */
+    :global(html:not([data-film='h'])) .page { --bar-h: 50px; }
+    :global(html:not([data-film='h'])) .cofinance .cofinanceLinks { font-size: 7.5px; }
 }
 /* calculatorul pe ecranul îngust: coloana etichetelor mai îngustă, cadențele pot trece pe al doilea rând */
 .sheetTc .tcRateRow, .sheetTc .tcWaveRow, .sheetTc .tcRow, .sheetTc .tcRatio { grid-template-columns: 92px 1fr; }
@@ -3273,8 +3273,8 @@ button.capTitle {
    Pe ABOUT: pelicula cu oamenii sub meniu, cea cu pozele de la filmare sub
    ea, apoi caseta cu textul, până la bara de jos.
    ══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 1279px) and (orientation: portrait) {   /* din 09.11: doar ecranele ținute vertical */
-    .page {
+@media (max-width: 1279px) {   /* din 09.11: doar ecranele ținute vertical */
+    :global(html[data-film='h']) .page {
         --film-axis: x;
         --slot-w:    calc(242px * var(--film-k));                                /* un cadru: afișul + 32 px de negru = 11 găuri */
         --strip-h:   calc(var(--img-h) + var(--band-w) + 2 * var(--perf-band));  /* 394 px × k */
@@ -3283,16 +3283,16 @@ button.capTitle {
         --vf-h:      calc(402px * var(--film-k));                                /* 30 px sus și jos, peste perforație */
         --txt-gap:   16px;                                                       /* de la ramă la textul de dedesubt */
     }
-    .pageAbout {
+    :global(html[data-film='h']) .pageAbout {
         --bar-clip:   0px;
         --strip-top2: calc(var(--strip-top) + var(--strip-h) + var(--strip-gap));
     }
     /* a doua peliculă de pe ABOUT (pozele de la filmare): sub prima */
-    .strip2 { --strip-top: var(--strip-top2); }
+    :global(html[data-film='h']) .strip2 { --strip-top: var(--strip-top2); }
 
     /* galeria: o bandă pe toată lățimea ecranului */
-    .gallery,
-    .pageAbout .gallery {
+    :global(html[data-film='h']) .gallery,
+    :global(html[data-film='h']) .pageAbout .gallery {
         top: var(--strip-top);
         bottom: auto;
         left: 0;
@@ -3311,39 +3311,39 @@ button.capTitle {
             url("/assets/ui/vizor-mask-h.webp?v=1") center / var(--vf-w) var(--vf-h) no-repeat,
             linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.88));
     }
-    .galleryPad { flex: none; height: auto; width: calc(50% - var(--slot-w) / 2); }
-    .slot {
+    :global(html[data-film='h']) .galleryPad { flex: none; height: auto; width: calc(50% - var(--slot-w) / 2); }
+    :global(html[data-film='h']) .slot {
         flex: none;
         width: var(--slot-w);
         height: 100%;
         background: linear-gradient(var(--film-base), var(--film-base)) center / 100% calc(100% - 2 * var(--perf-band)) no-repeat;
     }
-    .slot::before,
-    .slot::after {
+    :global(html[data-film='h']) .slot::before,
+    :global(html[data-film='h']) .slot::after {
         left: 0;
         right: 0;
         width: auto;
         height: var(--perf-band);
     }
-    .slot::before { top: 0; bottom: auto; background-image: url("/assets/ui/perforatie-sus.webp?v=1"); }
-    .slot::after  { top: auto; bottom: 0; background-image: url("/assets/ui/perforatie-jos.webp?v=1"); }
+    :global(html[data-film='h']) .slot::before { top: 0; bottom: auto; background-image: url("/assets/ui/perforatie-sus.webp?v=1"); }
+    :global(html[data-film='h']) .slot::after { top: auto; bottom: 0; background-image: url("/assets/ui/perforatie-jos.webp?v=1"); }
     /* afișul + pista sub el stau împreună în mijlocul peliculei */
-    .slotImg,
-    .slotHalo { translate: 0 calc(var(--band-w) / -2); }
+    :global(html[data-film='h']) .slotImg,
+    :global(html[data-film='h']) .slotHalo { translate: 0 calc(var(--band-w) / -2); }
 
     /* rama, lampa, lumina din spate: în mijlocul ecranului, pe peliculă */
-    .viewfinder,
-    .lamp,
-    .backlight {
+    :global(html[data-film='h']) .viewfinder,
+    :global(html[data-film='h']) .lamp,
+    :global(html[data-film='h']) .backlight {
         top: calc(var(--strip-top) + var(--strip-h) / 2);
         left: 50%;
     }
-    .vfGlass { background-image: url("/assets/ui/vizor-h.webp?v=1"); }
-    .lamp {
+    :global(html[data-film='h']) .vfGlass { background-image: url("/assets/ui/vizor-h.webp?v=1"); }
+    :global(html[data-film='h']) .lamp {
         -webkit-mask: url("/assets/ui/vizor-mask-h.webp?v=1") center / 100% 100% no-repeat;
                 mask: url("/assets/ui/vizor-mask-h.webp?v=1") center / 100% 100% no-repeat;
     }
-    .backlight {
+    :global(html[data-film='h']) .backlight {
         width: calc(var(--slot-w) * 3);
         height: var(--strip-h);
         -webkit-mask:
@@ -3357,8 +3357,8 @@ button.capTitle {
     }
 
     /* pista sonoră: sub afiș, de la o margine la alta a ecranului */
-    .soundtrack,
-    .pageAbout .soundtrack {
+    :global(html[data-film='h']) .soundtrack,
+    :global(html[data-film='h']) .pageAbout .soundtrack {
         --gate-l: calc(50% - var(--img-w) / 2);
         --gate-r: calc(50% + var(--img-w) / 2);
         top: calc(var(--strip-top) + var(--perf-band) + var(--img-h));
@@ -3374,19 +3374,19 @@ button.capTitle {
             rgba(0, 0, 0, 0.88) calc(var(--gate-l) - 40px), black calc(var(--gate-l) + 16px),
             black calc(var(--gate-r) - 16px), rgba(0, 0, 0, 0.88) calc(var(--gate-r) + 40px));
     }
-    .soundtrack::after {
+    :global(html[data-film='h']) .soundtrack::after {
         background: linear-gradient(to right,
             rgba(0, 0, 0, 0.6) calc(var(--gate-l) - 40px), rgba(0, 0, 0, 0) calc(var(--gate-l) + 16px),
             rgba(0, 0, 0, 0) calc(var(--gate-r) - 16px), rgba(0, 0, 0, 0.6) calc(var(--gate-r) + 40px));
     }
-    .soundtrackStrip {
+    :global(html[data-film='h']) .soundtrackStrip {
         width: calc(100% + var(--band-tile, 2049px) * var(--film-k));
         height: 100%;
         background: url("/assets/ui/soundtrack-h.webp?v=1") 0 0 / calc(var(--band-tile, 2049px) * var(--film-k)) 100% repeat-x;
     }
 
     /* WORK — textul filmului imediat sub peliculă: TITLUL ≡, anul, ce a făcut echipa, cine */
-    .sideRight {
+    :global(html[data-film='h']) .sideRight {
         top: calc(var(--strip-top) + (var(--strip-h) + var(--vf-h)) / 2 + var(--txt-gap));
         bottom: auto;
         height: auto;
@@ -3394,7 +3394,7 @@ button.capTitle {
     }
 
     /* ABOUT — omul din ramă și descrierea firmei: sub cele două pelicule, până la bara de jos */
-    .pageAbout .aboutRead {
+    :global(html[data-film='h']) .pageAbout .aboutRead {
         top: calc(var(--strip-top2) + (var(--strip-h) + var(--vf-h)) / 2 + 4px);
         bottom: var(--bar-h);
         height: auto;
@@ -3406,32 +3406,32 @@ button.capTitle {
    Telefonul: 1 pe tot ecranul (390 × 844), 0,85 în Safari (~390 × 700, ca în
    captura lui Ștefan din 09.11), mai mică pe telefoanele scunde.
    ABOUT are două pelicule una sub alta → mai mici. */
-@media (min-width: 768px) and (max-width: 1279px) and (orientation: portrait) {
-    .pageAbout { --film-k: 0.8; }
+@media (min-width: 768px) and (max-width: 1279px) {
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.8; }
 }
-@media (min-width: 768px) and (max-width: 1279px) and (orientation: portrait) and (max-height: 900px) {
-    .page      { --film-k: 1; }
-    .pageAbout { --film-k: 0.55; }
+@media (min-width: 768px) and (max-width: 1279px) and (max-height: 900px) {
+    :global(html[data-film='h']) .page { --film-k: 1; }
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.55; }
 }
-@media (min-width: 768px) and (max-width: 1279px) and (orientation: portrait) and (max-height: 760px) {
-    .page      { --film-k: 0.85; }
-    .pageAbout { --film-k: 0.46; }
+@media (min-width: 768px) and (max-width: 1279px) and (max-height: 760px) {
+    :global(html[data-film='h']) .page { --film-k: 0.85; }
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.46; }
 }
-@media (max-width: 767px) and (orientation: portrait) {
-    .page      { --film-k: 1; }
-    .pageAbout { --film-k: 0.55; }
+@media (max-width: 767px) {
+    :global(html[data-film='h']) .page { --film-k: 1; }
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.55; }
 }
-@media (max-width: 767px) and (max-height: 780px) and (orientation: portrait) {
-    .page      { --film-k: 0.85; }
-    .pageAbout { --film-k: 0.5; }
+@media (max-width: 767px) and (max-height: 780px) {
+    :global(html[data-film='h']) .page { --film-k: 0.85; }
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.5; }
 }
-@media (max-width: 767px) and (max-height: 680px) and (orientation: portrait) {
-    .page      { --film-k: 0.74; }
-    .pageAbout { --film-k: 0.44; }
+@media (max-width: 767px) and (max-height: 680px) {
+    :global(html[data-film='h']) .page { --film-k: 0.74; }
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.44; }
 }
-@media (max-width: 767px) and (max-height: 600px) and (orientation: portrait) {
-    .page      { --film-k: 0.62; }
-    .pageAbout { --film-k: 0.38; }
+@media (max-width: 767px) and (max-height: 600px) {
+    :global(html[data-film='h']) .page { --film-k: 0.62; }
+    :global(html[data-film='h']) .pageAbout { --film-k: 0.38; }
 }
 
 
@@ -3497,8 +3497,8 @@ button.capTitle {
 }
 /* ecranul întors sub 1280 px: căsuța lipită de buton, deasupra barei;
    dacă ecranul e scund, se derulează */
-@media (max-width: 1279px) and (orientation: landscape) {
-    .page.barFlow .tcBox {
+@media (max-width: 1279px) {
+    :global(html:not([data-film='h'])) .page.barFlow .tcBox {
         left: clamp(12px, calc(var(--tc-r, 100vw) - 448px), calc(100% - 460px));
         bottom: calc(var(--bar-h) + 4px);
         width: min(448px, calc(100vw - 24px));
@@ -3519,10 +3519,10 @@ button.capTitle {
    (pe 430: x = 416). Pelicula urcă odată cu antetul: tot la 10 px sub
    meniu (înainte sub ceas).
    ══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 767px) and (orientation: portrait) {
-    .page { --hdr-h: 81px; }   /* meniul: 58 – 77 → pelicula de la 87 */
-    .hdClocks { top: 26px; right: 14px; }
-    .navRow {
+@media (max-width: 767px) {
+    :global(html[data-film='h']) .page { --hdr-h: 81px; }   /* meniul: 58 – 77 → pelicula de la 87 */
+    :global(html[data-film='h']) .hdClocks { top: 26px; right: 14px; }
+    :global(html[data-film='h']) .navRow {
         top: 58px;
         right: 14px;
         grid-template-columns: auto auto auto auto;
@@ -3531,11 +3531,11 @@ button.capTitle {
     }
     /* după WORK și după GEAR: doar virgula (9 px — perechile strânse, ca în
        cue-uri: 6 px de la cuvânt la cuvânt); între cele două perechi, 36 px */
-    .navRow .navWork,
-    .navRow .navGear  { margin-right: 9px; }
-    .navRow .navAbout { margin-right: 36px; }
+    :global(html[data-film='h']) .navRow .navWork,
+    :global(html[data-film='h']) .navRow .navGear { margin-right: 9px; }
+    :global(html[data-film='h']) .navRow .navAbout { margin-right: 36px; }
     /* căsuța GEAR: sub rândul meniului */
-    .navRow .gearBox { top: calc(var(--hdr-h) + 4px); right: 14px; }
+    :global(html[data-film='h']) .navRow .gearBox { top: calc(var(--hdr-h) + 4px); right: 14px; }
 }
 
 
@@ -3548,8 +3548,8 @@ button.capTitle {
    jos, pe toată lățimea (cel mult 600 px), sub antet; se derulează.
    Fără `transform` pe bloc — căsuța e `fixed`.
    ══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 1279px) and (orientation: portrait) {
-    .page .cofinance .cofinanceEncoder {
+@media (max-width: 1279px) {
+    :global(html[data-film='h']) .page .cofinance .cofinanceEncoder {
         display: flex;
         width: max-content;
         right: auto;
@@ -3559,14 +3559,14 @@ button.capTitle {
         z-index: 2;           /* pe telefon blocul site-uri + ADR ține toată lățimea barei */
     }
     /* aceeași înălțime ca ADR (28 px), lățimea 45 px (ADR: 46) */
-    .cofinanceEncoder .tcBtn {
+    :global(html[data-film='h']) .cofinanceEncoder .tcBtn {
         font-size: 6px;
         letter-spacing: 0.02em;
         line-height: 1.15;
         gap: 1px;
         padding: 6px 3px 5px;
     }
-    .cofinanceEncoder .tcBox {
+    :global(html[data-film='h']) .cofinanceEncoder .tcBox {
         position: fixed;
         top: auto;
         bottom: 0;
@@ -3580,14 +3580,14 @@ button.capTitle {
         padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
         border-bottom: 0;
     }
-    .cofinanceEncoder .tcRateRow, .cofinanceEncoder .tcWaveRow,
-    .cofinanceEncoder .tcRow, .cofinanceEncoder .tcRatio { grid-template-columns: 92px 1fr; }
-    .cofinanceEncoder .tcSwap  { margin-left: 92px; }
-    .cofinanceEncoder .tcChips { flex-wrap: wrap; row-gap: 3px; }
+    :global(html[data-film='h']) .cofinanceEncoder .tcRateRow, :global(html[data-film='h']) .cofinanceEncoder .tcWaveRow,
+    :global(html[data-film='h']) .cofinanceEncoder .tcRow, :global(html[data-film='h']) .cofinanceEncoder .tcRatio { grid-template-columns: 92px 1fr; }
+    :global(html[data-film='h']) .cofinanceEncoder .tcSwap { margin-left: 92px; }
+    :global(html[data-film='h']) .cofinanceEncoder .tcChips { flex-wrap: wrap; row-gap: 3px; }
 }
-@media (max-width: 767px) and (orientation: portrait) {
+@media (max-width: 767px) {
     /* telefon: rândul logo-urilor e deasupra site-urilor (bara de 82 px) */
-    .page .cofinance .cofinanceEncoder { bottom: 28px; }
+    :global(html[data-film='h']) .page .cofinance .cofinanceEncoder { bottom: 28px; }
 }
 
 
@@ -3662,4 +3662,48 @@ button.capTitle {
     @media (min-width: 1280px) {
         .page { --reel-x0: round(clamp(32px, calc(32px + (100vw - 1280px) * 0.4), 96px), 1px); }
     }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   12.11.2026 — SUB 1280 PX, ECRANUL MAI LAT DECÂT ÎNALT: MENIUL PE UN RÂND
+   (Ștefan: „lasă scrisul în dreapta până când se face ecranul și mai mic …
+   mai e mult spațiu … le poți lăsa acolo până când nu mai au spațiu; când
+   nu mai au spațiu treci direct cu pelicula orizontală, ca să eviți
+   suprapunerea; verifică și în funcție de limbă”.)
+   Starea o pune filmMode.ts pe <html> (data-film): v1 = pelicula verticală
+   și meniul pe un singur rând în dreapta-sus, ca pe desktop și ca pe
+   telefonul ținut vertical — „WORK, ABOUT   GEAR, CONTACT” + iconițele —,
+   ceasul dedesubt. Când nu mai încap lângă peliculă (măsurat în limba
+   aleasă), pagina trece la pelicula orizontală (data-film="h"). v2 (două
+   rânduri, ca înainte) rămâne doar pentru telefonul întors, unde nu e loc
+   de niciuna. Regulile pentru ecranele întoarse și pentru cele ținute
+   vertical au trecut de la `orientation` la data-film (aceleași reguli).
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1279px) {
+    :global(html[data-film='v1']) .navRow {
+        grid-template-columns: auto auto auto auto;
+        grid-template-areas: "work about gear contact";
+        column-gap: 0;
+    }
+    /* după WORK și după GEAR: virgula și un spațiu, ca pe desktop („WORK, ABOUT”:
+       21 px la 15,4 px → 19 px la 14 px); între cele două perechi, 36 px */
+    :global(html[data-film='v1']) .navRow .navWork,
+    :global(html[data-film='v1']) .navRow .navGear  { margin-right: 19px; }
+    :global(html[data-film='v1']) .navRow .navAbout { margin-right: 36px; }
+    /* în ES / FR / RO, unde altfel n-ar încăpea: scris puțin mai mic (cel
+       puțin 12 px), cât să încapă — îl pune filmMode.ts, ca pe desktop */
+    :global(html[data-film='v1'][data-nav-fs]) .navItemAt .navItem { font-size: var(--nav-fs-v1); }
+    /* ceasul: sub rândul meniului (înainte, sub două rânduri: 86 px) */
+    :global(html[data-film='v1']) .hdClocks { top: 62px; }
+    /* ABOUT: caseta cu textul, sub ceas */
+    :global(html[data-film='v1']) .pageAbout .aboutRead { top: 92px; }
+    /* căsuța GEAR: sub rândul meniului */
+    :global(html[data-film='v1']) .navRow .gearBox { top: 60px; }
+}
+/* telefonul întors (înălțime mică), dacă meniul încape pe un rând */
+@media (max-width: 1279px) and (max-height: 560px) {
+    :global(html[data-film='v1']) .hdClocks { top: 48px; }
+    :global(html[data-film='v1']) .pageAbout .aboutRead { top: 74px; }
+    :global(html[data-film='v1']) .navRow .gearBox { top: 46px; }
 }

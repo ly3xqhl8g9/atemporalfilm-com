@@ -30,6 +30,7 @@ interface FilmDetailData {
     title:       string;
     titleRo:     string;
     titleFr?:    string;
+    titles?:     Partial<Record<Lang, string>>;   // titlul oficial în altă limbă (IMDb)
     year:        string;
     director:    string;
     production:  string;
@@ -86,8 +87,7 @@ function pickDescription(p: FilmDetailData, lang: Lang): string {
 
 function pickTitle(p: FilmDetailData, lang: Lang): string {
     if (lang === 'ro') return p.titleRo;
-    if (lang === 'fr') return p.titleFr ?? p.title;
-    return p.title;
+    return p.titles?.[lang] ?? (lang === 'fr' ? p.titleFr : undefined) ?? p.title;
 }
 
 function pickNote(l: Laurel, lang: Lang): string | undefined {

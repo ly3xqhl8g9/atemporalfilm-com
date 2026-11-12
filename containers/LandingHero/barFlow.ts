@@ -99,7 +99,10 @@ export function useBarFlow(deps: unknown[]) {
             page.style.removeProperty('--tc-l');
             page.style.removeProperty('--tc-r');
 
-            const on = mq.matches;
+            // 12.11.2026: nu mai după orientare, ci după așezarea aleasă în
+            // filmMode.ts — pelicula orizontală (data-film="h") are bara ei
+            const on = mq.matches && (window.innerWidth >= 1280
+                || document.documentElement.getAttribute('data-film') !== 'h');
             page.classList.toggle(styles.barFlow, on);
             if (!on) { placePortrait(els); return; }
 

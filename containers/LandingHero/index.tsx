@@ -3,6 +3,7 @@
 import {
     useCallback,
     useEffect,
+    useLayoutEffect,
     useRef,
     useState,
 } from 'react';
@@ -22,6 +23,7 @@ import {
 } from './filmStrip';
 import IntroReel from './IntroReel';
 import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
+import { decideFilmMode } from './filmMode';
 import TimeCalculator from './TimeCalculator';
 import LogoReel from './LogoReel';
 import SetStrip, { type StripImage } from './SetStrip';
@@ -44,6 +46,8 @@ interface Project {
     title:       string;   // EN (mereu obligatoriu)
     titleRo:     string;   // RO (mereu obligatoriu)
     titleFr?:    string;   // FR (opțional — fallback la EN)
+    // 12.11.2026: titlul oficial în altă limbă, unde există pe IMDb (Also known as)
+    titles?:     Partial<Record<Lang, string>>;
     year:        string;
     director:    string;
     production:  string;
@@ -280,10 +284,22 @@ function NavLink({ href, match, children }: { href: string; match?: string; chil
     );
 }
 
+/* TITLURILE FILMELOR (12.11.2026, regula lui Ștefan):
+   • română (titleRo) = titlul original al filmului; dacă filmul nu are titlu
+     românesc (The Nun, Beyond Borders, Nasty, Happy Box, A Fish on a Ladder),
+     rămâne cel englezesc, exact cum e;
+   • engleză (title) = titlul englezesc de pe IMDb / de pe afiș — nu o
+     traducere făcută de noi (ex. „Where No Ships Go”, nu „Where the Boats
+     Don’t Go”; „Extravaganzia Large, Thin Crust and Hot Sauce”);
+   • celelalte limbi: titlul oficial din țara / limba respectivă, unde
+     filmul are unul pe IMDb (câmpul `titles`: ex. The Nun — ES „La monja”,
+     FR „La Nonne”, ZH „修女”, HI „द नन”); altfel titlul englezesc
+     (cel internațional), netradus de noi.
+   La un film nou: titlurile se iau de pe IMDb (Release info › Also known
+   as) și se compară cu afișul. */
 function pickTitle(p: Project, lang: Lang): string {
     if (lang === 'ro') return p.titleRo;
-    if (lang === 'fr') return p.titleFr ?? p.title;
-    return p.title;
+    return p.titles?.[lang] ?? (lang === 'fr' ? p.titleFr : undefined) ?? p.title;
 }
 
 
@@ -341,7 +357,8 @@ const PROJECTS: Project[] = [
     },
     {
         title:       'The Nun',
-        titleRo:     'Călugărița',
+        titles:      { es: 'La monja', fr: 'La Nonne', zh: '修女', hi: 'द नन' },   // IMDb: Spania / Mexic, Franța, China, India (hindi)
+        titleRo:     'The Nun',                // 12.11: titlul original (în România a rulat ca „Călugărița: Misterul de la mănăstire”)
         year:        'feature 2018 · horror',
         director:    'Corin Hardy',
         production:  'New Line Cinema · The Conjuring Universe',
@@ -371,7 +388,7 @@ const PROJECTS: Project[] = [
     },
     {
         title:       'A River’s Gaze',
-        titleRo:     'Malul vânăt',
+        titleRo:     'Malul Vânăt',            // 12.11: ca pe IMDb (nume de loc)
         year:        'feature 2026',
         director:    'Andreea Cristina Borțun',
         production:  'Atelier de Film · Films de Force Majeure · Perfo',
@@ -440,6 +457,7 @@ const PROJECTS: Project[] = [
     },
     {
         title:         'Ivana the Terrible',
+        titles:        { zh: '可怕的伊万娜' },   // IMDb: China
         titleRo:       'Ivana cea Groaznică',
         year:          'feature 2019',
         director:      'Ivana Mladenović',
@@ -519,6 +537,7 @@ const PROJECTS: Project[] = [
 
     {
         title:       'Where Elephants Go',
+        titles:      { zh: '大象去哪儿了' },   // IMDb: China
         titleRo:     'Unde merg elefanții',
         year:        'feature 2024',
         director:    'Cătălin Rotaru, Gabi Virginia Sarga',
@@ -534,7 +553,8 @@ const PROJECTS: Project[] = [
     },
     {
         title:       'Beyond Borders',
-        titleRo:     'Dincolo de hotare',
+        titles:      { es: 'Entre fronteras' },   // IMDb: Spania
+        titleRo:     'Beyond Borders',         // 12.11: filmul nu are titlu românesc (IMDb: original „Beyond Borders”; în SUA a rulat ca „Between Borders”)
         year:        'feature 2025',
         director:    'Mark Freiburger',
         production:  'co-produced by Ionuț Alin Ionescu',
@@ -579,6 +599,7 @@ const PROJECTS: Project[] = [
     },
     {
         title:       'Thou Shalt Not Kill',
+        titles:      { zh: '医者仁心' },   // IMDb: China
         titleRo:     'Să nu ucizi',
         year:        'feature 2018',
         director:    'Cătălin Rotaru, Gabi Virginia Sarga',
@@ -608,7 +629,7 @@ const PROJECTS: Project[] = [
         image:       '/assets/entities/2020-house-of-dolls-hero.jpg',
     },
     {
-        title:       'Where the Boats Don’t Go',
+        title:       'Where No Ships Go',      // 12.11: titlul englezesc de pe IMDb și de pe afiș
         titleRo:     'Acolo unde bărcile nu ajung',
         year:        'short 2023',
         director:    'Vlad Buzăianu',
@@ -624,7 +645,7 @@ const PROJECTS: Project[] = [
     },
     {
         title:       'A Fish on a Ladder',
-        titleRo:     'Un pește pe o scară',
+        titleRo:     'A Fish on a Ladder',     // 12.11: filmul nu are titlu românesc (IMDb, afiș)
         year:        'short 2021 · animation',
         director:    'Ioana Păsărin',
         production:  '—',
@@ -638,7 +659,7 @@ const PROJECTS: Project[] = [
         image:       '/assets/entities/2021-a-fish-on-a-ladder-hero.jpg',
     },
     {
-        title:       'Big Extravagance, Thin Crust, Hot Sauce',
+        title:       'Extravaganzia Large, Thin Crust and Hot Sauce',   // 12.11: titlul de pe afiș (Cinepub); IMDb: „Big Extravaganzia, Thin Crust, Hot Sauce”
         titleRo:     'Extravaganzia mare, blat subțire, sos iute',
         year:        'short 2021',
         director:    'Andrei Redinciuc',
@@ -653,7 +674,7 @@ const PROJECTS: Project[] = [
         image:       '/assets/entities/2021-extravaganzia-mare-hero.jpg',
     },
     {
-        title:       '4:15 P.M. End of the World',
+        title:       '4:15 P.M. The End of the World',   // 12.11: ca pe IMDb și pe afiș
         titleRo:     '4:15 P.M. Sfârșitul lumii',
         year:        'short 2016',
         director:    'Cătălin Rotaru, Gabi Virginia Sarga',
@@ -1595,6 +1616,18 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
        (timecode-urile „doar dacă intră între Regio și peliculă”, întâi
        scurtate) și timecode-urile scurte de pe WORK la 1280–1369 px. */
     useBarFlow([isAbout, lang]);
+
+    /* SUB 1280 PX (12.11.2026): pelicula verticală cu meniul pe un rând cât
+       încape lângă ea, altfel pelicula orizontală — se măsoară în limba
+       aleasă și pe pagina deschisă (vezi filmMode.ts). Aici: la încărcare,
+       la schimbarea limbii, la WORK ↔ ABOUT și după încărcarea fonturilor;
+       redimensionarea o prinde scriptul din <head>. */
+    useLayoutEffect(() => {
+        decideFilmMode();
+        let alive = true;
+        document.fonts?.ready.then(() => { if (alive) decideFilmMode(); }).catch(() => {});
+        return () => { alive = false; };
+    }, [isAbout, lang]);
 
     /* MENIUL, pe desktop (11.11.2026): în limbile cu cuvinte lungi (ES, FR, RO)
        „WORK, ABOUT” se mută spre stânga ca să nu intre peste „GEAR” (o face
