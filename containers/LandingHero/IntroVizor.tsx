@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react';
 
 import styles from './landing.module.css';
-import { FILM_COLOR, FLANGE, WOUND_FULL } from './LogoReel';
-import { VZ, clearVizor } from './intro';
+import { FILM_COLOR, FLANGE, WOUND_DOCK, WOUND_FULL } from './LogoReel';
+import { VZ, clearVizor, logoBridge } from './intro';
 
 
 
@@ -89,6 +89,16 @@ const T3 = {
 /** lumina lămpii: plină până la „hold”, stinsă la „out” */
 const FLASH = { rise: 45, hold: 1440, out: 1800 };
 
+/** versiunea 4: totul în 3 secunde; camera e în mișcare din primul cadru; rola intră cât
+    lumina încă scade, iar la sfârșit strânge și pelicula de peste logo (LogoReel, prin logoBridge) */
+const T4 = { slip: 800, tear: 900, clear: 1060, fly: 980, reelIn: 1150 };
+const T4P = { strip: 1720, logo: 1000, dock: 2080, text: 2300, lamp: 2420, end: 3000 };
+/** lumina: plină până la „hold”; albul de pe tot ecranul stins la „out”, raza de pe linia rupturii la „ray” */
+const FLASH4 = { rise: 40, hold: 1040, out: 1330, ray: 1480 };
+const GATHER = 660;          // cât strânge rola pelicula de peste logo (ms)
+const SPIN4 = 1080;          // trei ture, de la intrare până se oprește lângă logo (lent: nu „bate” pe cadre)
+const VIDEO_RATE4 = 1.4;     // clipul, puțin mai repede: treptele de diafragmă încap în 0,8 s
+
 /** lumina se aprinde ca un tub fluorescent: [ms, cât de întuneric] */
 const VEIL: [number, number][] = [
     [1400, 1], [1470, 1], [1510, 0.5], [1550, 0.92], [1610, 0.22], [1660, 0.6],
@@ -119,6 +129,8 @@ const clamp01  = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const lerp     = (a: number, b: number, k: number) => a + (b - a) * k;
 const easeIO   = (v: number) => 0.5 - 0.5 * Math.cos(Math.PI * clamp01(v));
 const easeOut3 = (v: number) => 1 - (1 - clamp01(v)) ** 3;
+/** pornește și se oprește fără smucitură (viteza și accelerația sunt zero la capete) */
+const ease5 = (v: number) => { const x = clamp01(v); return x * x * x * (x * (6 * x - 15) + 10); };
 /** iese cu elan și trece puțin de capăt (pelicula „sare”) */
 const springOut = (v: number) => {
     const x = clamp01(v) - 1;
@@ -331,6 +343,7 @@ type Rib = {
     tc: number; td: number;
     // doar versiunea 3: felul de peliculă și de unde intră (cât e de departe, în afara ecranului)
     tex: number; ex: number; ey: number;
+    al: number;         // versiunea 4: cât de opacă se desenează (în mișcare: pe jumătate, de trei ori)
 };
 
 function makeRibbons(dg: number, vmin: number): Rib[] {
@@ -347,7 +360,7 @@ function makeRibbons(dg: number, vmin: number): Rib[] {
             n,
             P: new Float32Array(3 * (n + 1)), B: new Float32Array(3 * (n + 1)),
             S: new Float32Array(n + 1), E: new Float32Array(4 * (n + 1)), G: new Float32Array(n + 1),
-            L: 0, ws: 1, cx: 0, cy: 0, cz: 0, dvx: 0, dvy: 0, rot: 0, tc: 0, td: 0, tex: 0, ex: 0, ey: 0,
+            L: 0, ws: 1, cx: 0, cy: 0, cz: 0, dvx: 0, dvy: 0, rot: 0, tc: 0, td: 0, tex: 0, ex: 0, ey: 0, al: 1,
             ...p,
         });
     };
@@ -466,7 +479,7 @@ function frame3(rb: Rib, hx: number, hy: number, hz: number): number {
    fâșii lungi care unduiesc și se răsucesc, bucle. Sar din linia rupturii spre
    locul lor și apoi plutesc încet. Când rola ajunge la ele, capul fiecăreia e
    tras în rolă și restul vine după el (se scurtează de la cap). */
-function makeTangle(vw: number, vh: number, v3: boolean): Rib[] {
+function makeTangle(vw: number, vh: number, v3: boolean, o = { fly: T3.fly, spread: 180, d0: 430, d1: 560, td: 1 }): Rib[] {
     // versiunea 3: din ce parte intră fiecare (stânga, dreapta, sus, jos) și, pentru
     // fâșiile lungi, direcția (intră în lungul lor, ca aruncate)
     const SIDE = 'LRTR' + 'LRBTB' + 'LTRBB';
@@ -490,7 +503,7 @@ function makeTangle(vw: number, vh: number, v3: boolean): Rib[] {
             cx: (fx - 0.5) * vw, cy: (fy - 0.5) * vh, cz: 0,
             dvx: rnd(-42, 42), dvy: rnd(-30, 30), rot: rnd(-0.45, 0.45),
             tc: 0, td: rnd(300, 420),
-            tex: 0, ex: 0, ey: 0,
+            tex: 0, ex: 0, ey: 0, al: 1,
             ...p,
         };
         if (v3) {
@@ -498,8 +511,9 @@ function makeTangle(vw: number, vh: number, v3: boolean): Rib[] {
             if (DEG3[i] !== undefined) rb.phi = (DEG3[i] * Math.PI) / 180;
             rb.tex = i;
             rb.w *= 1.3;                        // pelicula reală: puțin mai lată, să i se vadă cadrele
-            rb.t0 = T3.fly + rnd(0, 180);
-            rb.dur = rnd(430, 560);
+            rb.t0 = o.fly + rnd(0, o.spread);
+            rb.dur = rnd(o.d0, o.d1);
+            rb.td *= o.td;
             const horiz = side === 'L' || side === 'R';
             const reach = (kind === 1 ? rb.len * (0.5 * Math.abs(horiz ? Math.cos(rb.phi) : Math.sin(rb.phi)) + 0.2)
                 : kind === 0 ? 0.5 * rb.len + rb.b : 1.2 * rb.b) + 2 * rb.w;
@@ -633,9 +647,15 @@ export default function IntroVizor() {
 
         // versiunea 2: /?intro=vizor2 ; pelicula orizontală (ecranele mici): totul pe orizontală
         // versiunea 3: /?intro=vizor3 = versiunea 2 + peliculă reală, lumina lămpii, fâșii din afară
-        const V3 = /[?&]intro=vizor3(?:&|$)/.test(window.location.search);
+        const V3 = /[?&]intro=vizor[34](?:&|$)/.test(window.location.search);
         const V2 = V3 || /[?&]intro=vizor2(?:&|$)/.test(window.location.search);
-        const TT = V3 ? T3 : { ...T2, fly: T2.tear };
+        // versiunea 4: /?intro=vizor4 = versiunea 3 în 3 secunde, cu mișcarea netezită
+        const V4 = /[?&]intro=vizor4(?:&|$)/.test(window.location.search);
+        const TT = V4 ? T4 : V3 ? T3 : { ...T2, fly: T2.tear };
+        const TM = V4 ? { ...T, ...T4P } : T;
+        const VR = V4 ? VIDEO_RATE4 : 1;
+        /** versiunea 4: unghiul rolei, o singură curbă de la intrare până se oprește lângă logo */
+        const spin4 = (t: number) => { const x = clamp01((t - T4.reelIn) / (T4P.dock + GATHER - T4.reelIn)); return SPIN4 * (1.5 * x - 0.5 * x * x * x); };
         const filmHoriz = () => html.getAttribute('data-film') === 'h';
 
         /* ── piesele ── */
@@ -683,7 +703,7 @@ export default function IntroVizor() {
             canvas.height = Math.round(vh * q);
             shadow.width = Math.ceil(vw / SH);
             shadow.height = Math.ceil(vh / SH);
-            ribs = V2 ? makeTangle(vw, vh, V3) : makeRibbons(Math.hypot(vw, vh) / 2, Math.min(vw, vh));
+            ribs = V2 ? makeTangle(vw, vh, V3, V4 ? { fly: T4.fly, spread: 170, d0: 520, d1: 640, td: 0.9 } : undefined) : makeRibbons(Math.hypot(vw, vh) / 2, Math.min(vw, vh));
             planned = false;
             segMax = ribs.reduce((a, r) => a + r.n, 0);
             segZ = new Float32Array(segMax);
@@ -935,8 +955,8 @@ export default function IntroVizor() {
                 };
             }
             // derulează înapoi: trei ture, se micșorează și zboară lângă logo
-            const p = clamp01((t - T.rewind) / (T.dock - T.rewind));
-            const f = clamp01((t - T.rewind - 230) / (T.dock - T.rewind - 230));
+            const p = clamp01((t - T.rewind) / (TM.dock - T.rewind));
+            const f = clamp01((t - T.rewind - 230) / (TM.dock - T.rewind - 230));
             const m = easeIO(f), u = 1 - m;
             const ctrl: Pt = [home[0] - 0.12 * (home[0] - logoC[0]), logoC[1] + 0.05 * (home[1] - logoC[1])];
             const k = 1 - easeIO(f);
@@ -1017,7 +1037,7 @@ export default function IntroVizor() {
         /** panglicile pregătite (P, B, S, G, L, ws) → pe ecran: proiectate în perspectivă față de
             (ox, oy), tăiate în felii și desenate de la cea mai îndepărtată la cea mai apropiată;
             rola, dacă e, stă între ele */
-        const renderFilm = (ox: number, oy: number, reel: Reel | null, light: number, shOff: number) => {
+        const renderFilm = (ox: number, oy: number, reel: Reel | null, light: number, shOff: number, ghost = false) => {
             if (!films.length) { if (reel) drawReel(reel); return; }
             const D = 1.15 * (Math.hypot(vw, vh) / 2);     // distanța privitorului
             let count = 0;
@@ -1049,7 +1069,7 @@ export default function IntroVizor() {
             order.sort((a, b) => segZ[a] - segZ[b]);
 
             // umbra pe masă (doar când e lumină)
-            if (shCtx && light > 0.05) {
+            if (!ghost && shCtx && light > 0.05) {
                 shCtx.setTransform(1 / SH, 0, 0, 1 / SH, 0, 0);
                 shCtx.clearRect(0, 0, vw + SH, vh + SH);
                 shCtx.fillStyle = '#000';
@@ -1103,7 +1123,9 @@ export default function IntroVizor() {
                         ctx.beginPath();
                         ctx.moveTo(m0x, m0y);
                         ctx.lineTo(m0x + vx, m0y + vy);
+                        ctx.globalAlpha = rb.al;
                         ctx.stroke();
+                        ctx.globalAlpha = 1;
                         continue;
                     }
                     // felia de textură: de la S[k] la S[k+1], socotit de la capătul liber (curge din rolă)
@@ -1118,13 +1140,14 @@ export default function IntroVizor() {
                     ctx.setTransform((q * ux) / (TW * kk), (q * uy) / (TW * kk), (q * vx) / (th * kk), (q * vy) / (th * kk),
                                      q * (m0x - ux / 2), q * (m0y - uy / 2));
                     const sy = Math.min(ty * kk, tx.base.height - th * kk - 0.01);
+                    ctx.globalAlpha = rb.al;
                     ctx.drawImage(tx.base, 0, sy, TW * kk, th * kk, 0, -e * th * kk, TW * kk, th * kk * (1 + 2 * e));
                     const gl = (rb.G[k] + rb.G[k + 1]) / 2;
                     if (gl > 0.03) {
-                        ctx.globalAlpha = gl > 1 ? 1 : gl;
+                        ctx.globalAlpha = (gl > 1 ? 1 : gl) * rb.al;
                         ctx.drawImage(tx.sheen, 0, sy, TW * kk, th * kk, 0, -e * th * kk, TW * kk, th * kk * (1 + 2 * e));
-                        ctx.globalAlpha = 1;
                     }
+                    ctx.globalAlpha = 1;
                 }
             }
             ctx.setTransform(q, 0, 0, q, 0, 0);
@@ -1154,12 +1177,15 @@ export default function IntroVizor() {
             const S1 = endScale(), St = tightScale();
             const x = clamp01(t / TT.slip);
             // pornește încet (se vede încadratura din poză), apoi tot mai repede: intrăm în imagine
-            const e = 0.2 * x + 0.8 * x * x * x;
+            // versiunea 4: în mișcare din primul cadru (pornește cu peste jumătate din viteza medie)
+            const e = V4 ? 0.55 * x + 0.45 * x * x * x : 0.2 * x + 0.8 * x * x * x;
             const s = S1 * Math.pow(St / S1, e);
             const fx = lerp(C.w / 2, winCx, e), fy = lerp(C.h / 2, winCy, e);
             const tick = Math.floor(t / (1000 / 24));
             const wob = 0.35 + 1.9 * x * x * x;
-            const jx = (hash(tick * 3 + 1) - 0.5) * wob, jy = (hash(tick * 3 + 2) - 0.5) * wob * 1.6;
+            // versiunea 4: fără tremurul sărit de la cadru la cadru — o legănare lină
+            const jx = V4 ? 0.4 * wob * (Math.sin(t * 0.0113 + 0.6) + 0.5 * Math.sin(t * 0.0271)) : (hash(tick * 3 + 1) - 0.5) * wob;
+            const jy = V4 ? 0.4 * wob * (Math.sin(t * 0.0091 + 2.1) + 0.5 * Math.sin(t * 0.0233 + 1)) : (hash(tick * 3 + 2) - 0.5) * wob * 1.6;
             const ox = vw / 2 - fx * s + jx, oy = vh / 2 - fy * s + jy;
             // semnele vizorului se sting pe măsură ce intrăm în imagine
             const m = 1 - clamp01((x - 0.5) / 0.38);
@@ -1167,7 +1193,7 @@ export default function IntroVizor() {
             ctx.fillRect(0, 0, vw, vh);
             comp(s, ox, oy, m * m * (3 - 2 * m));
             // neclaritatea de mișcare: aceeași imagine, puțin mai mică (de unde venim)
-            const blur = Math.min(1, (0.2 + 2.4 * x * x) * Math.log(St / S1) * 0.42);
+            const blur = Math.min(1, (V4 ? 0.8 + 1.9 * x * x : 0.2 + 2.4 * x * x) * Math.log(St / S1) * 0.42);
             if (blur > 0.04) {
                 for (let k = 1; k <= 3; k++) {
                     const s2 = s * (1 - 0.012 * k * blur * 2.2);
@@ -1177,7 +1203,7 @@ export default function IntroVizor() {
                 ctx.globalAlpha = 1;
             }
             grainOver(ox + C.sx * s, oy + C.sy * s, C.sw * s, C.sh * s, tick, 0.38);
-            const dim = 0.05 * hash(tick + 500) + 0.1 * x * x * hash(tick + 900);
+            const dim = V4 ? 0.025 * hash(tick + 500) : 0.05 * hash(tick + 500) + 0.1 * x * x * hash(tick + 900);
             ctx.fillStyle = `rgba(0, 0, 0, ${dim.toFixed(3)})`;
             ctx.fillRect(0, 0, vw, vh);
         };
@@ -1188,13 +1214,15 @@ export default function IntroVizor() {
         const drawBreak2 = (t: number) => {
             const horiz = filmHoriz();
             const all = clamp01((t - TT.slip) / (TT.clear - TT.slip));
-            const s = tightScale() * (1 + 0.035 * all);
+            // versiunea 4: apropierea nu se oprește la rupere — continuă cu viteza cu care a ajuns și se stinge lin
+            const zoomV = (Math.log(tightScale() / endScale()) * 1.9) / TT.slip;
+            const s = V4 ? tightScale() * Math.exp(zoomV * 120 * (1 - Math.exp(-(t - TT.slip) / 120))) : tightScale() * (1 + 0.035 * all);
             const ox = vw / 2 - winCx * s, oy = vh / 2 - winCy * s;
             const X = ox + C.sx * s, Y = oy + C.sy * s, W = C.sw * s, H = C.sh * s;
             const pitch = horiz ? W : H;                 // un cadru, în lungul peliculei
             const tick = Math.floor(t / (1000 / 48));
             const src = sceneSrc();
-            const rollAt = (k: number) => (0.035 * Math.sin(k * 26) * k + 1.25 * k * k * k) * pitch;
+            const rollAt = (k: number) => (V4 ? 1.15 * k * k * k : 0.035 * Math.sin(k * 26) * k + 1.25 * k * k * k) * pitch;
             /** imaginea, fugită cu „off” în lungul peliculei, cu cadrul vecin lipit de ea */
             const film = (off: number, jit: number) => {
                 if (!src) return;
@@ -1208,7 +1236,7 @@ export default function IntroVizor() {
             if (t < TT.tear) {
                 // 2a. pelicula o ia din loc: cadrul fuge tot mai repede; linia neagră dintre cadre trece prin ecran
                 const k = clamp01((t - TT.slip) / (TT.tear - TT.slip));
-                const jit = (hash(tick + 3) - 0.5) * 14 * k;
+                const jit = V4 ? 0 : (hash(tick + 3) - 0.5) * 14 * k;
                 ctx.fillStyle = '#000';
                 ctx.fillRect(0, 0, vw, vh);
                 for (let m = 0; m < 3; m++) {
@@ -1217,7 +1245,7 @@ export default function IntroVizor() {
                 }
                 ctx.globalAlpha = 1;
                 grainOver(0, 0, vw, vh, tick, 0.38);
-                const fl = hash(tick + 40);
+                const fl = V4 ? 0.4 : hash(tick + 40);       // versiunea 4: fără pâlpâit (lumina vine din drawFlash4)
                 if (fl > 0.62) {
                     ctx.save();
                     ctx.globalCompositeOperation = 'lighter';
@@ -1286,7 +1314,14 @@ export default function IntroVizor() {
             return [a * P0[0] + b * P1[0] + c * P2[0] + d * logoC[0], a * P0[1] + b * P1[1] + c * P2[1] + d * logoC[1]];
         };
         const reelAt2 = (t: number): Reel => {
-            const x = clamp01((t - TT.reelIn) / (T.dock - TT.reelIn));
+            const x = clamp01((t - TT.reelIn) / (TM.dock - TT.reelIn));
+            if (V4) {
+                // intră cu viteză și se așază lin lângă logo; mare până aproape de jumătatea drumului, apoi se micșorează
+                const [qx, qy] = reelPath(0.3 * x * (2 - x) + 0.7 * x * x * (3 - 2 * x));
+                const sh = clamp01((x - 0.42) / 0.58);
+                const kk = 1 - sh * sh * (3 - 2 * sh);
+                return { x: qx, y: qy, S: logoS + (bigScale() - logoS) * kk, ang: spin4(t), wound: 6.2, k: kk };
+            }
             const [px, py] = reelPath(0.3 * x + 0.7 * easeIO(x));
             const k = 1 - easeIO(clamp01((x - 0.52) / 0.48));       // mare până la jumătatea drumului, apoi se micșorează
             // cinci ture, tot mai încet; se oprește cum stă rola de lângă logo
@@ -1297,45 +1332,139 @@ export default function IntroVizor() {
             for (const rb of ribs) {
                 let best = Infinity, at = TT.reelIn;
                 for (let i = 0; i <= 50; i++) {
-                    const tt = TT.reelIn + ((T.dock - TT.reelIn) * i) / 50;
+                    const tt = TT.reelIn + ((TM.dock - TT.reelIn) * i) / 50;
                     const r = reelAt2(tt);
                     const d = (r.x - vw / 2 - rb.cx) ** 2 + (r.y - vh / 2 - rb.cy) ** 2;
                     if (d < best) { best = d; at = tt; }
                 }
-                rb.tc = Math.min(T.dock - rb.td - 190, Math.max(TT.reelIn + 60, at - 170));
+                rb.tc = V4 ? Math.min(TM.dock - rb.td - 110, Math.max(TT.reelIn + 40, at - 230))
+                    : Math.min(TM.dock - rb.td - 190, Math.max(TT.reelIn + 60, at - 170));
             }
         };
 
-        /** 3 + 4. pelicula încâlcită; când vine rola, o absoarbe fâșie cu fâșie */
-        const drawTangle = (t: number) => {
-            if (!planned) { measureLogo(); planCapture(); planned = true; }
-            const reel = t >= TT.reelIn && t < T.dock ? reelAt2(t) : null;
-            const horiz = filmHoriz();
+        /** pelicula încâlcită la momentul t (rola, dacă e, o absoarbe fâșie cu fâșie); întoarce cât a înghițit rola */
+        const poseTangle = (t: number, reel: Reel | null, horiz: boolean): number => {
             const SB = bigScale();
             let eaten = 0;
             for (const rb of ribs) {
                 rb.L = 0;
+                rb.al = 1;
                 if (t <= rb.t0) continue;
                 const x = (t - rb.t0) / rb.dur;
-                const g = x < 1 ? springOut(x) : 1;
+                // versiunea 4: intră repede și se așază lin, fără să treacă de locul ei
+                const g = x >= 1 ? 1 : V4 ? 1 - (1 - x) ** 4 : springOut(x);
                 let a = 0, c = 0;
                 if (t >= TT.reelIn && t > rb.tc) {
-                    a = easeIO((t - rb.tc) / 120);
-                    c = Math.pow(clamp01((t - rb.tc - 50) / rb.td), 1.7);
+                    if (V4) {
+                        a = ease5((t - rb.tc) / 240);
+                        const cc = clamp01((t - rb.tc - 70) / rb.td);
+                        c = cc * cc * (3 - 2 * cc);
+                    } else {
+                        a = easeIO((t - rb.tc) / 120);
+                        c = Math.pow(clamp01((t - rb.tc - 50) / rb.td), 1.7);
+                    }
                 }
                 eaten += c;
                 if (c >= 0.995 || (!reel && a > 0)) continue;
                 rb.ws = reel ? lerp(1, Math.max(0.3, reel.S / SB), a) : 1;
                 rb.L = shapeFree(rb, t, g, c, a, reel ? reel.x - vw / 2 : 0, reel ? reel.y - vh / 2 : 0, horiz);
+                if (V4) {
+                    // cât de repede se mișcă: la intrare și cât e trasă în rolă
+                    const mv = Math.max(x < 1 ? (1 - x) ** 2 : 0, a > 0 ? 0.25 * a + 0.75 * Math.sin(Math.PI * c) : 0);
+                    rb.al = 1 - 0.5 * clamp01(mv);
+                }
             }
-            if (reel) reel.wound = lerp(6.2, WOUND_FULL, easeIO(eaten / ribs.length));
+            return eaten;
+        };
+
+        /** 3 + 4. pelicula încâlcită; când vine rola, o absoarbe fâșie cu fâșie */
+        const drawTangle = (t: number) => {
+            if (!planned) { measureLogo(); planCapture(); planned = true; }
+            const horiz = filmHoriz();
+            const live = (tt: number) => (tt >= TT.reelIn && tt < TM.dock ? reelAt2(tt) : null);
+            if (V4) {
+                // neclaritatea de mișcare: fâșiile care se mișcă repede se desenează și cum erau cu
+                // 12 și cu 6 ms mai devreme, pe jumătate transparente (ca un obturator deschis)
+                for (const back of [12, 6]) {
+                    poseTangle(t - back, live(t - back), horiz);
+                    let moving = false;
+                    for (const rb of ribs) { if (rb.al > 0.97) rb.L = 0; else if (rb.L > 0) moving = true; }
+                    if (moving) renderFilm(vw / 2, vh / 2, null, 1, 1, true);
+                }
+            }
+            const reel = live(t);
+            const eaten = poseTangle(t, reel, horiz);
+            if (reel) reel.wound = lerp(6.2, V4 ? WOUND_DOCK : WOUND_FULL, easeIO(eaten / ribs.length));
             renderFilm(vw / 2, vh / 2, reel, 1, 1);
+        };
+
+        /** versiunea 4 — lumina: răzbate prin peliculă (din mijloc și pe linia unde se va rupe);
+            la rupere o lamă de lumină se deschide din linia rupturii și umple ecranul; apoi albul
+            se retrage și rămâne, o clipă, raza de pe linia rupturii */
+        const drawFlash4 = (t: number) => {
+            if (t < TT.slip || t >= FLASH4.ray) return;
+            const horiz = filmHoriz();
+            const span = horiz ? vw : vh, cx = vw / 2, cy = vh / 2, dg = Math.hypot(vw, vh) / 2;
+            const white = (a: number) => `rgba(255, 253, 247, ${Math.max(0, Math.min(1, a)).toFixed(3)})`;
+            const blade = (half: number, a: number) => {
+                if (a <= 0.003 || half <= 0.5) return;
+                const gr = horiz ? ctx.createLinearGradient(cx - half, 0, cx + half, 0) : ctx.createLinearGradient(0, cy - half, 0, cy + half);
+                gr.addColorStop(0, white(0));
+                gr.addColorStop(0.28, white(0.5 * a));
+                gr.addColorStop(0.5, white(a));
+                gr.addColorStop(0.72, white(0.5 * a));
+                gr.addColorStop(1, white(0));
+                ctx.fillStyle = gr;
+                if (horiz) ctx.fillRect(cx - half, 0, 2 * half, vh); else ctx.fillRect(0, cy - half, vw, 2 * half);
+            };
+            const core = (R: number, a: number) => {
+                if (a <= 0.003) return;
+                const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+                gr.addColorStop(0, white(a));
+                gr.addColorStop(0.45, white(0.5 * a));
+                gr.addColorStop(1, white(0));
+                ctx.fillStyle = gr;
+                ctx.fillRect(0, 0, vw, vh);
+            };
+            const all = (a: number) => { ctx.fillStyle = white(a); ctx.fillRect(0, 0, vw, vh); };
+            if (t < TT.tear) {
+                const k = (t - TT.slip) / (TT.tear - TT.slip);
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                core((0.25 + 0.9 * k) * dg, Math.pow(k, 1.5));
+                blade((0.03 + 0.12 * k * k) * span, k * k);
+                ctx.restore();
+                return;
+            }
+            const u = t - TT.tear;
+            if (u < FLASH4.rise) {
+                const o = ease5(u / FLASH4.rise);
+                all(0.5 + 0.5 * o);
+                blade((0.15 + 1.2 * o) * span, 1);
+                return;
+            }
+            if (t < FLASH4.hold) { all(1); return; }
+            all(1 - ease5((t - FLASH4.hold) / (FLASH4.out - FLASH4.hold)));
+            const r = 1 - ease5((t - FLASH4.hold) / (FLASH4.ray - FLASH4.hold));
+            blade((0.04 + 0.5 * r * r) * span, r);
+            core((0.1 + 0.5 * r) * dg, 0.8 * r);
+        };
+
+        /** versiunea 4 — pelicula de peste logo (LogoReel), pe ceasul intro-ului: apare odată
+            cu pagina, iar când rola ajunge lângă logo o strânge și pe ea; rămâne logo-ul scris */
+        let logoPhase = 0;
+        const logoStep = (t: number) => {
+            const ph = t < TM.logo ? 0 : t < TM.dock ? 1 : t < TM.dock + GATHER ? 2 : 3;
+            if (ph === 2) logoBridge.gather?.((t - TM.dock) / GATHER, spin4(t));
+            else if (ph !== logoPhase) { if (ph === 1) logoBridge.lay?.(); else logoBridge.rest?.(); }
+            logoPhase = ph;
         };
 
         /** versiunea 3 — lampa din spatele peliculei. Cât pelicula o ia din loc, lumina
             răzbate prin ea (din mijloc, tot mai tare); la rupere umple ecranul și orbește;
             apoi scade până la albul paginii, iar fâșiile care intră se văd prin ea. */
         const drawFlash = (t: number) => {
+            if (V4) { drawFlash4(t); return; }
             if (t < TT.slip || t >= FLASH.out) return;
             if (t < TT.tear) {
                 const k = (t - TT.slip) / (TT.tear - TT.slip);
@@ -1381,7 +1510,7 @@ export default function IntroVizor() {
             if (V2) {
                 if (t < TT.slip) drawPush(t);
                 else if (t < TT.clear) drawBreak2(t);
-                if (t >= TT.fly && t < T.dock) drawTangle(t);
+                if (t >= TT.fly && t < TM.dock) drawTangle(t);
                 if (V3) drawFlash(t);
             } else if (t < T.brk) {
                 drawPull(t);
@@ -1395,23 +1524,24 @@ export default function IntroVizor() {
                     drawLed(t);
                 }
             }
-            if (!V2 && t >= T.spill && t < T.end) {
+            if (!V2 && t >= T.spill && t < TM.end) {
                 if (t >= T.dark) {
                     if (stage < 1) measureLogo();
                     const reel = reelAt(t);
                     const light = 1 - veilAt(t);
-                    if (t < T.dock) {
+                    if (t < TM.dock) {
                         drawFilm(t, reel, light);
                     }
                 }
             }
             // pagina
             if (stage < 1 && t >= (V2 ? TT.tear : T.dark)) { stage = 1; html.setAttribute(VZ.state, 'film'); }
-            if (stage < 2 && t >= T.strip) { stage = 2; html.setAttribute(VZ.strip, ''); }
-            if (stage < 3 && t >= T.logo) { stage = 3; html.setAttribute(VZ.logo, ''); }
-            if (stage < 4 && t >= T.dock) { stage = 4; html.setAttribute(VZ.reel, ''); }
-            if (stage < 5 && t >= T.text) { stage = 5; html.removeAttribute(VZ.ui); html.setAttribute(VZ.state, 'out'); }
-            if (stage < 6 && t >= T.lamp) { stage = 6; html.setAttribute(VZ.lamp, ''); }
+            if (stage < 2 && t >= TM.strip) { stage = 2; html.setAttribute(VZ.strip, ''); }
+            if (stage < 3 && t >= TM.logo) { stage = 3; html.setAttribute(VZ.logo, ''); }
+            if (stage < 4 && t >= TM.dock) { stage = 4; html.setAttribute(VZ.reel, ''); }
+            if (stage < 5 && t >= TM.text) { stage = 5; html.removeAttribute(VZ.ui); html.setAttribute(VZ.state, 'out'); }
+            if (stage < 6 && t >= TM.lamp) { stage = 6; html.setAttribute(VZ.lamp, ''); }
+            if (V4) logoStep(t);
         };
 
         /* ── ceasul ── */
@@ -1430,6 +1560,7 @@ export default function IntroVizor() {
             unlisten();
             video.pause();
             video.remove();
+            if (V4 && (logoPhase === 1 || logoPhase === 2)) logoBridge.rest?.();
             clearVizor();
         };
         function skip(ev: Event) {
@@ -1445,14 +1576,14 @@ export default function IntroVizor() {
             if (t0 < 0) {
                 t0 = now;
                 if (hold === null) {
-                    video.playbackRate = speed;
+                    video.playbackRate = speed * VR;
                     video.play().catch(() => { /* fără redare automată: rămâne imaginea fixă */ });
                 }
             }
             const t = hold !== null ? hold : (now - t0) * speed;
             const vEnd = V2 ? TT.clear : T.dark;           // până când se vede imaginea din clip
-            if (hold !== null && video.readyState >= 1 && Math.abs(video.currentTime - Math.min(hold, vEnd) / 1000) > 0.03) {
-                try { video.currentTime = Math.min(hold, vEnd) / 1000 + 0.001; } catch { /* încă nu se poate căuta */ }
+            if (hold !== null && video.readyState >= 1 && Math.abs(video.currentTime - (Math.min(hold, vEnd) * VR) / 1000) > 0.03) {
+                try { video.currentTime = (Math.min(hold, vEnd) * VR) / 1000 + 0.001; } catch { /* încă nu se poate căuta */ }
             }
             if (hold === null && t >= vEnd && !video.paused) video.pause();
             const p0 = performance.now();
@@ -1462,7 +1593,7 @@ export default function IntroVizor() {
             stats.ms += dt;
             if (dt > stats.worst) stats.worst = dt;
             stats.last = t;
-            if (hold === null && t >= T.end) { finish(); return; }
+            if (hold === null && t >= TM.end) { finish(); return; }
             raf = nextFrame(frame);
         };
         const start = () => {
@@ -1506,7 +1637,7 @@ export default function IntroVizor() {
         const W_ = window as unknown as { __vz?: unknown };
         if (hold !== null || byTimer) {
             W_.__vz = {
-                T,
+                T: TM,
                 stats,
                 reel: (ms: number) => { measureLogo(); return V2 ? reelAt2(ms) : reelAt(ms); },
                 draw: (ms: number) => { hold = ms; if (!films.length) films = makeFilms(); measureLogo(); paint(ms); },

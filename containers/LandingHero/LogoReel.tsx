@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './landing.module.css';
-import { INTRO_LOGO_EVENT, introPending, vizorPending } from './intro';
+import { INTRO_LOGO_EVENT, introPending, logoBridge, vizorPending } from './intro';
 import { LOGO_WORDS } from './logoGlyphs';
 
 
@@ -32,6 +32,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const REEL = { cx: 160, cy: 20, r: 16 };
 export const WOUND_FULL  = 14;    // raza peliculei înfășurate, la început
 const WOUND_EMPTY = 4.6;   // butucul — rola goală
+export const WOUND_DOCK = 11.2;   // intro-ul „vizor”, versiunea 4: rola ajunge lângă logo aproape plină; restul peliculei e pe logo
 const HOLE_R      = 3.7;   // cele cinci ferestre din flanșă
 const HOLE_AT     = 9.4;
 const TURNS       = 7;     // câte ture face rola cât iese pelicula
@@ -59,6 +60,13 @@ const rnd    = (a: number, b: number) => a + Math.random() * (b - a);
 const clamp  = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const easeIO = (v: number) => 0.5 - 0.5 * Math.cos(Math.PI * v);
 const easeO  = (v: number) => 1 - (1 - v) * (1 - v);
+/** pornește și se oprește fără smucitură (viteza și accelerația sunt zero la capete) */
+const ease5  = (v: number) => v * v * v * (v * (6 * v - 15) + 10);
+/** varianta netezită a încâlcelii — deocamdată doar cu /?intro=vizor4 (16.11.2026), ca să
+    poată fi comparată cu cea de pe site: aceeași durată, pornire și oprire mai line, iar rola
+    face 3 ture în loc de 7 (la 7, ferestrele flanșei „bat” pe cadre și rola pare că tremură) */
+const SMOOTH_RE = /[?&]intro=vizor4(?:&|$)/;
+const TURNS_SMOOTH = 3;
 const f2     = (v: number) => Math.round(v * 100) / 100;
 
 /** ieșirea din rolă: pelicula zboară încâlcită peste logo — un drum la
@@ -139,15 +147,18 @@ export default function LogoReel({ label }: { label: string }) {
     const woundRef = useRef<SVGCircleElement | null>(null);
     const rafRef   = useRef<number | null>(null);
 
-    const setReel = (p: number) => {
+    const laidRef  = useRef<{ pieces: Piece[]; total: number } | null>(null);
+
+    const setReel = (p: number, turns = TURNS) => {
         const r = Math.sqrt(WOUND_FULL ** 2 - (WOUND_FULL ** 2 - WOUND_EMPTY ** 2) * p);
         woundRef.current?.setAttribute('r', f2(r).toString());
-        spinRef.current?.setAttribute('transform', `rotate(${f2(-p * TURNS * 360)})`);
+        spinRef.current?.setAttribute('transform', `rotate(${f2(-p * turns * 360)})`);
     };
 
     const finish = () => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
+        laidRef.current = null;
         if (stripRef.current) clear(stripRef.current);
         if (fillRef.current) fillRef.current.style.opacity = '0';
         if (rootRef.current) rootRef.current.dataset.state = 'done';
@@ -161,11 +172,10 @@ export default function LogoReel({ label }: { label: string }) {
         setReel(0);
     };
 
-    const play = () => {
-        const strip = stripRef.current, fill = fillRef.current, root = rootRef.current;
-        if (!strip || !fill || !root) return;
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-
+    /** pelicula: ieșirea din rolă, apoi literă cu literă, legate prin bucle (de fiecare dată alta) */
+    const build = (): { pieces: Piece[]; total: number } | null => {
+        const strip = stripRef.current, fill = fillRef.current;
+        if (!strip || !fill) return null;
         // umplutura literelor: o singură dată
         if (!fill.childElementCount) {
             for (const word of LOGO_WORDS) {
@@ -174,8 +184,6 @@ export default function LogoReel({ label }: { label: string }) {
                 fill.appendChild(p);
             }
         }
-
-        // pelicula: ieșirea din rolă, apoi literă cu literă, legate prin bucle
         const pieces: Piece[] = [];
         const intro = introPath();
         pieces.push({ d: intro.d, kind: 'intro' });
@@ -201,21 +209,76 @@ export default function LogoReel({ label }: { label: string }) {
             pc.at = total;
             total += pc.len;
         }
+        return { pieces, total };
+    };
+
+    /** intro-ul „vizor”, versiunea 4 — rola strânge pelicula de peste logo. p = 0: toată
+        pelicula e întinsă (încâlceala + conturul literelor); p = 1: e toată în rolă și a rămas
+        logo-ul scris. Capătul îndepărtat (ultima literă) vine înapoi pe același drum; literele
+        se umplu pe măsură ce pelicula pleacă de pe ele. ang = cum stă rola (grade). */
+    const gather = (p: number, ang: number) => {
+        const fill = fillRef.current, L = laidRef.current;
+        if (!fill || !L) return;
+        if (p >= 1) { rest(); return; }
+        const e = ease5(clamp(p));
+        const head = (1 - e) * L.total;
+        const glyphO = 1 - ease5(clamp((p - 0.1) / 0.55));
+        fill.style.opacity = ease5(clamp(p / 0.5)).toFixed(3);
+        for (const pc of L.pieces) {
+            const len = pc.len ?? 0, at = pc.at ?? 0;
+            const b = Math.min(len, Math.max(0, head - at));
+            if (b > 0) {
+                pc.el?.setAttribute('stroke-dasharray', `${f2(b)} ${f2(len + 1)}`);
+                pc.el?.setAttribute('stroke-dashoffset', '0');
+                pc.el?.setAttribute('visibility', 'visible');
+            } else {
+                pc.el?.setAttribute('visibility', 'hidden');
+            }
+            if (pc.kind === 'glyph') pc.el?.setAttribute('opacity', glyphO.toFixed(3));
+        }
+        woundRef.current?.setAttribute('r', f2(WOUND_DOCK + (WOUND_FULL - WOUND_DOCK) * e).toString());
+        spinRef.current?.setAttribute('transform', `rotate(${f2(ang)})`);
+    };
+
+    /** … și starea de dinainte: pelicula încâlcită stă peste logo (rola încă nu a ajuns) */
+    const lay = () => {
+        const root = rootRef.current, fill = fillRef.current;
+        if (!root || !fill) return;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+        const b = build();
+        if (!b) return;
+        laidRef.current = b;
+        root.dataset.state = 'play';
+        gather(0, 0);
+    };
+
+    const play = () => {
+        const fill = fillRef.current, root = rootRef.current;
+        if (!fill || !root) return;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        laidRef.current = null;
+        const built = build();
+        if (!built) return;
+        const { pieces, total } = built;
         const tailEnd = pieces[0].len ?? 0;
+        const smooth = SMOOTH_RE.test(window.location.search);
+        const ez = smooth ? ease5 : easeIO;
+        const turns = smooth ? TURNS_SMOOTH : TURNS;
 
         root.dataset.state = 'play';
         fill.style.opacity = '0';
-        setReel(0);
+        setReel(0, turns);
         const t0 = performance.now();
 
         const frame = (now: number) => {
             const e = now - t0 - T.delay;
-            const p = easeIO(clamp(e / T.draw));
+            const p = ez(clamp(e / T.draw));
             const head = p * total;
-            const tail = easeIO(clamp((e - T.draw) / T.pull)) * tailEnd;
+            const tail = ez(clamp((e - T.draw) / T.pull)) * tailEnd;
             const connO  = 1 - easeO(clamp((e - T.draw + 60) / T.pull));
-            const glyphO = 1 - easeIO(clamp((e - T.draw - 300) / T.fade));
-            fill.style.opacity = easeIO(clamp((e - T.draw - 220) / T.fill)).toFixed(3);
+            const glyphO = 1 - ez(clamp((e - T.draw - 300) / T.fade));
+            fill.style.opacity = ez(clamp((e - T.draw - 220) / T.fill)).toFixed(3);
 
             for (const pc of pieces) {
                 const L = pc.len ?? 0, at = pc.at ?? 0;
@@ -233,7 +296,7 @@ export default function LogoReel({ label }: { label: string }) {
                 if (pc.kind === 'conn')  pc.el?.setAttribute('opacity', connO.toFixed(3));
                 if (pc.kind === 'glyph') pc.el?.setAttribute('opacity', glyphO.toFixed(3));
             }
-            setReel(p);
+            setReel(p, turns);
 
             if (e >= END) { finish(); return; }
             rafRef.current = requestAnimationFrame(frame);
@@ -246,6 +309,9 @@ export default function LogoReel({ label }: { label: string }) {
         // atunci pornește încâlceala
         const onIntro = () => play();
         window.addEventListener(INTRO_LOGO_EVENT, onIntro);
+        logoBridge.lay = lay;
+        logoBridge.gather = gather;
+        logoBridge.rest = rest;
         if (initial === 'wait') {
             autoplayed = true;
             const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -254,6 +320,9 @@ export default function LogoReel({ label }: { label: string }) {
         }
         return () => {
             window.removeEventListener(INTRO_LOGO_EVENT, onIntro);
+            delete logoBridge.lay;
+            delete logoBridge.gather;
+            delete logoBridge.rest;
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
         // o singură dată, la montare
