@@ -1047,8 +1047,10 @@ type Rama = 'groasa' | 'fina' | 'paranteze';
 /* A DOUA PELICULĂ DE PE ABOUT (03.11.2026): pozele de la filmare, lângă banda
    cu oamenii — SetStrip.tsx. Din 03.11, 19:30: selecția lui Ștefan („selectie
    website poze pentru pagina about”, 54 de poze, decupate la 2:3 de
-   scripts/about-set.py — numărul de mai jos = câte fișiere set-NN.webp sunt) */
-const SET_COUNT = 54;
+   scripts/about-set.py — numărul de mai jos = câte fișiere set-NN.webp sunt).
+   16.11.2026: 53 — scoasă poza cu căruciorul de sunet lângă pod (fosta set-50;
+   cele de după s-au renumerotat; about-set.py › SKIP) */
+const SET_COUNT = 53;
 const SET_PHOTOS: StripImage[] = Array.from({ length: SET_COUNT }, (_, k) => ({
     src: `/assets/entities/about/set-${String(k + 1).padStart(2, '0')}.webp`,
     alt: `Atemporal Film on set — ${k + 1}`,
@@ -1772,7 +1774,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const nav = navRef.current;
         if (!nav) return;
         const page = nav.parentElement;
-        const BASE = 15.4, GAP = 36, GAP_MIN = 24, K_MIN = 0.7;
+        /* 16.11.2026 (Regie, RO pe 1606×945: DESPRE −11 px, ECHIPAMENT +14 px):
+           perechile „WORK, ABOUT” și „GEAR, CONTACT” mai strânse (10 și 7 px de la
+           un cuvânt la următorul), iar între perechi cel mult 51 px (înainte 36) */
+        const BASE = 15.4, GAP = 51, GAP_MIN = 24, K_MIN = 0.7;
         const fit = () => {
             nav.style.removeProperty('--nav-fs');
             nav.style.removeProperty('--nav-gap');
@@ -1785,7 +1790,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             const tight = window.innerWidth <= 1534;                 // meniul pe un singur rând strâns
             const d     = duo.getBoundingClientRect();
             const colR  = d.left + (tight ? 35 : 37);                // --col-r
-            const join  = tight ? 23 : 21;                           // WORK → ABOUT
+            const join  = tight ? 12 : 10;                           // WORK → ABOUT (16.11: 23 / 21 → 12 / 10)
             const avail = d.right - (colR - 169);                    // până la 10 px după rama peliculei
             const sum   = work.offsetWidth + about.offsetWidth + gear.offsetWidth;
             let k = 1, gap = GAP;

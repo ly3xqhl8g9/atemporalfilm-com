@@ -16,16 +16,20 @@ SRC, TMP = sys.argv[1], sys.argv[2]
 OUT = 'public/assets/entities/about'
 W, H = 800, 1200
 
-# centrul tăieturii, în ordinea pozelor (1 … 54)
+# centrul tăieturii, în ordinea pozelor (1 … 53; din 16.11 fără SKIP)
 CROP = [0.55, 0.55, 0.5, 0.6, 0.5, 0.58, 0.58, 0.45, 0.5, 0.5,
         0.68, 0.55, 0.65, 0.35, 0.4, 0.5, 0.5, 0.5, 0.55, 0.45,
         0.55, 0.5, 0.45, 0.55, 0.5, 0.4, 0.62, 0.5, 0.32, 0.42,
         0.55, 0.45, 0.4, 0.6, 0.38, 0.5, 0.6, 0.5, 0.5, 0.5,
-        0.35, 0.55, 0.4, 0.5, 0.45, 0.5, 0.55, 0.5, 0.6, 0.6,
+        0.35, 0.55, 0.4, 0.5, 0.45, 0.5, 0.55, 0.5, 0.6,
         0.55, 0.5, 0.55, 0.55]
 
+# 16.11.2026 (Ștefan: „scoate poza asta”): fosta set-50 — căruciorul de sunet
+# lângă pod, seara. Rămâne în folderul sursă, dar nu mai intră pe site.
+SKIP = {'IMG_20260525_210451.JPG'}
+
 def nat(s): return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
-files = sorted((f for f in os.listdir(SRC) if not f.startswith('.')), key=nat)
+files = sorted((f for f in os.listdir(SRC) if not f.startswith('.') and f not in SKIP), key=nat)
 assert len(files) == len(CROP), (len(files), len(CROP))
 os.makedirs(TMP, exist_ok=True)
 for old in os.listdir(OUT):

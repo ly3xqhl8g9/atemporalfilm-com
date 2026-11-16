@@ -567,7 +567,9 @@
    după gear”): GEAR trece în dreapta, înaintea lui CONTACT, pe rândul meniului
    (y = 85) — „GEAR, CONTACT”, cu același pas ca „WORK, ABOUT” (21 px de la
    sfârșitul cuvântului la următorul); pe 1728: x = 1415 (cue: 1411) */
-.navRow .navGear { left: auto; right: calc(100% - var(--nav-r) + 215px); top: 27px; }
+.navRow .navGear { left: auto; right: calc(100% - var(--nav-r) + 201px); top: 27px; }
+/* 16.11.2026 (Regie, pe 1606×945, RO: ECHIPAMENT +14 px): „GEAR, CONTACT” mai
+   strâns — de la sfârșitul lui GEAR la CONTACT 7 px (înainte 21; 215 → 201) */
 /* virgula după PEOPLE și după WORK (11:06, notele 06 și 08): nu e subliniată
    și nu mută cuvântul (stă în afara lui) */
 .navItemAt .navComma {
@@ -652,7 +654,7 @@
 /* 03.11, 12:41: GEAR stă înaintea lui CONTACT — căsuța se termină la --nav-r
    (215 px după GEAR), ca să nu intre peste peliculă pe ecranele înguste;
    pe 1728: 1296–1668 × 122–305 */
-.navRow .gearBox { right: -215px; }
+.navRow .gearBox { right: -201px; }   /* 16.11: GEAR +14 px — căsuța tot la --nav-r */
 
 /* GEAR → căsuța pentru mail (03.11.2026). În coloana din dreapta, sub meniu:
    începe unde începe creditul / textul ABOUT (col-r − 119; pe 1382: x = 967)
@@ -2808,7 +2810,7 @@
 /* 11.11.2026: virgula după ABOUT a fost scoasă, în toate limbile (Ștefan) */
 @media (min-width: 1280px) and (max-width: 1534px) {
     .navAbout { left: calc(var(--col-r) - 35px); }
-    .navRow .navGear { right: calc(100% - var(--nav-r) + 218px); }
+    .navRow .navGear { right: calc(100% - var(--nav-r) + 204px); }   /* 16.11: +14 px (218 → 204) */
 }
 
 /* CONTACTELE de pe WORK — bucățile adresei nu se rup la mijloc */
@@ -3615,7 +3617,7 @@ button.capTitle {
         position: absolute;
         top: 27px;            /* 58 + 27 = 85 */
         left: calc(var(--col-r) - 37px);
-        right: calc(100% - var(--nav-r) + 215px);
+        right: calc(100% - var(--nav-r) + 201px);   /* 16.11: GEAR +14 px (215 → 201) */
         display: flex;
         flex-direction: row-reverse;
         justify-content: space-between;
@@ -3634,13 +3636,13 @@ button.capTitle {
         position: relative;
         display: flex;
         flex: none;
-        margin-right: var(--nav-gap, 36px);
+        margin-right: var(--nav-gap, 51px);   /* 16.11: între perechi cel mult 51 px (înainte 36) */
     }
     .navRow .navPair .navWork {
         position: absolute;
         top: 0;
         left: auto;
-        right: calc(100% + 21px);
+        right: calc(100% + 10px);   /* 16.11 (Regie, RO pe 1606: DESPRE −11 px): „WORK, ABOUT” 10 px (înainte 21) */
         white-space: nowrap;   /* altfel thailandeza și chineza s-ar rupe pe două rânduri */
     }
     .navItemAt .navItem { font-size: var(--nav-fs, 15.4px); }
@@ -3648,9 +3650,9 @@ button.capTitle {
 @media (min-width: 1280px) and (max-width: 1534px) {
     .navRow .navDuo {
         left: calc(var(--col-r) - 35px);
-        right: calc(100% - var(--nav-r) + 218px);
+        right: calc(100% - var(--nav-r) + 204px);
     }
-    .navRow .navPair .navWork { right: calc(100% + 23px); }
+    .navRow .navPair .navWork { right: calc(100% + 12px); }   /* 16.11: −11 px, ca mai lat (23 → 12) */
 }
 
 

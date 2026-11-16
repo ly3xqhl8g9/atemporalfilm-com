@@ -81,7 +81,6 @@ const THUMBS: Record<string, string> = {
     '/assets/entities/about/set-51.webp': '/assets/strip/entities/about/set-51.webp',
     '/assets/entities/about/set-52.webp': '/assets/strip/entities/about/set-52.webp',
     '/assets/entities/about/set-53.webp': '/assets/strip/entities/about/set-53.webp',
-    '/assets/entities/about/set-54.webp': '/assets/strip/entities/about/set-54.webp',
 };
 
 /** imaginea pentru peliculă (mică); dacă nu are variantă, originalul */
