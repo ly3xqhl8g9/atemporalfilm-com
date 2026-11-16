@@ -11,8 +11,9 @@ imaginea din clip.
 Ce face (alegi cu primul argument):
   clip   → clipul întreg, „copt” (ramă + imagine + grain), 1600×926, H.264
   site   → piesele pentru intro-ul site-ului, în public/assets/intro/:
-             vizor-scena.mp4   imaginea din geam (cu marginile moi), scurtă
-             vizor-scena.jpg   primul ei cadru (rezervă, dacă videoul nu pornește)
+             vizor-scena.mp4     imaginea din geam (cu marginile moi), pentru intro-ul v1
+             vizor-scena-2.mp4   la fel, pentru intro-ul v2 (viteza reală, treptele de diafragmă)
+             vizor-scena*.jpg    primul cadru al fiecăreia (rezervă, dacă videoul nu pornește)
              vizor-rama.webp   liniile de cadru, „200”, obiectivul — cu transparență
   cadru  → un singur cadru PNG, pentru verificare (argument: secunda)
 
@@ -304,23 +305,27 @@ def main():
 
     if mode == 'site':
         os.makedirs(out, exist_ok=True)
-        # scena scurtă: secundele 1,5 – 5,3 ale clipului, de 2,2 ori mai repede —
-        # expunerea coboară de la „ars” la apus cât ține îndepărtarea (≈ 1,7 s)
         VW, VH = 1440, 960
-        enc = encoder(os.path.join(out, 'vizor-scena.mp4'), SW, SH, 25,
-                      extra_out=['-vf', f'scale={VW}:{VH}:flags=lanczos', '-an', '-c:v', 'libx264', '-preset', 'veryslow',
-                                 '-crf', '27', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-g', '12',
-                                 '-movflags', '+faststart'])
-        first = None
-        for i, fr in enumerate(frames(src, start=1.5, dur=3.8, speed=2.2)):
-            sc = look.site_scene(fr)
-            if first is None:
-                first = sc
-            enc.stdin.write(sc.tobytes())
-        enc.stdin.close()
-        enc.wait()
-        poster = cv2.resize(first, (VW, VH), interpolation=cv2.INTER_LANCZOS4)
-        cv2.imwrite(os.path.join(out, 'vizor-scena.jpg'), poster[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 72])
+        # două scene (fără pistă audio):
+        #  vizor-scena    — intro-ul v1 (/?intro=vizor): secundele 1,5 – 5,3, de 2,2 ori mai
+        #                   repede; expunerea coboară de la „ars” la apus cât ține îndepărtarea
+        #  vizor-scena-2  — intro-ul v2 (/?intro=vizor2): din secunda 1,76, la viteza reală;
+        #                   cele trei trepte de diafragmă ale lui Ștefan cad la 0,24 / 0,96 / 1,20 s
+        for name, start, dur, speed in (('vizor-scena', 1.5, 3.8, 2.2), ('vizor-scena-2', 1.76, 1.8, 1.0)):
+            enc = encoder(os.path.join(out, name + '.mp4'), SW, SH, 25,
+                          extra_out=['-vf', f'scale={VW}:{VH}:flags=lanczos', '-an', '-c:v', 'libx264', '-preset', 'veryslow',
+                                     '-crf', '27', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-g', '12',
+                                     '-movflags', '+faststart'])
+            first = None
+            for fr in frames(src, start=start, dur=dur, speed=speed):
+                sc = look.site_scene(fr)
+                if first is None:
+                    first = sc
+                enc.stdin.write(sc.tobytes())
+            enc.stdin.close()
+            enc.wait()
+            poster = cv2.resize(first, (VW, VH), interpolation=cv2.INTER_LANCZOS4)
+            cv2.imwrite(os.path.join(out, name + '.jpg'), poster[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 72])
         rgba = look.site_overlay()
         cv2.imwrite(os.path.join(out, 'vizor-rama.png'), cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGRA))
         subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', os.path.join(out, 'vizor-rama.png'),
