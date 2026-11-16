@@ -25,7 +25,7 @@ export function clearIntro(): void {
 }
 
 /* ============================================================
-   INTRO „VIZOR” — variantele /?intro=vizor, /?intro=vizor2, /?intro=vizor3 și /?intro=vizor4 (16.11.2026) — IntroVizor.tsx
+   INTRO „VIZOR” — variantele /?intro=vizor … /?intro=vizor5 (16.11.2026) — IntroVizor.tsx
 
    Starea stă tot pe <html>, cu alte nume (ca regulile intro-ului „masa
    luminată” să nu se amestece):
@@ -46,6 +46,7 @@ export const VZ = {
     logo:  'data-vz-logo',
     reel:  'data-vz-reel',
     lamp:  'data-vz-lamp',
+    pull:  'data-vz-pull',     // versiunea 5: benzile paginii le mută JS-ul (rola le trage), nu CSS-ul
 } as const;
 
 /** IntroVizor (versiunea 4) → LogoReel, pe ceasul intro-ului: „lay” = pelicula încâlcită stă
@@ -63,7 +64,7 @@ export function clearVizor(): void {
 }
 
 /** scriptul din <head>: rulează înaintea primului cadru.
-    /?intro=vizor … /?intro=vizor4 (16.11.2026): pe / și pe /about, pe orice ecran
+    /?intro=vizor … /?intro=vizor5 (16.11.2026): pe / și pe /about, pe orice ecran
     (versiunea o alege IntroVizor.tsx, după adresă).
     /?intro (03.11.2026, „masa luminată”): doar pe / cu ?intro,
     doar pe desktop (≥ 1280 px — pe telefon și tabletă pagina are alt layout;
@@ -72,7 +73,7 @@ export function clearVizor(): void {
 export const INTRO_BOOT = `(function(){try{
 var h=document.documentElement,p=location.pathname;
 if(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);
-if(/[?&]intro=vizor[234]?(?:&|$)/.test(location.search)){
+if(/[?&]intro=vizor[2345]?(?:&|$)/.test(location.search)){
 if((p==='/'||p==='/about')&&window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
 h.setAttribute('data-vz','pending');h.setAttribute('data-vz-ui','off');
 setTimeout(function(){if(!h.hasAttribute('data-vz-js')){['data-vz','data-vz-ui'].forEach(function(a){h.removeAttribute(a)})}},8000);}
