@@ -20,7 +20,9 @@ import { HTML_LANG, LANG_STORE, isLang, type Lang } from './i18n';
 import {
     BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, exposureFilter, filmK,
     type Axis, bandShift, filmAxis, offsetPos, rectMid, scrollMax, scrollPos, setScrollPos, viewSize, wheelDelta,
+    alignSnap, eagerImages, nearFirst, touchSnap, warmStrip,
 } from './filmStrip';
+import { stripSrc } from './stripThumbs';
 import IntroReel from './IntroReel';
 import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
 import { decideFilmMode } from './filmMode';
@@ -1090,6 +1092,9 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     const lastActiveRef = useRef(HOME);
     const listTrackRef  = useRef<HTMLOListElement | null>(null);
     const listItemRefs  = useRef<(HTMLLIElement | null)[]>([]);
+    // înălțimile titlurilor, ținute minte (16.11.2026) — vezi syncList
+    const listHRef      = useRef<number[] | null>(null);
+    const listObsRef    = useRef<ResizeObserver | null>(null);
     // pista sonoră: urmează derularea galeriei, dar nu și săriturile dintre copii
     const bandRef       = useRef<HTMLDivElement | null>(null);
     const bandYRef      = useRef(0);
@@ -1114,6 +1119,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
     // nu se mai calculează din 50vh, care în Safari poate diferi de centrul ramei
     const vfRef         = useRef<HTMLDivElement | null>(null);
     const originRef     = useRef(0);
+    // ecran tactil (16.11.2026): așezarea pe cadru o face browserul (scroll-snap)
+    const snapRef       = useRef(false);
 
     const t = UI[lang];
 
@@ -1127,15 +1134,26 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const galleryMid = rectMid(vfRect, axisRef.current);
         let bestIdx  = lastActiveRef.current;
         let bestDist = Infinity;
-        slotRefs.current.forEach((el, i) => {
+        const slots  = slotRefs.current;
+        const test   = (i: number) => {
+            const el = slots[i];
             if (!el) return;
-            const mid = rectMid(el.getBoundingClientRect(), axisRef.current);
-            const d   = Math.abs(mid - galleryMid);
+            const d = Math.abs(rectMid(el.getBoundingClientRect(), axisRef.current) - galleryMid);
             if (d < bestDist) {
                 bestDist = d;
                 bestIdx  = i;
             }
-        });
+        };
+        /* 16.11.2026: se măsoară doar cadrele din jurul poziției derulării
+           (înainte: toate, ~120, la fiecare imagine — greu pe telefon); dacă
+           niciunul nu e lângă ramă (ex. imediat după o redimensionare), toate */
+        const s0 = slots[0], s1 = slots[1];
+        const pitch = s0 && s1 ? offsetPos(s1, axisRef.current) - offsetPos(s0, axisRef.current) : 0;
+        if (pitch > 0) {
+            const c = Math.round((scrollPos(gallery, axisRef.current) - originRef.current) / pitch);
+            for (let i = Math.max(0, c - 3); i <= Math.min(slots.length - 1, c + 3); i++) test(i);
+        }
+        if (!(bestDist <= Math.max(pitch, 1))) for (let i = 0; i < slots.length; i++) test(i);
         if (bestIdx !== lastActiveRef.current) {
             const sameFilm = reel.filmOf(bestIdx) === reel.filmOf(lastActiveRef.current);
             lastActiveRef.current = bestIdx;
@@ -1169,7 +1187,10 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const items   = listItemRefs.current;
         if (!gallery) return;
         const last = reel.SLOTS.length - 1;
-        const f    = Math.min(last, Math.max(0, (scrollPos(gallery, axisRef.current) - originRef.current) / slotPitch()));
+        // 16.11.2026: poziția citită o singură dată, înaintea oricărei scrieri
+        // (citită după scrieri, obliga browserul să recalculeze stilurile)
+        const top  = scrollPos(gallery, axisRef.current);
+        const f    = Math.min(last, Math.max(0, (top - originRef.current) / slotPitch()));
         /* PERSPECTIVA LISTEI (02.11.2026, 23:05, cerut de Ștefan): titlul din
            ramă e cel mai mare; cu cât un titlu e mai departe de el, cu atât e mai
            mic și mai stins — ca rândurile unei role care se depărtează. Distanța
@@ -1179,7 +1200,16 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         // ABOUT (03.11.2026) nu are listă — doar expunerea de mai jos
         if (track && items.length > 0) {
             const n   = items.length;
-            const h   = Array.from(items, (el) => el?.offsetHeight ?? 0);
+            /* 16.11.2026: înălțimile titlurilor se citesc o dată și se țin minte
+               (citite la fiecare imagine a derulării, obligau browserul să
+               reașeze lista); se recitesc când un titlu își schimbă mărimea —
+               limba, fonturile, ecranul (ResizeObserver, mai jos) */
+            let hc = listHRef.current;
+            if (!hc || hc.length !== n) {
+                hc = Array.from(items, (el) => el?.offsetHeight ?? 0);
+                if (listObsRef.current) listHRef.current = hc;
+            }
+            const h: number[] = hc;
             const sc  = new Array<number>(n);
             const g   = new Array<number>(n);
             // distanța (cu semn) dintre titlul i și poziția derulării; în lista
@@ -1259,13 +1289,17 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             img.style.filter = exposureFilter(e);
             // halația: lumina lămpii trece prin afiș și „curge” din zonele luminoase
             // (02.11, 17:40: mai puternică și caldă, după referință)
-            if (halo) halo.style.opacity = (0.32 * e).toFixed(3);
+            if (halo) {
+                halo.style.opacity = (0.32 * e).toFixed(3);
+                // 16.11.2026: stinsă = nedesenată (CSS: visibility hidden) — blurul
+                // și amestecul „screen” pe fiecare cadru costau la derulare
+                halo.style.visibility = e > 0 ? 'visible' : '';
+            }
         });
 
         /* PISTA SONORĂ — banda din stânga afișului curge odată cu pelicula.
            Mișcarea vine din derulare; săriturile invizibile dintre copiile galeriei
            (jumpTo) nu o mișcă, deci banda nu sare niciodată. */
-        const top = scrollPos(gallery, axisRef.current);
         bandYRef.current += top - lastTopRef.current;
         lastTopRef.current = top;
         const band = bandRef.current;
@@ -1315,6 +1349,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         m.vel = 0;
         m.onDone = null;
         if (gallery) m.pos = m.target = scrollPos(gallery, axisRef.current);
+        gallery?.classList.remove(styles.jsDrive);   // degetul: așezarea o face iar browserul
     }, []);
 
     /** un pas al peliculei (rAF): liberă → se apropie de țintă cu inerție;
@@ -1359,6 +1394,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                 cb?.();
             }
         };
+        galleryRef.current?.classList.add(styles.jsDrive);   // vezi touchSnap (filmStrip.ts)
         animRef.current = requestAnimationFrame(step);
     }, []);
 
@@ -1415,8 +1451,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         // întreruptă), cadrul e pus exact în ramă
         const gallery = galleryRef.current;
         if (gallery) {
+            gallery.classList.remove(styles.jsDrive);
             const to = scrollFor(slot);
-            if (Math.abs(scrollPos(gallery, axisRef.current) - to) > 0.75) setScrollPos(gallery, axisRef.current, to);
+            // pe ecranele tactile locul exact îl ține browserul (scroll-snap):
+            // o diferență de un pixel nu se mai corectează
+            const tol = snapRef.current ? 3 : 0.75;
+            if (Math.abs(scrollPos(gallery, axisRef.current) - to) > tol) setScrollPos(gallery, axisRef.current, to);
         }
         updateActive();
         syncList();
@@ -1434,8 +1474,15 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const last = reel.SLOTS.length - 1;
         const f    = (rest - originRef.current) / slotPitch();
         const target = Math.min(last, Math.max(0, Math.round(f)));
+        // 16.11.2026: pe ecranele tactile pelicula s-a așezat deja singură, lin
+        // (scroll-snap) — doar actualizăm totul și revenim în copia din mijloc
+        if (snapRef.current && m.mode === 'idle'
+            && Math.abs(scrollFor(target) - scrollPos(gallery, axisRef.current)) < 3) {
+            arrive(target);
+            return;
+        }
         glideTo(target, () => arrive(target));
-    }, [slotPitch, glideTo, arrive, reel]);
+    }, [slotPitch, glideTo, arrive, reel, scrollFor]);
 
     /** click pe un titlu din listă → galeria curge până la filmul respectiv */
     const goTo = useCallback((slot: number) => {
@@ -1449,9 +1496,16 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
         kRef.current = filmK(gallery);
         axisRef.current = filmAxis(gallery);
+        snapRef.current = touchSnap();
+        alignSnap(gallery, vfRef.current, axisRef.current);
         // pornim de la un film ales la întâmplare, în copia din mijloc
         jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
         const readyId = requestAnimationFrame(() => setReady(true));
+        // imaginile peliculei, dinainte (16.11.2026): de la filmul din ramă spre vecini
+        const unwarm = warmStrip(
+            nearFirst(reel.N, reel.filmOf(lastActiveRef.current)).map((k) => stripSrc(reel.items[k].image)),
+            { done: () => eagerImages(gallery) },
+        );
 
         let ticking = false;
         let idle    = 0;
@@ -1469,7 +1523,11 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
            ecran (ar sări sub deget) și nu pe arcul care o așază. */
         const wrap = (top: number): number => {
             const m = motionRef.current;
-            if (finger || m.mode === 'spring') return top;
+            /* 16.11.2026: nu pe ecranele tactile — acolo mișcarea de după deget e
+               inerția sistemului, iar o săritură o oprea brusc („rămâne fixă, apoi
+               sare”); pelicula are acum destule copii și revine în mijloc după
+               ce se oprește (arrive) */
+            if (finger || m.mode === 'spring' || snapRef.current) return top;
             // capătul ar ajunge la mai puțin de un ecran (sau o jumătate de listă)
             // → mutăm pelicula cu un număr întreg de liste, cât mai aproape de mijloc
             const N = reel.N, p = slotPitch(), ax = axisRef.current;
@@ -1539,7 +1597,12 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
             }
             scheduleSettle();
         };
-        const onGrab  = (e: Event) => { if (e.type === 'touchstart') finger = true; stopGlide(); window.clearTimeout(idle); };
+        const onGrab  = (e: Event) => {
+            if (e.type === 'touchstart') finger = true;
+            snapRef.current = touchSnap();
+            stopGlide();
+            window.clearTimeout(idle);
+        };
         const onLift  = (e: Event) => {
             if (e.type === 'touchend' || e.type === 'touchcancel') finger = false;
             if (motionRef.current.mode !== 'spring') scheduleSettle();
@@ -1556,6 +1619,8 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         const onResize = () => {
             kRef.current = filmK(gallery);
             exposureRef.current = [];
+            snapRef.current = touchSnap();
+            alignSnap(gallery, vfRef.current, filmAxis(gallery));
             // telefonul / tableta întoarsă: pelicula poate trece de pe orizontală
             // pe verticală (sau invers) — același cadru rămâne în ramă
             const ax = filmAxis(gallery);
@@ -1574,6 +1639,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
         document.fonts?.ready.then(syncList).catch(() => {});
         return () => {
             cancelAnimationFrame(readyId);
+            unwarm();
             window.clearTimeout(idle);
             stopGlide();
             gallery.removeEventListener('scroll', onScroll);
@@ -1589,6 +1655,20 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
     // la schimbarea limbii titlurile își schimbă lungimea → recalculăm
     useEffect(() => { syncList(); }, [lang, syncList]);
+
+    // înălțimile titlurilor ținute minte de syncList se uită când un titlu își
+    // schimbă mărimea (16.11.2026); fără ResizeObserver (Safari vechi) se citesc mereu
+    useEffect(() => {
+        if (typeof ResizeObserver === 'undefined') return;
+        const ro = new ResizeObserver(() => { listHRef.current = null; });
+        listItemRefs.current.forEach((el) => { if (el) ro.observe(el); });
+        listObsRef.current = ro;
+        return () => {
+            ro.disconnect();
+            listObsRef.current = null;
+            listHRef.current = null;
+        };
+    }, [kind, lang, reel]);
 
     /* SĂGEȚILE ↑ ↓ (02.11.2026, 19:21): o apăsare = afișul anterior / următor,
        cu aceeași mișcare lină ca la rotiță. Apăsările repetate (sau ținute)
@@ -2002,7 +2082,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={p.image}
+                                src={stripSrc(p.image)}
                                 alt={isHome(i) ? p.title : ''}
                                 loading="lazy"
                                 draggable={false}
@@ -2015,7 +2095,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
                             {/* halația — copie estompată a afișului, aprinsă doar în ramă */}
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={p.image}
+                                src={stripSrc(p.image)}
                                 alt=""
                                 aria-hidden="true"
                                 loading="lazy"

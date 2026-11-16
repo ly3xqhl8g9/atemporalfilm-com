@@ -8,23 +8,17 @@ const nextConfig: NextConfig = {
     // Ascunde butonul rotund „N” al Next.js din previzualizarea locală
     // (acoperea panoul Modului Regie). Nu afectează site-ul public.
     devIndicators: false,
-    // 11.11.2026: www.atemporalfilm.com → atemporalfilm.com (aceeași pagină).
-    // Google a indexat pagina About pe adresa cu „www”, iar în Safari adresa
-    // aceea poate răspunde „misdirected request” (serverul din fața site-ului,
-    // când Safari refolosește conexiunea deschisă pentru adresa fără „www”).
-    // Cu redirecționarea, Google trece rezultatele pe adresa fără „www”.
-    // /api rămâne neatins (verificarea de după publicare citește /api/health
-    // pe amândouă adresele).
-    async redirects() {
-        return [
-            {
-                source: '/:path((?!api/).*)',
-                has: [{ type: 'host', value: 'www.atemporalfilm.com' }],
-                destination: 'https://atemporalfilm.com/:path',
-                permanent: true,
-            },
-        ];
-    },
+    // 16.11.2026: redirecționarea www → fără www (pusă pe 11.11) e SCOASĂ.
+    // Serverul din fața site-ului (Envoy) răspunde 421 „misdirected request”
+    // când Safari trimite cererea pentru un nume pe conexiunea deschisă pentru
+    // celălalt (același IP, același certificat); Safari nu reîncearcă, Chrome
+    // și Firefox da. Redirecționarea făcea exact asta la fiecare click pe
+    // linkul cu „www” din Google: conexiune deschisă pe www → 308 → cererea
+    // pentru atemporalfilm.com pe aceeași conexiune → 421. Fără ea, pagina se
+    // deschide direct pe www; Google trece oricum rezultatele pe adresa fără
+    // „www” după `canonical` (metadataBase în app/layout.tsx). Rezolvarea
+    // completă e pe server (ambele nume pe aceeași rută în Envoy) — după aceea
+    // redirecționarea poate reveni, de preferat chiar în Envoy.
     webpack: (config) => {
         // Ignore node-specific modules when bundling for the browser
         // https://webpack.js.org/configuration/resolve/#resolvealias

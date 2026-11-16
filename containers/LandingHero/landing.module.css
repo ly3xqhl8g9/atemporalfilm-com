@@ -3758,3 +3758,29 @@ button.capTitle {
     .page .cofinanceRight > * { pointer-events: auto; }
     .page .cofinanceLeft { z-index: 3; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   16.11.2026 — PELICULA PE ECRANELE TACTILE
+   Ștefan: „pe telefon, când trag pelicula cu degetul și îi dau drumul,
+   rămâne o secundă fixă, apoi sare pe una din fotograme; credeam că, dacă
+   ridic degetul, merge lent spre cea mai apropiată”.
+   Pe telefon / tabletă fără mouse, așezarea o face browserul (scroll-snap):
+   inerția degetului încetinește și se oprește lin pe cadrul cel mai apropiat
+   de centrul ramei — pe firul de derulare al sistemului, fără așteptare.
+   Centrul zonei de așezare = centrul ramei (scroll-padding pus din JS:
+   filmStrip.ts › alignSnap). Cât mișcă JS-ul pelicula (click pe titlu,
+   săgeți, rotița unui mouse legat la tabletă), .jsDrive oprește așezarea
+   browserului. Desktopul (mouse, trackpad): neschimbat.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+    .gallery { scroll-snap-type: y mandatory; }
+    :global(html[data-film='h']) .gallery,
+    :global(html[data-film='h']) .pageAbout .gallery { scroll-snap-type: x mandatory; }
+    .slot { scroll-snap-align: center; }
+    .gallery.jsDrive { scroll-snap-type: none !important; }
+}
+
+/* halația (16.11.2026): nedesenată cât e stinsă — syncList o face vizibilă
+   doar pe cadrele din dreptul ramei (opacitatea era oricum 0 în rest, dar
+   blurul și amestecul „screen” se calculau pe fiecare cadru la derulare) */
+.slotHalo { visibility: hidden; }

@@ -5,7 +5,9 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
     BAND_TILE, MIN_SLOTS, SETTLE_MS, SPRING_W, WHEEL_GAIN, WHEEL_TAU, SET_GAIN, exposureFilter, filmK,
     type Axis, bandShift, filmAxis, offsetPos, rectMid, scrollMax, scrollPos, setScrollPos, viewSize, wheelDelta,
+    alignSnap, eagerImages, nearFirst, touchSnap, warmStrip,
 } from './filmStrip';
+import { stripSrc } from './stripThumbs';
 import styles from './landing.module.css';
 
 
@@ -54,6 +56,8 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
     const axisRef    = useRef<Axis>('y');
     // poziția (în cadre) de la ultima sincronizare: cadrul rămâne în ramă când se schimbă axa
     const fRef       = useRef(0);
+    // ecran tactil (16.11.2026): așezarea pe cadru o face browserul (scroll-snap)
+    const snapRef    = useRef(false);
     const animRef    = useRef<number | null>(null);
     const motionRef  = useRef({
         mode: 'idle' as 'idle' | 'free' | 'spring',
@@ -82,7 +86,10 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             if (exp[i] === e) return;
             exp[i] = e;
             img.style.filter = exposureFilter(e, SET_GAIN);
-            if (halo) halo.style.opacity = (0.32 * e).toFixed(3);
+            if (halo) {
+                halo.style.opacity = (0.32 * e).toFixed(3);
+                halo.style.visibility = e > 0 ? 'visible' : '';   // stinsă = nedesenată (16.11.2026)
+            }
         });
         const top = scrollPos(g, axisRef.current);
         bandYRef.current += top - lastTopRef.current;
@@ -121,6 +128,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         const m = motionRef.current, g = galleryRef.current;
         m.mode = 'idle'; m.vel = 0; m.onDone = null;
         if (g) m.pos = m.target = scrollPos(g, axisRef.current);
+        g?.classList.remove(styles.jsDrive);   // degetul: așezarea o face iar browserul
     }, []);
 
     const run = useCallback(() => {
@@ -156,6 +164,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
                 cb?.();
             }
         };
+        galleryRef.current?.classList.add(styles.jsDrive);   // vezi touchSnap (filmStrip.ts)
         animRef.current = requestAnimationFrame(step);
     }, []);
 
@@ -163,8 +172,11 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
     const arrive = useCallback((slot: number) => {
         const g = galleryRef.current;
         if (!g) return;
+        g.classList.remove(styles.jsDrive);
         const to = scrollFor(slot);
-        if (Math.abs(scrollPos(g, axisRef.current) - to) > 0.75) setScrollPos(g, axisRef.current, to);
+        // pe ecranele tactile locul exact îl ține browserul (scroll-snap)
+        const tol = snapRef.current ? 3 : 0.75;
+        if (Math.abs(scrollPos(g, axisRef.current) - to) > tol) setScrollPos(g, axisRef.current, to);
         if (!reel.isHome(slot)) {
             g.classList.add(styles.jumping);
             jumpTo(reel.HOME + reel.of(slot));
@@ -198,15 +210,30 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         if (!g || m.mode === 'spring') return;
         const rest = m.mode === 'free' ? m.target : scrollPos(g, axisRef.current);
         const last = reel.SLOTS.length - 1;
-        glideTo(Math.min(last, Math.max(0, Math.round((rest - originRef.current) / pitch()))));
-    }, [glideTo, pitch, reel]);
+        const target = Math.min(last, Math.max(0, Math.round((rest - originRef.current) / pitch())));
+        // 16.11.2026: pe ecranele tactile s-a așezat deja singură (scroll-snap)
+        if (snapRef.current && m.mode === 'idle'
+            && Math.abs(scrollFor(target) - scrollPos(g, axisRef.current)) < 3) {
+            arrive(target);
+            return;
+        }
+        glideTo(target);
+    }, [glideTo, pitch, reel, scrollFor, arrive]);
 
     useEffect(() => {
         const g = galleryRef.current;
         if (!g) return;
         kRef.current = filmK(g);
         axisRef.current = filmAxis(g);
-        jumpTo(reel.HOME + Math.floor(Math.random() * reel.N));
+        snapRef.current = touchSnap();
+        alignSnap(g, vfRef.current, axisRef.current);
+        const start = Math.floor(Math.random() * reel.N);
+        jumpTo(reel.HOME + start);
+        // pozele, dinainte (16.11.2026): toate se descarcă, cele mai apropiate 16 se și decodează
+        const unwarm = warmStrip(
+            nearFirst(reel.N, start).map((k) => stripSrc(images[k].src)),
+            { decode: 16, done: () => eagerImages(g) },
+        );
 
         let idle = 0, ticking = false, finger = false;
         const later = () => { window.clearTimeout(idle); idle = window.setTimeout(settle, SETTLE_MS); };
@@ -214,7 +241,8 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
            (index.tsx › wrap): capătul la mai puțin de un ecran → liste întregi spre mijloc */
         const wrap = () => {
             const m = motionRef.current;
-            if (finger || m.mode === 'spring') return;
+            // 16.11.2026: nu pe ecranele tactile (o săritură oprea brusc inerția degetului)
+            if (finger || m.mode === 'spring' || snapRef.current) return;
             const top = scrollPos(g, axisRef.current);
             const N = reel.N, p = pitch(), ax = axisRef.current;
             const max  = scrollMax(g, ax);
@@ -267,7 +295,12 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             }
             later();
         };
-        const onGrab   = (e: Event) => { if (e.type === 'touchstart') finger = true; stop(); window.clearTimeout(idle); };
+        const onGrab   = (e: Event) => {
+            if (e.type === 'touchstart') finger = true;
+            snapRef.current = touchSnap();
+            stop();
+            window.clearTimeout(idle);
+        };
         const onLift   = (e: Event) => {
             if (e.type === 'touchend' || e.type === 'touchcancel') finger = false;
             if (motionRef.current.mode !== 'spring') later();
@@ -275,6 +308,8 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         const onResize = () => {
             kRef.current = filmK(g);
             expoRef.current = [];
+            snapRef.current = touchSnap();
+            alignSnap(g, vfRef.current, filmAxis(g));
             // după o schimbare de mărime (ex. telefonul întors), cadrul rămâne în ramă;
             // dacă s-a schimbat și axa (09.11.2026), pelicula o ia de la capăt pe cealaltă axă
             const ax = filmAxis(g);
@@ -295,6 +330,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
         window.addEventListener('pointerup', onLift, { passive: true });
         window.addEventListener('resize', onResize);
         return () => {
+            unwarm();
             window.clearTimeout(idle);
             stop();
             g.removeEventListener('scroll', onScroll);
@@ -306,7 +342,7 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
             window.removeEventListener('pointerup', onLift);
             window.removeEventListener('resize', onResize);
         };
-    }, [jumpTo, sync, settle, stop, run, pitch, reel]);
+    }, [jumpTo, sync, settle, stop, run, pitch, reel, images]);
 
     return (
         <div className={styles.strip2} role="group" aria-label={label}>
@@ -330,14 +366,14 @@ export default function SetStrip({ images, label }: { images: StripImage[]; labe
                         <div key={i} className={styles.slot} ref={(el) => { slotRefs.current[i] = el; }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={im.src}
+                                src={stripSrc(im.src)}
                                 alt={reel.isHome(i) ? im.alt : ''}
                                 loading="lazy"
                                 draggable={false}
                                 className={styles.slotImg}
                             />
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={im.src} alt="" aria-hidden="true" loading="lazy" draggable={false} className={styles.slotHalo} />
+                            <img src={stripSrc(im.src)} alt="" aria-hidden="true" loading="lazy" draggable={false} className={styles.slotHalo} />
                         </div>
                     );
                 })}
