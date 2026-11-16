@@ -24,13 +24,55 @@ export function clearIntro(): void {
     h.style.removeProperty('--intro-y');
 }
 
-/** scriptul din <head>: rulează înaintea primului cadru, doar pe / cu ?intro,
+/* ============================================================
+   INTRO „VIZOR” — varianta /?intro=vizor (16.11.2026) — IntroVizor.tsx
+
+   Starea stă tot pe <html>, cu alte nume (ca regulile intro-ului „masa
+   luminată” să nu se amestece):
+     data-vz       = pending → run → film → out
+     data-vz-ui    = „off” cât pagina e goală (totul în afară de fundal și grain)
+     data-vz-js    = IntroVizor a preluat animația (altfel scriptul o
+                     anulează singur după 8 s)
+     data-vz-strip = peliculele intră în pagină
+     data-vz-logo  = logo-ul apare
+     data-vz-reel  = rola desenată a ajuns peste rola de lângă logo
+     data-vz-lamp  = rama și lampa se aprind
+   ============================================================ */
+export const VZ = {
+    state: 'data-vz',
+    ui:    'data-vz-ui',
+    js:    'data-vz-js',
+    strip: 'data-vz-strip',
+    logo:  'data-vz-logo',
+    reel:  'data-vz-reel',
+    lamp:  'data-vz-lamp',
+} as const;
+
+/** intro-ul „vizor” rulează (sau așteaptă) → LogoReel nu pornește încâlceala */
+export const vizorPending = (): boolean =>
+    typeof document !== 'undefined' && document.documentElement.hasAttribute(VZ.state);
+
+export function clearVizor(): void {
+    const h = document.documentElement;
+    for (const a of Object.values(VZ)) h.removeAttribute(a);
+}
+
+/** scriptul din <head>: rulează înaintea primului cadru.
+    /?intro=vizor (16.11.2026): pe / și pe /about, pe orice ecran.
+    /?intro (03.11.2026, „masa luminată”): doar pe / cu ?intro,
     doar pe desktop (≥ 1280 px — pe telefon și tabletă pagina are alt layout;
     intro-ul pentru ele se face când refacem animația). Varianta e blocată:
     eticheta git `intro-masa-v1` (03.11.2026). */
 export const INTRO_BOOT = `(function(){try{
+var h=document.documentElement,p=location.pathname;
+if(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);
+if(/[?&]intro=vizor(?:&|$)/.test(location.search)){
+if((p==='/'||p==='/about')&&window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+h.setAttribute('data-vz','pending');h.setAttribute('data-vz-ui','off');
+setTimeout(function(){if(!h.hasAttribute('data-vz-js')){['data-vz','data-vz-ui'].forEach(function(a){h.removeAttribute(a)})}},8000);}
+return;}
 if(location.pathname!=='/'||!/[?&]intro(?:[=&]|$)/.test(location.search))return;
 if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(min-width: 1280px)').matches)return;
-var h=document.documentElement;h.setAttribute('data-intro','pending');h.setAttribute('data-intro-ui','off');
+h.setAttribute('data-intro','pending');h.setAttribute('data-intro-ui','off');
 setTimeout(function(){if(!h.hasAttribute('data-intro-js')){['data-intro','data-intro-ui','data-intro-light'].forEach(function(a){h.removeAttribute(a)})}},12000);
 }catch(e){}})();`;

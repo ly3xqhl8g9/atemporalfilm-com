@@ -3786,3 +3786,115 @@ button.capTitle {
    doar pe cadrele din dreptul ramei (opacitatea era oricum 0 în rest, dar
    blurul și amestecul „screen” se calculau pe fiecare cadru la derulare) */
 .slotHalo { visibility: hidden; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   16.11.2026 — INTRO „VIZOR” — varianta /?intro=vizor
+   IntroVizor.tsx (desenul) + intro.ts (starea de pe <html>, data-vz*).
+   Patru secunde: din interiorul imaginii din vizor ne îndepărtăm până la
+   încadratura din poza lui Ștefan → pelicula se rupe, întuneric → rola
+   împrăștie pelicula, apoi o trage înapoi și se așază lângă logo →
+   pelicula cu filmele intră de jos în sus (pe ABOUT: una de jos în sus,
+   una de sus în jos) → rama și lampa se aprind, apare textul.
+   Aici e doar așezarea în pagină; mișcarea e în IntroVizor.tsx (T = momentele).
+   ══════════════════════════════════════════════════════════════════════ */
+/* stratul animației: peste toată pagina, sub grain */
+.vzLayer { display: none; }
+:global(html[data-vz]) .vzLayer {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 900;
+    pointer-events: none;
+    overflow: hidden;
+}
+/* până pornește JS-ul: negru (apoi negrul îl desenează canvas-ul) */
+:global(html[data-vz='pending']) .vzLayer { background: #000; }
+.vzCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+/* videoul e doar sursa imaginii (desenat în canvas); nu se vede și nu are sunet */
+.vzVideo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 2px;
+    opacity: 0.01;
+    pointer-events: none;
+}
+
+/* 1. cât rulează intro-ul, pagina e goală: doar fundalul și grain-ul */
+:global(html[data-vz-ui]) .page > :not(.grain):not(.siteHeader):not(.vzLayer):not(.gallery):not(.soundtrack):not(.strip2),
+:global(html[data-vz-ui]) .strip2 > :not(.gallery):not(.soundtrack),
+:global(html[data-vz-ui]) .aboutRead > *,
+:global(html[data-vz-ui]) .siteHeader > :not(.logoReel):not(.logo) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 2. textul apare la sfârșit, pe rând: meniul și ceasul, lista și creditul,
+      timecode-urile și contactele, bara de jos (gata la 4 s) */
+:global(html[data-vz='out']) .page > *,
+:global(html[data-vz='out']) .strip2 > *,
+:global(html[data-vz='out']) .aboutRead > *,
+:global(html[data-vz='out']) .siteHeader > * { transition: opacity 0.5s ease !important; }
+:global(html[data-vz='out']) .page > .filmList,
+:global(html[data-vz='out']) .page > .side,
+:global(html[data-vz='out']) .aboutRead > * { transition-delay: 0.07s !important; }
+:global(html[data-vz='out']) .page > .worldClocks,
+:global(html[data-vz='out']) .page > .workContacts { transition-delay: 0.13s !important; }
+:global(html[data-vz='out']) .page > .cofinance { transition-delay: 0.19s !important; }
+
+/* 3. logo-ul apare când rola se apropie de locul ei; rola adevărată de lângă
+      logo, în cadrul în care rola desenată ajunge peste ea */
+:global(html[data-vz]) .siteHeader > .logo { transition: opacity 0.32s ease !important; }
+:global(html[data-vz-ui]:not([data-vz-logo])) .siteHeader > .logo { opacity: 0; }
+:global(html[data-vz]:not([data-vz-reel])) .logoReelBtn { visibility: hidden; }
+
+/* 4. peliculele: ascunse, apoi intră — pe WORK de jos în sus; pe ABOUT banda
+      cu oamenii de jos în sus, cea cu pozele de la filmare de sus în jos.
+      Se mută cu „translate” (rămâne transform-ul lor de așezare). */
+:global(html[data-vz]) .page .gallery,
+:global(html[data-vz]) .page .soundtrack { transition: none !important; }
+:global(html[data-vz]:not([data-vz-strip])) .page .gallery,
+:global(html[data-vz]:not([data-vz-strip])) .page .soundtrack { opacity: 0 !important; }
+:global(html[data-vz-strip]) .page .gallery,
+:global(html[data-vz-strip]) .page .soundtrack { animation: vzUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+:global(html[data-vz-strip]) .page .strip2 .gallery,
+:global(html[data-vz-strip]) .page .strip2 .soundtrack { animation-name: vzDown; }
+@keyframes vzUp   { from { translate: 0 104vh; }  to { translate: 0 0; } }
+@keyframes vzDown { from { translate: 0 -104vh; } to { translate: 0 0; } }
+/* pelicula orizontală (telefonul / tableta ținute vertical): din dreapta, respectiv din stânga */
+:global(html[data-film='h'][data-vz-strip]) .page .gallery,
+:global(html[data-film='h'][data-vz-strip]) .page .soundtrack { animation-name: vzLeft; }
+:global(html[data-film='h'][data-vz-strip]) .page .strip2 .gallery,
+:global(html[data-film='h'][data-vz-strip]) .page .strip2 .soundtrack { animation-name: vzRight; }
+@keyframes vzLeft  { from { translate: 104vw 0; }  to { translate: 0 0; } }
+@keyframes vzRight { from { translate: -104vw 0; } to { translate: 0 0; } }
+
+/* 5. rama și lampa: stinse până se așază pelicula; apoi rama se lasă pe
+      fotogramă, iar lampa pornește pâlpâind o dată */
+:global(html[data-vz]:not([data-vz-lamp])) .page .viewfinder,
+:global(html[data-vz]:not([data-vz-lamp])) .page .lamp,
+:global(html[data-vz]:not([data-vz-lamp])) .page .backlight { opacity: 0 !important; transition: none !important; }
+:global(html[data-vz-lamp]) .page .viewfinder { animation: introLoupe 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+:global(html[data-vz-lamp]) .page .lamp {
+    animation: shutter24 0.5s steps(1, end) infinite, vzStrike 0.46s linear both;
+}
+:global(html[data-vz-lamp]) .page .backlight { animation: vzStrike 0.46s linear both; }
+@keyframes vzStrike {
+    0%   { filter: brightness(0); }
+    20%  { filter: brightness(1.25); }
+    34%  { filter: brightness(0.25); }
+    56%  { filter: brightness(1.1); }
+    100% { filter: brightness(1); }
+}

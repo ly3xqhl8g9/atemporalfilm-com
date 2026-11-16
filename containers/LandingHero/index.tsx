@@ -24,6 +24,7 @@ import {
 } from './filmStrip';
 import { stripSrc } from './stripThumbs';
 import IntroReel from './IntroReel';
+import IntroVizor from './IntroVizor';
 import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
 import { decideFilmMode } from './filmMode';
 import TimeCalculator from './TimeCalculator';
@@ -2155,6 +2156,9 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* INTRO „masa luminată” — doar pe homepage, cu /?intro (03.11.2026) */}
             {kind === 'work' && <IntroReel galleryRef={galleryRef} ready={ready} />}
+
+            {/* INTRO „vizor” — pe WORK și pe ABOUT, cu /?intro=vizor (16.11.2026) */}
+            <IntroVizor />
 
 
             {/* DETAIL OVERLAY — apare când dai click pe afișul activ */}

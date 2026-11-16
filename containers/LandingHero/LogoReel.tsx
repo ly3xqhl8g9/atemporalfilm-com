@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './landing.module.css';
-import { INTRO_LOGO_EVENT, introPending } from './intro';
+import { INTRO_LOGO_EVENT, introPending, vizorPending } from './intro';
 import { LOGO_WORDS } from './logoGlyphs';
 
 
@@ -154,6 +154,13 @@ export default function LogoReel({ label }: { label: string }) {
         setReel(1);
     };
 
+    /** intro-ul „vizor” (16.11.2026): rola tocmai a tras toată pelicula înapoi —
+        rămâne plină, cu logo-ul scris; click pe ea pornește încâlceala ca de obicei */
+    const rest = () => {
+        finish();
+        setReel(0);
+    };
+
     const play = () => {
         const strip = stripRef.current, fill = fillRef.current, root = rootRef.current;
         if (!strip || !fill || !root) return;
@@ -242,7 +249,8 @@ export default function LogoReel({ label }: { label: string }) {
         if (initial === 'wait') {
             autoplayed = true;
             const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (!introPending()) { if (reduce) finish(); else play(); }
+            if (vizorPending()) rest();
+            else if (!introPending()) { if (reduce) finish(); else play(); }
         }
         return () => {
             window.removeEventListener(INTRO_LOGO_EVENT, onIntro);

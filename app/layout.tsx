@@ -87,7 +87,7 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                {/* /?intro: ascunde pagina înaintea primului cadru (intro „masa luminată”) */}
+                {/* /?intro și /?intro=vizor: ascund pagina înaintea primului cadru (intro.ts) */}
                 <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
                 {/* sub 1280 px: pelicula verticală sau orizontală, meniul pe unul sau
                     două rânduri — alese înaintea primului cadru (vezi filmMode.ts) */}
