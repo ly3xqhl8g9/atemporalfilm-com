@@ -65,7 +65,7 @@ const ease5  = (v: number) => v * v * v * (v * (6 * v - 15) + 10);
 /** varianta netezită a încâlcelii — deocamdată doar cu /?intro=vizor4 (16.11.2026), ca să
     poată fi comparată cu cea de pe site: aceeași durată, pornire și oprire mai line, iar rola
     face 3 ture în loc de 7 (la 7, ferestrele flanșei „bat” pe cadre și rola pare că tremură) */
-const SMOOTH_RE = /[?&]intro=vizor[45](?:&|$)/;
+const SMOOTH_RE = /[?&]intro=vizor[456](?:&|$)/;
 const TURNS_SMOOTH = 3;
 const f2     = (v: number) => Math.round(v * 100) / 100;
 

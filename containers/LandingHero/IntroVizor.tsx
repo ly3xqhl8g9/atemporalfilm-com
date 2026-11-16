@@ -112,6 +112,20 @@ const GATHER5 = 380;
 const SPIN5 = 1440;          // patru ture în 2,4 s
 const VIDEO_RATE5 = 1.6;
 
+/** versiunea 6: lumina de proiector la rupere; rola e într-o singură mișcare, de la intrare până
+    lângă logo, tot mai mică, și absoarbe din mers (fâșiile, pelicula paginii, pelicula de pe logo);
+    se oprește abia când a terminat. Peliculă mai clară, cu umbră când se răsucește. */
+const T6 = { slip: 560, tear: 700, clear: 860, fly: 780, reelIn: 1080 };
+const T6P = { strip: 700, logo: 800, dock: 3000, text: 3080, lamp: 3180, end: 3800 };
+const FLASH6 = { rise: 50, hold: 850, out: 1140, ray: 1380 };
+/** catch = rola prinde capul fâșiei de legătură; start + dur = pelicula paginii urcă la locul ei
+    (sfârșitul e lung și lin: încă rulează câteva perforații când rola e deja lângă logo);
+    out + outDur = capătul peliculei trece prin rolă; spinEnd = rola se oprește */
+const PULL6 = { catch: 1850, start: 1900, dur: 1560, gap: 70, let: 0, out: 3400, outDur: 220, spinEnd: 3640 };
+const GATHER6 = 440;
+const SPIN6 = 1800;          // cinci ture în 2,6 s
+const VIDEO_RATE6 = 1.7;
+
 /** lumina se aprinde ca un tub fluorescent: [ms, cât de întuneric] */
 const VEIL: [number, number][] = [
     [1400, 1], [1470, 1], [1510, 0.5], [1550, 0.92], [1610, 0.22], [1660, 0.6],
@@ -172,17 +186,17 @@ const PITCH  = Math.round(TW * 0.543);       // un cadru = 4 perforații
 const FRAMES = 4;
 const TH     = PITCH * FRAMES;
 
-type Tex = { k: number; base: HTMLCanvasElement; sheen: HTMLCanvasElement };
+type Tex = { k: number; base: HTMLCanvasElement; sheen: HTMLCanvasElement; shade?: HTMLCanvasElement };
 /** un fel de peliculă: th = după câți pixeli de textură se repetă; mips = cele trei mărimi */
 type Film = { th: number; mips: Tex[] };
 
 /** cele trei mărimi ale unei texturi, fiecare cu varianta „cu luciu” */
-function mipsOf(big: HTMLCanvasElement, sheenA: number): Tex[] {
+function mipsOf(big: HTMLCanvasElement, sheenA: number, o: { ks?: number[]; bigK?: number; shade?: boolean } = {}): Tex[] {
     const out: Tex[] = [];
-    for (const k of [1, 0.5, 0.25]) {
+    for (const k of o.ks ?? [1, 0.5, 0.25]) {
         const base = document.createElement('canvas');
         base.width = Math.round(TW * k);
-        base.height = Math.round(big.height * k);
+        base.height = Math.round((big.height * k) / (o.bigK ?? 1));
         const b = base.getContext('2d');
         const sheen = document.createElement('canvas');
         sheen.width = base.width;
@@ -195,13 +209,27 @@ function mipsOf(big: HTMLCanvasElement, sheenA: number): Tex[] {
         s.globalCompositeOperation = 'source-atop';
         s.fillStyle = `rgba(255, 252, 244, ${sheenA})`;
         s.fillRect(0, 0, sheen.width, sheen.height);
-        out.push({ k, base, sheen });
+        let shade: HTMLCanvasElement | undefined;
+        if (o.shade) {
+            // versiunea 6: pelicula întoarsă de la lumină (când se răsucește) — aceeași, întunecată
+            shade = document.createElement('canvas');
+            shade.width = base.width;
+            shade.height = base.height;
+            const d = shade.getContext('2d');
+            if (d) {
+                d.drawImage(base, 0, 0);
+                d.globalCompositeOperation = 'source-atop';
+                d.fillStyle = 'rgba(14, 11, 8, 0.86)';
+                d.fillRect(0, 0, shade.width, shade.height);
+            }
+        }
+        out.push({ k, base, sheen, shade });
     }
     return out;
 }
 
 /** versiunea 3: textura dintr-o fâșie de peliculă reală (imaginea se repetă pe înălțime) */
-function buildFilm(img: HTMLImageElement): Film | null {
+function buildFilm(img: HTMLImageElement, shade = false): Film | null {
     if (!img.complete || !img.naturalWidth) return null;
     const H = Math.round((img.naturalHeight * TW) / img.naturalWidth);
     const big = document.createElement('canvas');
@@ -211,7 +239,7 @@ function buildFilm(img: HTMLImageElement): Film | null {
     if (!g) return null;
     g.drawImage(img, 0, 0, TW, H);
     g.drawImage(img, 0, H, TW, H);
-    const mips = mipsOf(big, 0.6);
+    const mips = mipsOf(big, 0.6, { shade });
     return mips.length ? { th: H, mips } : null;
 }
 
@@ -296,23 +324,25 @@ function buildTextures(scene: HTMLImageElement | null): Tex[] {
 
 /** versiunea 5 — fâșia de legătură: aceeași peliculă ca banda din pagină (neagră, cu
     perforații pe amândouă marginile și pista sonoră în stânga), fără imagini pe ea */
-function buildLeader(): Film | null {
+function buildLeader(hi = false): Film | null {
     const P = 24, H = P * 8;                 // pasul perforațiilor, ca pe banda din pagină
+    const sc = hi ? 2 : 1;                   // versiunea 6: de două ori mai fină (fâșia e lată: se vedea pixelată)
     const big = document.createElement('canvas');
-    big.width = TW;
-    big.height = H + PITCH;
+    big.width = TW * sc;
+    big.height = (H + PITCH) * sc;
     const g = big.getContext('2d');
     if (!g) return null;
+    g.scale(sc, sc);
     g.fillStyle = 'rgb(33, 31, 29)';
     g.fillRect(0, 0, TW, big.height);
     g.fillStyle = 'rgb(24, 22, 20)';
     g.fillRect(TW * 0.09, 0, TW * 0.093, big.height);
     // cadrele goale (un cadru = 4 perforații): abia mai deschise decât baza
     g.fillStyle = 'rgba(255, 250, 240, 0.045)';
-    for (let y = 0; y < big.height; y += 4 * P) g.fillRect(TW * 0.2, y + 4, TW * 0.67, 4 * P - 8);
+    for (let y = 0; y < H + PITCH; y += 4 * P) g.fillRect(TW * 0.2, y + 4, TW * 0.67, 4 * P - 8);
     g.globalCompositeOperation = 'destination-out';
     g.fillStyle = '#000';
-    for (let y = P / 2; y < big.height; y += P) {
+    for (let y = P / 2; y < H + PITCH; y += P) {
         for (const cx of [TW * 0.056, TW * 0.944]) {
             g.beginPath();
             if (typeof g.roundRect === 'function') g.roundRect(cx - 7, y - 5.5, 14, 11, 2.5); else g.rect(cx - 7, y - 5.5, 14, 11);   // Safari mai vechi de 16
@@ -320,7 +350,7 @@ function buildLeader(): Film | null {
         }
     }
     g.globalCompositeOperation = 'source-over';
-    const mips = mipsOf(big, 0.5);
+    const mips = mipsOf(big, 0.5, hi ? { ks: [2, 1, 0.5], bigK: 2 } : {});
     return mips.length ? { th: H, mips } : null;
 }
 
@@ -386,6 +416,7 @@ type Rib = {
     tc: number; td: number;
     // doar versiunea 3: felul de peliculă și de unde intră (cât e de departe, în afara ecranului)
     tex: number; ex: number; ey: number;
+    W: Float32Array | null;   // versiunea 6: lățimea, punct cu punct (fâșia de legătură se îngustează spre rolă)
     lead: number;       // versiunea 5: fâșia de legătură cu pelicula paginii (a câta bandă); −1 = nu
     al: number;         // versiunea 4: cât de opacă se desenează (în mișcare: pe jumătate, de trei ori)
 };
@@ -404,7 +435,7 @@ function makeRibbons(dg: number, vmin: number): Rib[] {
             n,
             P: new Float32Array(3 * (n + 1)), B: new Float32Array(3 * (n + 1)),
             S: new Float32Array(n + 1), E: new Float32Array(4 * (n + 1)), G: new Float32Array(n + 1),
-            L: 0, ws: 1, cx: 0, cy: 0, cz: 0, dvx: 0, dvy: 0, rot: 0, tc: 0, td: 0, tex: 0, ex: 0, ey: 0, al: 1, lead: -1,
+            L: 0, ws: 1, cx: 0, cy: 0, cz: 0, dvx: 0, dvy: 0, rot: 0, tc: 0, td: 0, tex: 0, ex: 0, ey: 0, al: 1, lead: -1, W: null,
             ...p,
         });
     };
@@ -550,7 +581,7 @@ function makeTangle(vw: number, vh: number, v3: boolean, o: { fly: number; sprea
             cx: (fx - 0.5) * vw, cy: (fy - 0.5) * vh, cz: 0,
             dvx: rnd(-42, 42), dvy: rnd(-30, 30), rot: rnd(-0.45, 0.45),
             tc: 0, td: rnd(300, 420),
-            tex: 0, ex: 0, ey: 0, al: 1, lead: -1,
+            tex: 0, ex: 0, ey: 0, al: 1, lead: -1, W: null,
             ...p,
         };
         if (v3) {
@@ -694,19 +725,24 @@ export default function IntroVizor() {
 
         // versiunea 2: /?intro=vizor2 ; pelicula orizontală (ecranele mici): totul pe orizontală
         // versiunea 3: /?intro=vizor3 = versiunea 2 + peliculă reală, lumina lămpii, fâșii din afară
-        const V3 = /[?&]intro=vizor[345](?:&|$)/.test(window.location.search);
+        const V3 = /[?&]intro=vizor[3456](?:&|$)/.test(window.location.search);
         const V2 = V3 || /[?&]intro=vizor2(?:&|$)/.test(window.location.search);
         // versiunea 4: /?intro=vizor4 = versiunea 3 în 3 secunde, cu mișcarea netezită
         // versiunea 5: /?intro=vizor5 = versiunea 4, ușurată, cu pelicula paginii trasă de rolă
-        const V5 = /[?&]intro=vizor5(?:&|$)/.test(window.location.search);
+        // versiunea 6: /?intro=vizor6 = versiunea 5 + lumina de proiector, rola într-o singură mișcare
+        const V6 = /[?&]intro=vizor6(?:&|$)/.test(window.location.search);
+        const V5 = V6 || /[?&]intro=vizor5(?:&|$)/.test(window.location.search);
         const V4 = V5 || /[?&]intro=vizor4(?:&|$)/.test(window.location.search);
-        const TT = V5 ? T5 : V4 ? T4 : V3 ? T3 : { ...T2, fly: T2.tear };
-        const TM = V5 ? { ...T, ...T5P } : V4 ? { ...T, ...T4P } : T;
-        const VR = V5 ? VIDEO_RATE5 : V4 ? VIDEO_RATE4 : 1;
+        const TT = V6 ? T6 : V5 ? T5 : V4 ? T4 : V3 ? T3 : { ...T2, fly: T2.tear };
+        const TM = V6 ? { ...T, ...T6P } : V5 ? { ...T, ...T5P } : V4 ? { ...T, ...T4P } : T;
+        const VR = V6 ? VIDEO_RATE6 : V5 ? VIDEO_RATE5 : V4 ? VIDEO_RATE4 : 1;
         const FL4 = V5 ? FLASH5 : FLASH4;
-        const GA = V5 ? GATHER5 : GATHER;
+        const GA = V6 ? GATHER6 : V5 ? GATHER5 : GATHER;
+        const PL = V6 ? PULL6 : PULL5;
+        /** până când se desenează rola (versiunea 6: până se oprește, lângă logo) */
+        const reelEnd = V6 ? PULL6.spinEnd : TM.dock;
         /** versiunea 4: unghiul rolei, o singură curbă de la intrare până se oprește lângă logo */
-        const spin4 = (t: number) => { const x = clamp01((t - TT.reelIn) / (TM.dock + GA - TT.reelIn)); return (V5 ? SPIN5 : SPIN4) * (1.5 * x - 0.5 * x * x * x); };
+        const spin4 = (t: number) => { const x = clamp01((t - TT.reelIn) / ((V6 ? PULL6.spinEnd : TM.dock + GA) - TT.reelIn)); return (V6 ? SPIN6 : V5 ? SPIN5 : SPIN4) * (1.5 * x - 0.5 * x * x * x); };
         const filmHoriz = () => html.getAttribute('data-film') === 'h';
 
         /* ── piesele ── */
@@ -732,7 +768,7 @@ export default function IntroVizor() {
         let leadFilm: Film | null = null;
         const filmImgs = V3 ? FILM_SRC.map((src) => { const im = new Image(); im.decoding = 'async'; im.src = src; return im; }) : [];
         const makeFilms = () => {
-            const real = filmImgs.map(buildFilm).filter((f): f is Film => f !== null);
+            const real = filmImgs.map((im) => buildFilm(im, V6)).filter((f): f is Film => f !== null);
             if (real.length) return real;
             const mips = buildTextures(poster.complete && poster.naturalWidth ? poster : null);
             return mips.length ? [{ th: TH, mips }] : [];
@@ -765,8 +801,12 @@ export default function IntroVizor() {
             });
         };
         /** cât mai are banda până la locul ei (px) */
-        const stripOff = (i: number, t: number) =>
-            1.04 * (filmHoriz() ? vw : vh) * (1 - ease5((t - PULL5.start - i * PULL5.gap) / PULL5.dur));
+        const stripOff = (i: number, t: number) => {
+            const x = clamp01((t - PL.start - i * PL.gap) / PL.dur);
+            // versiunea 6: pornește hotărât și se așază foarte lin (la sfârșit încă mai rulează puțin)
+            const p = V6 ? 1 - Math.pow(1 - Math.pow(x, 1.3), 2.6) : ease5(x);
+            return 1.04 * (filmHoriz() ? vw : vh) * (1 - p);
+        };
         const placeStrips = (t: number) => {
             const horiz = filmHoriz();
             for (let i = 0; i < strips.length; i++) {
@@ -781,26 +821,27 @@ export default function IntroVizor() {
         const freeStrips = () => { for (const st of strips) { st.set = ''; st.off = 0; for (const el of st.els) el.style.translate = ''; } };
         /** fâșia de legătură a benzii i: lată cât banda, din aceeași peliculă */
         const makeLead = (i: number): Rib => {
-            const n = 96, st = strips[i];
+            const n = V6 ? 120 : 96, st = strips[i];
             return {
                 kind: 1, phi: 0, len: 0, w: filmHoriz() ? st.h : st.w, z: 0, a: 0, b: 0, turns: 0, tw: 0,
                 ph: 1.3 + 2.1 * i, ph2: 0.7 + 1.7 * i, t0: T5.fly + 60 + 90 * i, dur: 560, r0: 0, rd: 0, n,
                 P: new Float32Array(3 * (n + 1)), B: new Float32Array(3 * (n + 1)),
                 S: new Float32Array(n + 1), E: new Float32Array(4 * (n + 1)), G: new Float32Array(n + 1),
-                L: 0, ws: 1, cx: 0, cy: 0, cz: 0, dvx: 0, dvy: 0, rot: 0, tc: 0, td: 0, tex: 0, ex: 0, ey: 0, al: 1, lead: i,
+                L: 0, ws: 1, cx: 0, cy: 0, cz: 0, dvx: 0, dvy: 0, rot: 0, tc: 0, td: 0, tex: 0, ex: 0, ey: 0, al: 1, lead: i, W: V6 ? new Float32Array(n + 1).fill(1) : null,
             };
         };
 
         const size = () => {
             vw = window.innerWidth;
             vh = window.innerHeight;
-            q = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, Math.sqrt((V5 ? 1.7e6 : 5.5e6) / (vw * vh))));
+            q = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, Math.sqrt((V6 ? 3.2e6 : V5 ? 1.7e6 : 5.5e6) / (vw * vh))));
             canvas.width = Math.round(vw * q);
             canvas.height = Math.round(vh * q);
             shadow.width = Math.ceil(vw / SH);
             shadow.height = Math.ceil(vh / SH);
             measureStrips();
-            ribs = V2 ? makeTangle(vw, vh, V3, V5 ? { fly: T5.fly, spread: 150, d0: 480, d1: 580, td: 0.9, keep: [0, 1, 2, 4, 5, 8, 9, 10, 11], nk: 0.6 }
+            ribs = V2 ? makeTangle(vw, vh, V3, V6 ? { fly: T6.fly, spread: 170, d0: 480, d1: 600, td: 1.25, keep: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12], nk: 0.8 }
+                : V5 ? { fly: T5.fly, spread: 150, d0: 480, d1: 580, td: 0.9, keep: [0, 1, 2, 4, 5, 8, 9, 10, 11], nk: 0.6 }
                 : V4 ? { fly: T4.fly, spread: 170, d0: 520, d1: 640, td: 0.9 } : undefined) : makeRibbons(Math.hypot(vw, vh) / 2, Math.min(vw, vh));
             nTangle = ribs.length;
             if (V5) for (let i = 0; i < strips.length; i++) ribs.push(makeLead(i));
@@ -1149,7 +1190,8 @@ export default function IntroVizor() {
                 const half = 0.5 * rb.w * rb.ws;
                 for (let k = 0; k <= n; k++) {
                     const x = P[3 * k], y = P[3 * k + 1], z = P[3 * k + 2];
-                    const bx = B[3 * k] * half, by = B[3 * k + 1] * half, bz = B[3 * k + 2] * half;
+                    const hk = rb.W ? half * rb.W[k] : half;
+                    const bx = B[3 * k] * hk, by = B[3 * k + 1] * hk, bz = B[3 * k + 2] * hk;
                     const pa = D / (D - Math.min(0.72 * D, z - bz)), pb = D / (D - Math.min(0.72 * D, z + bz));
                     E[4 * k]     = ox + (x - bx) * pa;
                     E[4 * k + 1] = oy + (y - by) * pa;
@@ -1235,7 +1277,8 @@ export default function IntroVizor() {
                     const th = Math.max(0.5, a1 - a0);
                     const fm = rb.lead >= 0 && leadFilm ? leadFilm : films[rb.tex % films.length], tex = fm.mips;
                     const ty = ((a0 % fm.th) + fm.th) % fm.th;
-                    const tx = wS * q > 120 ? tex[0] : wS * q > 54 || tex.length < 3 ? tex[Math.min(1, tex.length - 1)] : tex[2];
+                    let tx = wS * q > 120 ? tex[0] : wS * q > 54 || tex.length < 3 ? tex[Math.min(1, tex.length - 1)] : tex[2];
+                    if (V6) { tx = tex[0]; for (const m of tex) if (TW * m.k >= wS * q * 0.9) tx = m; }   // cea mai mică textură care ajunge
                     // feliile se suprapun puțin; pe fâșia lată de legătură, în curbă, cu cât se desfac marginile
                     const kk = tx.k, e = (0.7 + (rb.lead >= 0 ? 0.6 * Math.hypot(r1x - l1x - r0x + l0x, r1y - l1y - r0y + l0y) : 0)) / vl;
                     ctx.setTransform((q * ux) / (TW * kk), (q * uy) / (TW * kk), (q * vx) / (th * kk), (q * vy) / (th * kk),
@@ -1247,6 +1290,14 @@ export default function IntroVizor() {
                     if (gl > (V5 ? 0.14 : 0.03)) {
                         ctx.globalAlpha = (gl > 1 ? 1 : gl) * rb.al;
                         ctx.drawImage(tx.sheen, 0, sy, TW * kk, th * kk, 0, -e * th * kk, TW * kk, th * kk * (1 + 2 * e));
+                    }
+                    if (tx.shade && rb.lead < 0) {
+                        // cu cât e mai întoarsă de la noi (se vede mai îngustă), cu atât mai întunecată
+                        const turn = 1 - Math.min(1, cross / (0.92 * txw));
+                        if (turn > 0.3) {
+                            ctx.globalAlpha = Math.min(0.5, 0.9 * (turn - 0.3) * (turn - 0.3) + 0.35 * (turn - 0.3));
+                            ctx.drawImage(tx.shade, 0, sy, TW * kk, th * kk, 0, -e * th * kk, TW * kk, th * kk * (1 + 2 * e));
+                        }
                     }
                     ctx.globalAlpha = 1;
                 }
@@ -1444,7 +1495,22 @@ export default function IntroVizor() {
             }
             return { x: px, y: py, S, ang: spin4(t), wound: 6.2, k: clamp01((S - logoS) / (SB - logoS)) };
         };
+        /** versiunea 6 — o singură mișcare: intră din dreapta, mare, și merge fără oprire până lângă
+            logo, tot mai mică (ca și cum s-ar îndepărta); acolo rămâne, încă învârtindu-se, până termină */
+        const reelAt6 = (t: number): Reel => {
+            const SB = bigScale();
+            const x = clamp01((t - T6.reelIn) / (T6P.dock - T6.reelIn));
+            const p = 0.5 * x * (2 - x) + 0.5 * x * x * (3 - 2 * x), m = 1 - p;
+            const rb = 17 * SB;
+            const a = m * m * m, b = 3 * m * m * p, c = 3 * m * p * p, d = p * p * p;
+            const px = a * (vw + 1.25 * rb) + b * 0.62 * vw + c * 0.3 * vw + d * logoC[0];
+            const py = a * 0.58 * vh + b * 0.8 * vh + c * 0.52 * vh + d * logoC[1];
+            const e = Math.pow(x, 1.5), S0 = 1.2 * SB;       // intră mai mare decât în celelalte versiuni
+            const S = 0.5 * (S0 + (logoS - S0) * e) + 0.5 * S0 * Math.pow(logoS / S0, e);
+            return { x: px, y: py, S, ang: spin4(t), wound: 6.2, k: clamp01((S - logoS) / (SB - logoS)) };
+        };
         const reelAt2 = (t: number): Reel => {
+            if (V6) return reelAt6(t);
             if (V5) return reelAt5(t);
             const x = clamp01((t - TT.reelIn) / (TM.dock - TT.reelIn));
             if (V4) {
@@ -1463,7 +1529,7 @@ export default function IntroVizor() {
         const planCapture = () => {
             for (const rb of ribs) {
                 if (rb.lead >= 0) continue;
-                const tEnd = V5 ? PULL5.station : TM.dock;
+                const tEnd = V5 && !V6 ? PULL5.station : TM.dock;
                 let best = Infinity, at = TT.reelIn;
                 for (let i = 0; i <= 50; i++) {
                     const tt = TT.reelIn + ((tEnd - TT.reelIn) * i) / 50;
@@ -1471,7 +1537,8 @@ export default function IntroVizor() {
                     const d = (r.x - vw / 2 - rb.cx) ** 2 + (r.y - vh / 2 - rb.cy) ** 2;
                     if (d < best) { best = d; at = tt; }
                 }
-                rb.tc = V5 ? Math.min(PULL5.station - rb.td - 40, Math.max(TT.reelIn + 40, at - 230))
+                rb.tc = V6 ? Math.min(TM.dock - rb.td - 140, Math.max(TT.reelIn + 40, at - 260))
+                    : V5 ? Math.min(PULL5.station - rb.td - 40, Math.max(TT.reelIn + 40, at - 230))
                     : V4 ? Math.min(TM.dock - rb.td - 110, Math.max(TT.reelIn + 40, at - 230))
                     : Math.min(TM.dock - rb.td - 190, Math.max(TT.reelIn + 60, at - 170));
             }
@@ -1572,11 +1639,78 @@ export default function IntroVizor() {
             return pulled;
         };
 
+        /** versiunea 6 — fâșia de legătură. Liberă, atârnă ca în versiunea 5. Prinsă de rolă, e chiar
+            pelicula paginii care merge mai departe: urcă din bandă drept în sus, iese pe sus din ecran
+            și coboară, tot mai îngustă, în rola care se îndepărtează. Rola o trage din mers; la sfârșit
+            capătul peliculei trece prin rolă. Întoarce cât s-a tras (0…1). */
+        const poseLeads6 = (t: number, reel: Reel | null, horiz: boolean): number => {
+            let pulled = 0;
+            for (let ri = nTangle; ri < ribs.length; ri++) {
+                const rb = ribs[ri], i = rb.lead, st = strips[i], n = rb.n, P = rb.P, W = rb.W;
+                rb.L = 0;
+                if (!st || !W || !reel || t <= rb.t0) { if (st) pulled += (1 - stripOff(i, t) / (1.04 * (horiz ? vw : vh))) / strips.length; continue; }
+                const span = horiz ? vw : vh;
+                const off = stripOff(i, t);
+                pulled += (1 - off / (1.04 * span)) / strips.length;
+                const tx = (horiz ? st.x + off : st.x + st.w / 2) - vw / 2, ty = (horiz ? st.y + st.h / 2 : st.y + off) - vh / 2;
+                const ts = (t - rb.t0) / 1000, e = 1 - (1 - clamp01((t - rb.t0) / rb.dur)) ** 4;
+                const sway = 0.045 * span * Math.sin(1.7 * ts + rb.ph);
+                const rest = (0.4 + 0.1 * i) * span - span / 2, from = 0.62 * span;
+                const fx = horiz ? lerp(from, rest, e) : tx + sway, fy = horiz ? ty + sway : lerp(from, rest, e);
+                const a = ease5((t - PL.catch - i * PL.gap) / 320);
+                const rx = reel.x - vw / 2, ry = reel.y - vh / 2;
+                const hx = lerp(fx, rx, a), hy = lerp(fy, ry, a);
+                // capătul peliculei trece prin rolă: se vede doar până la uMax
+                const uMax = 1 - ease5((t - PULL6.out - 40 * i) / PULL6.outDur);
+                if (uMax < 0.02) continue;
+                // drumul: liberă = aproape dreaptă; prinsă = din bandă în lungul ei, afară din ecran, și de sus în rolă
+                const room = Math.max(0, horiz ? tx + vw / 2 : ty + vh / 2);
+                const c2x = lerp(hx + (tx - hx) * 0.66, tx - (horiz ? room + 0.22 * span : 0), a);
+                const c2y = lerp(hy + (ty - hy) * 0.66, ty - (horiz ? 0 : room + 0.22 * span), a);
+                // (la pelicula orizontală iese prin stânga și intră în rolă tot din stânga: banda e prea lată ca să cotească pe ecran)
+                const c1x = lerp(hx + (tx - hx) * 0.33, horiz ? -vw / 2 - 0.3 * vw : rx, a);
+                const c1y = lerp(hy + (ty - hy) * 0.33, horiz ? ry : -vh / 2 - 0.22 * vh, a);
+                const len = Math.hypot(tx - hx, ty - hy) || 1;
+                const nx = -(ty - hy) / len, ny = (tx - hx) / len;
+                const amp = 0.075 * (1 - a) * len;
+                // lângă rolă e lată cât încape în rolă; spre bandă, cât banda
+                const wr = Math.max(0.05, Math.min(1, (0.6 * 34 * reel.S) / rb.w));
+                for (let k = 0; k <= n; k++) {
+                    const u = (uMax * k) / n, m = 1 - u;
+                    const wv = amp * Math.sin(Math.PI * u) * Math.sin(2.4 * Math.PI * u + rb.ph - 3 * ts);
+                    const b0 = m * m * m, b1 = 3 * m * m * u, b2 = 3 * m * u * u, b3 = u * u * u;
+                    P[3 * k] = b0 * hx + b1 * c1x + b2 * c2x + b3 * tx + nx * wv;
+                    P[3 * k + 1] = b0 * hy + b1 * c1y + b2 * c2y + b3 * ty + ny * wv;
+                    P[3 * k + 2] = (1 - a) * 0.04 * len * Math.sin(Math.PI * u) * Math.sin(1.6 * Math.PI * u + rb.ph2 - 2 * ts);
+                    const wu = clamp01((u - 0.3) / 0.4);
+                    W[k] = lerp(1, wr + (1 - wr) * wu * wu * (3 - 2 * wu), a);
+                    const tu = clamp01(u / 0.1), flat = 1.5708 * tu * tu * (3 - 2 * tu);
+                    const free = 1.5708 + 0.5 * Math.sin(rb.ph2 + 3 * u - 2 * ts) * Math.sin(Math.PI * Math.min(1, 1.4 * (1 - u)));
+                    rb.G[k] = lerp(free, flat, a);
+                }
+                rb.ws = 1;
+                rb.al = 1;
+                frame3(rb, 0, 0, 1);
+                // lungimea, socotită în lățimi de peliculă (ca perforațiile să nu se lungească unde e îngustă)
+                const S = rb.S;
+                let prev = 0, acc = 0;
+                for (let k = 0; k <= n; k++) {
+                    const cur = S[k];
+                    if (k > 0) acc += (cur - prev) / (0.5 * (W[k] + W[k - 1]));
+                    prev = cur;
+                    S[k] = acc;
+                    rb.G[k] *= 0.5;
+                }
+                rb.L = acc;
+            }
+            return pulled;
+        };
+
         /** 3 + 4. pelicula încâlcită; când vine rola, o absoarbe fâșie cu fâșie */
         const drawTangle = (t: number) => {
             if (!planned) { measureLogo(); planCapture(); planned = true; }
             const horiz = filmHoriz();
-            const live = (tt: number) => (tt >= TT.reelIn && tt < TM.dock ? reelAt2(tt) : null);
+            const live = (tt: number) => (tt >= TT.reelIn && tt < reelEnd ? reelAt2(tt) : null);
             if (V4 && !V5) {
                 // neclaritatea de mișcare: fâșiile care se mișcă repede se desenează și cum erau cu
                 // 12 și cu 6 ms mai devreme, pe jumătate transparente (ca un obturator deschis)
@@ -1589,7 +1723,11 @@ export default function IntroVizor() {
             }
             const reel = live(t);
             const eaten = poseTangle(t, reel, horiz);
-            if (V5) {
+            if (V6) {
+                const pulled = poseLeads6(t, reel, horiz);
+                const got = clamp01((t - TM.dock) / GA) + clamp01((t - PULL6.out) / PULL6.outDur);
+                if (reel) reel.wound = lerp(6.2, WOUND_FULL, easeIO((eaten + 2.5 * pulled + 2 * got) / (nTangle + 6.5)));
+            } else if (V5) {
                 const pulled = poseLeads(t, reel, horiz);
                 if (reel) reel.wound = lerp(6.2, WOUND_DOCK, easeIO((eaten + 2.5 * pulled) / (nTangle + 2.5)));
             } else if (reel) reel.wound = lerp(6.2, V4 ? WOUND_DOCK : WOUND_FULL, easeIO(eaten / ribs.length));
@@ -1648,6 +1786,72 @@ export default function IntroVizor() {
             core((0.1 + 0.5 * r) * dg, 0.8 * r);
         };
 
+        /** versiunea 6 — lumina de proiector, ca atunci când te uiți în obiectiv. Aceeași lampă ca în
+            pagină (fereastra albă, haloul cald din jurul ei, obturatorul la 24 de cadre), dar ca un
+            flash: întâi fereastra luminată răzbate prin peliculă, pâlpâind; la rupere te orbește;
+            apoi albul se retrage spre obiectiv — haloul cald, miezul alb, razele — și se stinge. */
+        const SHUT = [1, 0.7, 0.94, 0.62, 1, 0.8, 0.9, 0.66];
+        const drawFlash6 = (t: number) => {
+            if (t < TT.slip || t >= FLASH6.ray) return;
+            const cx = vw / 2, cy = vh / 2, dg = Math.hypot(vw, vh) / 2;
+            const sh = SHUT[Math.floor(t / (1000 / 48)) % SHUT.length];
+            const rad = (R: number, stops: [number, string][]) => {
+                const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(1, R));
+                for (const [o, c] of stops) gr.addColorStop(o, c);
+                ctx.fillStyle = gr;
+                ctx.fillRect(0, 0, vw, vh);
+            };
+            const wh = (a: number) => `rgba(255, 254, 248, ${Math.max(0, Math.min(1, a)).toFixed(3)})`;
+            const warm = (a: number) => `rgba(255, 168, 88, ${Math.max(0, Math.min(1, a)).toFixed(3)})`;
+            /** razele din jurul obiectivului */
+            const rays = (len: number, a: number) => {
+                if (a <= 0.01) return;
+                const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, len);
+                gr.addColorStop(0, wh(a));
+                gr.addColorStop(0.35, wh(0.45 * a));
+                gr.addColorStop(1, wh(0));
+                ctx.fillStyle = gr;
+                ctx.beginPath();
+                for (let i = 0; i < 12; i++) {
+                    const an = (i * Math.PI) / 6 + 0.21 + t * 0.00035 + 0.5 * hash(i + 7);
+                    const l = len * (0.55 + 0.45 * hash(i + 31)), w = 0.012 + 0.02 * hash(i + 53);
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(cx + l * Math.cos(an - w), cy + l * Math.sin(an - w));
+                    ctx.lineTo(cx + l * Math.cos(an + w), cy + l * Math.sin(an + w));
+                    ctx.closePath();
+                }
+                ctx.fill();
+            };
+            if (t < TT.tear) {
+                // lampa din spatele peliculei: tot mai tare, cu bătaia obturatorului
+                const k = (t - TT.slip) / (TT.tear - TT.slip), a = Math.pow(k, 1.4) * sh;
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                rad((0.45 + 0.9 * k) * dg, [[0, warm(0.75 * a)], [0.5, warm(0.3 * a)], [1, warm(0)]]);
+                rad((0.14 + 0.5 * k) * dg, [[0, wh(a)], [0.4, wh(0.7 * a)], [1, wh(0)]]);
+                rays((0.5 + 1.2 * k) * dg, 0.8 * a * k);
+                ctx.restore();
+                return;
+            }
+            const u = t - TT.tear;
+            if (u < FLASH6.rise) {
+                const o = ease5(u / FLASH6.rise);
+                ctx.fillStyle = wh(0.55 + 0.45 * o);
+                ctx.fillRect(0, 0, vw, vh);
+                rad((0.4 + 1.6 * o) * dg, [[0, wh(1)], [0.6, wh(1)], [1, wh(0)]]);
+                return;
+            }
+            if (t < FLASH6.hold) { ctx.fillStyle = wh(1); ctx.fillRect(0, 0, vw, vh); return; }
+            // albul se retrage spre obiectiv
+            const x = (t - FLASH6.hold) / (FLASH6.out - FLASH6.hold), a = 1 - ease5(x);
+            const r = 1 - ease5((t - FLASH6.hold) / (FLASH6.ray - FLASH6.hold));
+            const fl = 0.55 + 0.45 * sh;                         // obturatorul
+            if (a > 0.003) { ctx.fillStyle = wh(a); ctx.fillRect(0, 0, vw, vh); }
+            rad((0.35 + 1.5 * r) * dg, [[0, warm(0.5 * r * fl)], [0.45, warm(0.24 * r * fl)], [1, warm(0)]]);
+            rad((0.06 + 0.75 * r * r) * dg, [[0, wh(r * fl)], [0.35, wh(0.8 * r * fl)], [1, wh(0)]]);
+            rays((0.25 + 1.3 * r) * dg, 0.7 * r * fl);
+        };
+
         /** versiunea 4 — pelicula de peste logo (LogoReel), pe ceasul intro-ului: apare odată
             cu pagina, iar când rola ajunge lângă logo o strânge și pe ea; rămâne logo-ul scris */
         let logoPhase = 0;
@@ -1662,6 +1866,7 @@ export default function IntroVizor() {
             răzbate prin ea (din mijloc, tot mai tare); la rupere umple ecranul și orbește;
             apoi scade până la albul paginii, iar fâșiile care intră se văd prin ea. */
         const drawFlash = (t: number) => {
+            if (V6) { drawFlash6(t); return; }
             if (V4) { drawFlash4(t); return; }
             if (t < TT.slip || t >= FLASH.out) return;
             if (t < TT.tear) {
@@ -1708,7 +1913,7 @@ export default function IntroVizor() {
             if (V2) {
                 if (t < TT.slip) drawPush(t);
                 else if (t < TT.clear) drawBreak2(t);
-                if (t >= TT.fly && t < TM.dock) drawTangle(t);
+                if (t >= TT.fly && t < reelEnd) drawTangle(t);
                 if (V3) drawFlash(t);
             } else if (t < T.brk) {
                 drawPull(t);
@@ -1802,7 +2007,7 @@ export default function IntroVizor() {
             window.clearTimeout(waitTimer);
             films = makeFilms();
             if (V5) {
-                leadFilm = buildLeader();
+                leadFilm = buildLeader(V6);
                 // afișele de pe bandă: decodate dinainte, ca intrarea benzii să nu se împiedice în ele
                 for (const st of strips) for (const im of Array.from(st.els[0].querySelectorAll('img'))) im.decode?.().catch(() => { /* nu contează */ });
             }
