@@ -25,6 +25,7 @@ import {
 import { stripSrc } from './stripThumbs';
 import IntroReel from './IntroReel';
 import IntroVizor from './IntroVizor';
+import IntroFilm from './IntroFilm';
 import PhoneSheet, { isNarrowScreen } from './PhoneSheet';
 import { decideFilmMode } from './filmMode';
 import TimeCalculator from './TimeCalculator';
@@ -2159,6 +2160,7 @@ export default function LandingHero({ kind = 'work' }: { kind?: Kind }) {
 
             {/* INTRO „vizor” — pe WORK și pe ABOUT, cu /?intro=vizor (16.11.2026) */}
             <IntroVizor />
+            <IntroFilm />
 
 
             {/* DETAIL OVERLAY — apare când dai click pe afișul activ */}

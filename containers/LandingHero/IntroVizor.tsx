@@ -706,6 +706,7 @@ export default function IntroVizor() {
     useEffect(() => {
         const html = document.documentElement;
         if (!html.hasAttribute(VZ.state)) return;          // fără ?intro=vizor: nimic
+        if (/[?&]intro=vizor7(?:&|$)/.test(window.location.search)) return;   // versiunea 7: IntroFilm.tsx
         const layer = layerRef.current, canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d') ?? null;
         if (!layer || !canvas || !ctx) { clearVizor(); return; }
